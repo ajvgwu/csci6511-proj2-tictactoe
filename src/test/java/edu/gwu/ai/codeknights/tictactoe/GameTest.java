@@ -3,12 +3,12 @@ package edu.gwu.ai.codeknights.tictactoe;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TicTacToeGameTest extends AbstractTest {
+public class GameTest extends AbstractTest {
 
   // TODO: test edge cases in constructor (passing invalid values, invalid sizes, etc.)
 
   @Test
-  public void testTicTacToeGame_counting() throws DimensionException, StateException {
+  public void testGame_counting() throws DimensionException, StateException {
     for (final Integer[][] board : getEmptyBoards()) {
       final int dim = board.length;
       if (dim <= Game.MAX_DIM) {
@@ -38,4 +38,5 @@ public class TicTacToeGameTest extends AbstractTest {
 
   // TODO: test checking for win conditions
   // TODO: test checking for game over conditions
+  // TODO: test getCopy() method
 }

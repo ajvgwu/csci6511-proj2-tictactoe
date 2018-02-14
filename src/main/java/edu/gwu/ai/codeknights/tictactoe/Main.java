@@ -124,7 +124,8 @@ public class Main {
       final Game game = new Game(dim, winLength, board);
 
       // TODO: actually play the game; create Solver class that selects the best next move
-      Logger.info("Board state:\n{}", game.toString());
+      Logger.info("All lines on board:\n{}\n", game.toStringAllLines(" * "));
+      Logger.info("Game board state:\n{}\n", game.toString());
       Logger.info("# spaces:       {}={}, {}={}, {}={}", Game.FIRST_PLAYER_CHAR, game.countFirstPlayer(),
         Game.OTHER_PLAYER_CHAR, game.countOtherPlayer(), Game.BLANK_SPACE_CHAR, game.countEmpty());
       Logger.info("Is game over?   {}", game.isGameOver());

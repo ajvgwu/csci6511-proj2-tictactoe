@@ -42,6 +42,10 @@ public class BoardMatrix {
     colMajorMatrix[colIdx][rowIdx] = value;
   }
 
+  protected Integer[][] getAllRows() {
+    return rowMajorMatrix;
+  }
+
   public Integer[] getRow(final int idx) {
     return rowMajorMatrix[idx];
   }
@@ -91,5 +95,24 @@ public class BoardMatrix {
 
   public Map<String, Integer[]> getAllLines() {
     return getAllLines(1);
+  }
+
+  public BoardMatrix getCopy() {
+    return new BoardMatrix(dim, rowMajorMatrix);
+  }
+
+  @Override
+  public String toString() {
+    final StringBuilder bldr = new StringBuilder();
+    for (int i = 0; i < dim; i++) {
+      if (bldr.length() > 0) {
+        bldr.append("\n");
+      }
+      for (int j = 0; j < dim; j++) {
+        final Integer value = getCellValue(i, j);
+        bldr.append(" " + String.valueOf(value) + " ");
+      }
+    }
+    return bldr.toString();
   }
 }

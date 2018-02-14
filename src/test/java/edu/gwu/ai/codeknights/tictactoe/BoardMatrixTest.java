@@ -90,4 +90,5 @@ public class BoardMatrixTest extends AbstractTest {
 
   // TODO: test extracting diagonals and anti-diagonals
   // TODO: test fetching all "lines"
+  // TODO: test getCopy() method
 }

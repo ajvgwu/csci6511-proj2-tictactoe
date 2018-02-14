@@ -197,16 +197,24 @@ public class Game {
     return isBoardFull || didAnyPlayerWin();
   }
 
-  protected void toStringAllLines(final StringBuilder bldr) {
+  protected String toStringAllLines(final String prefix) {
+    final StringBuilder bldr = new StringBuilder();
     final Map<String, Integer[]> lineMap = board.getAllLines();
     for (final String name : lineMap.keySet()) {
-      bldr.append(name + ": ");
+      if (bldr.length() > 0) {
+        bldr.append("\n");
+      }
+      bldr.append(prefix + name + ": ");
       final Integer[] line = lineMap.get(name);
       for (int i = 0; i < line.length; i++) {
         bldr.append(" " + String.valueOf(line[i]) + " ");
       }
-      bldr.append("\n");
     }
+    return bldr.toString();
+  }
+
+  public Game getCopy() throws DimensionException, StateException {
+    return new Game(dim, winLength, board.getAllRows());
   }
 
   @Override
@@ -223,30 +231,6 @@ public class Game {
           : BLANK_SPACE_CHAR) + " ");
       }
     }
-
-    // TODO: FIXME: in final version, don't need to output all lines
-    bldr.append("\n\n");
-    toStringAllLines(bldr);
-
     return bldr.toString();
-  }
-
-  public static class BoardArrayHelper {
-
-    private final Integer[][] rowMajorMatrix;
-    private final Integer[][] colMajorMatrix;
-
-    public BoardArrayHelper(final int dim, final Integer[][] rowMajorArr) {
-      rowMajorMatrix = new Integer[dim][dim];
-      colMajorMatrix = new Integer[dim][dim];
-
-      // Populate
-      for (int i = 0; i < dim; i++) {
-        for (int j = 0; j < dim; j++) {
-          rowMajorMatrix[i][j] = rowMajorArr[i][j];
-          colMajorMatrix[i][j] = rowMajorArr[j][i];
-        }
-      }
-    }
   }
 }
