@@ -11,6 +11,17 @@ import org.pmw.tinylog.Logger;
 
 public class Main {
 
+  /*
+   * TODO: Some things to consider:
+   *   - minimax algorithm?
+   *   - alpha beta pruning algorithm?
+   *   - graph-based search by hashing and storing visited already board states?
+   *   - pre-compute some lookup tables for various board sizes?
+   *   - how to make best-effort choice if we are running out of time?
+   *   - is there a general heuristic (for any board size) to choose the BEST FIRST MOVE? i.e., always play close to center?
+   *   - what is the API to interface w/ the REST/JSON game server?
+   */
+
   public static void main(final String[] args) throws DimensionException, StateException {
     // Default values
     int dim = 3;
@@ -19,12 +30,17 @@ public class Main {
 
     // Command-line options
     final Option helpOpt = Option.builder("h").longOpt("help").desc("print this usage information").build();
-    final Option dimOpt = Option.builder("d").longOpt("dim").hasArg()
+    final Option dimOpt = Option.builder("d").longOpt("dim").hasArg().argName("DIM")
       .desc("board dimension (default is " + String.valueOf(dim) + ")").build();
-    final Option winLengthOpt = Option.builder("l").longOpt("win-length").hasArg()
+    final Option winLengthOpt = Option.builder("l").longOpt("win-length").hasArg().argName("LEN")
       .desc("length of sequence required to win (default is " + String.valueOf(winLength) + ")").build();
-    final Option stateOpt = Option.builder().longOpt("state").hasArgs()
-      .desc("initial state of board (default is an empty board)").build();
+    final Option stateOpt = Option.builder("s").longOpt("state").hasArgs().argName("CELLS")
+      .desc("initial state of board (default is an empty board); moves of the first player given by '"
+        + String.valueOf(TicTacToeGame.FIRST_PLAYER_CHAR) + "' or '" + String.valueOf(TicTacToeGame.FIRST_PLAYER_VALUE)
+        + "'; moves of the other player given by '" + String.valueOf(TicTacToeGame.OTHER_PLAYER_CHAR) + "' or '"
+        + String.valueOf(TicTacToeGame.OTHER_PLAYER_VALUE) + "'; empty spaces given by '"
+        + String.valueOf(TicTacToeGame.BLANK_SPACE_CHAR) + "'")
+      .build();
 
     final Options options = new Options();
     options.addOption(helpOpt);
@@ -108,13 +124,6 @@ public class Main {
       final TicTacToeGame game = new TicTacToeGame(dim, winLength, board);
 
       // TODO: actually play the game; create Solver class that selects the best next move
-      // TODO: minimax algorithm?
-      // TODO: alpha beta pruning algorithm?
-      // TODO: graph-based search by hashing and storing visited already board states?
-      // TODO: pre-compute some lookup tables for various board sizes?
-      // TODO: how to make best-effort choice if we are running out of time?
-      // TODO: is there a general heuristic (for any board size) to choose the BEST FIRST MOVE? i.e., always play close to center?
-      // TODO: what is the API to interface w/ the REST/JSON game server?
       Logger.info("Board state:\n{}", game.toString());
       Logger.info("# spaces:       {}={}, {}={}, {}={}", TicTacToeGame.FIRST_PLAYER_CHAR, game.countFirstPlayer(),
         TicTacToeGame.OTHER_PLAYER_CHAR, game.countOtherPlayer(), TicTacToeGame.BLANK_SPACE_CHAR, game.countEmpty());
