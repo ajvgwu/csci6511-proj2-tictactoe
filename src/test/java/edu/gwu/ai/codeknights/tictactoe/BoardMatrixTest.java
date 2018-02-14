@@ -19,10 +19,10 @@ public class BoardMatrixTest extends AbstractTest {
           // Assign a new value
           Integer newValue = initValue;
           if ((rowIdx + colIdx) % 2 == 0) {
-            newValue = TicTacToeGame.FIRST_PLAYER_VALUE;
+            newValue = Game.FIRST_PLAYER_VALUE;
           }
           else {
-            newValue = TicTacToeGame.OTHER_PLAYER_VALUE;
+            newValue = Game.OTHER_PLAYER_VALUE;
           }
           matrix.setCellValue(rowIdx, colIdx, newValue);
           Assert.assertEquals(newValue.intValue(), matrix.getCellValue(rowIdx, colIdx).intValue());

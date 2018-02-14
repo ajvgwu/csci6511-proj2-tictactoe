@@ -36,10 +36,10 @@ public class Main {
       .desc("length of sequence required to win (default is " + String.valueOf(winLength) + ")").build();
     final Option stateOpt = Option.builder("s").longOpt("state").hasArgs().argName("CELLS")
       .desc("initial state of board (default is an empty board); moves of the first player given by '"
-        + String.valueOf(TicTacToeGame.FIRST_PLAYER_CHAR) + "' or '" + String.valueOf(TicTacToeGame.FIRST_PLAYER_VALUE)
-        + "'; moves of the other player given by '" + String.valueOf(TicTacToeGame.OTHER_PLAYER_CHAR) + "' or '"
-        + String.valueOf(TicTacToeGame.OTHER_PLAYER_VALUE) + "'; empty spaces given by '"
-        + String.valueOf(TicTacToeGame.BLANK_SPACE_CHAR) + "'")
+        + String.valueOf(Game.FIRST_PLAYER_CHAR) + "' or '" + String.valueOf(Game.FIRST_PLAYER_VALUE)
+        + "'; moves of the other player given by '" + String.valueOf(Game.OTHER_PLAYER_CHAR) + "' or '"
+        + String.valueOf(Game.OTHER_PLAYER_VALUE) + "'; empty spaces given by '" + String.valueOf(Game.BLANK_SPACE_CHAR)
+        + "'")
       .build();
 
     final Options options = new Options();
@@ -108,11 +108,11 @@ public class Main {
               board[i][j] = Integer.parseInt(curArg);
             }
             catch (final NumberFormatException e) {
-              if (curArg.equalsIgnoreCase(String.valueOf(TicTacToeGame.FIRST_PLAYER_CHAR))) {
-                board[i][j] = TicTacToeGame.FIRST_PLAYER_VALUE;
+              if (curArg.equalsIgnoreCase(String.valueOf(Game.FIRST_PLAYER_CHAR))) {
+                board[i][j] = Game.FIRST_PLAYER_VALUE;
               }
-              else if (curArg.equalsIgnoreCase(String.valueOf(TicTacToeGame.OTHER_PLAYER_CHAR))) {
-                board[i][j] = TicTacToeGame.OTHER_PLAYER_VALUE;
+              else if (curArg.equalsIgnoreCase(String.valueOf(Game.OTHER_PLAYER_CHAR))) {
+                board[i][j] = Game.OTHER_PLAYER_VALUE;
               }
               else {
                 board[i][j] = null;
@@ -121,16 +121,16 @@ public class Main {
           }
         }
       }
-      final TicTacToeGame game = new TicTacToeGame(dim, winLength, board);
+      final Game game = new Game(dim, winLength, board);
 
       // TODO: actually play the game; create Solver class that selects the best next move
       Logger.info("Board state:\n{}", game.toString());
-      Logger.info("# spaces:       {}={}, {}={}, {}={}", TicTacToeGame.FIRST_PLAYER_CHAR, game.countFirstPlayer(),
-        TicTacToeGame.OTHER_PLAYER_CHAR, game.countOtherPlayer(), TicTacToeGame.BLANK_SPACE_CHAR, game.countEmpty());
+      Logger.info("# spaces:       {}={}, {}={}, {}={}", Game.FIRST_PLAYER_CHAR, game.countFirstPlayer(),
+        Game.OTHER_PLAYER_CHAR, game.countOtherPlayer(), Game.BLANK_SPACE_CHAR, game.countEmpty());
       Logger.info("Is game over?   {}", game.isGameOver());
       Logger.info("Did anyone win? {}", game.didAnyPlayerWin());
-      Logger.info("Who won?        {}={}, {}={}", TicTacToeGame.FIRST_PLAYER_CHAR, game.didFirstPlayerWin(),
-        TicTacToeGame.OTHER_PLAYER_CHAR, game.didOtherPlayerWin());
+      Logger.info("Who won?        {}={}, {}={}", Game.FIRST_PLAYER_CHAR, game.didFirstPlayerWin(),
+        Game.OTHER_PLAYER_CHAR, game.didOtherPlayerWin());
     }
   }
 }

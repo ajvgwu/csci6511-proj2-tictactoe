@@ -11,8 +11,8 @@ public class TicTacToeGameTest extends AbstractTest {
   public void testTicTacToeGame_counting() throws DimensionException, StateException {
     for (final Integer[][] board : getEmptyBoards()) {
       final int dim = board.length;
-      if (dim <= TicTacToeGame.MAX_DIM) {
-        final TicTacToeGame game = new TicTacToeGame(dim, Math.min(TicTacToeGame.MAX_WIN_LENGTH, dim), board);
+      if (dim <= Game.MAX_DIM) {
+        final Game game = new Game(dim, Math.min(Game.MAX_WIN_LENGTH, dim), board);
         Assert.assertEquals(dim * dim, game.countEmpty());
         Assert.assertEquals(0, game.countFirstPlayer());
         Assert.assertEquals(0, game.countOtherPlayer());
@@ -21,12 +21,12 @@ public class TicTacToeGameTest extends AbstractTest {
         for (int rowIdx = 0; rowIdx < dim; rowIdx++) {
           for (int colIdx = 0; colIdx < dim; colIdx++) {
             if ((rowIdx * dim + colIdx) % 2 == 0) {
-              game.setCellValue(rowIdx, colIdx, TicTacToeGame.FIRST_PLAYER_VALUE);
+              game.setCellValue(rowIdx, colIdx, Game.FIRST_PLAYER_VALUE);
               Assert.assertTrue("first player #moves > other player #moves",
                 game.countFirstPlayer() > game.countOtherPlayer());
             }
             else {
-              game.setCellValue(rowIdx, colIdx, TicTacToeGame.OTHER_PLAYER_VALUE);
+              game.setCellValue(rowIdx, colIdx, Game.OTHER_PLAYER_VALUE);
               Assert.assertTrue("first player #moves == other player #moves",
                 game.countFirstPlayer() == game.countOtherPlayer());
             }

@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.pmw.tinylog.Logger;
 
-public class TicTacToeGame {
+public class Game {
 
   public static final int MAX_DIM = 20;
   public static final int MAX_WIN_LENGTH = 8;
@@ -18,8 +18,7 @@ public class TicTacToeGame {
   private final int winLength;
   private final BoardMatrix board;
 
-  public TicTacToeGame(final int dim, final int winLength, final Integer[][] board)
-    throws DimensionException, StateException {
+  public Game(final int dim, final int winLength, final Integer[][] board) throws DimensionException, StateException {
     // Check bounds according to: https://ai2018spring.slack.com/archives/C8LB24170/p1518457851000533
     if (dim > MAX_DIM) {
       throw new DimensionException(String.format("dim=%d, should be <= %d", dim, MAX_DIM));
@@ -67,23 +66,23 @@ public class TicTacToeGame {
     this.board = new BoardMatrix(dim, board);
   }
 
-  public TicTacToeGame(final int dim, final int winLength) throws DimensionException, StateException {
+  public Game(final int dim, final int winLength) throws DimensionException, StateException {
     this(dim, winLength, new Integer[dim][dim]);
   }
 
-  public TicTacToeGame(final int dim) throws DimensionException, StateException {
+  public Game(final int dim) throws DimensionException, StateException {
     this(dim, dim);
   }
 
-  public TicTacToeGame(final int winLength, final Integer[][] board) throws DimensionException, StateException {
+  public Game(final int winLength, final Integer[][] board) throws DimensionException, StateException {
     this(board.length, winLength, board);
   }
 
-  public TicTacToeGame(final Integer[][] board) throws DimensionException, StateException {
+  public Game(final Integer[][] board) throws DimensionException, StateException {
     this(board.length, board.length, board);
   }
 
-  public TicTacToeGame() throws DimensionException, StateException {
+  public Game() throws DimensionException, StateException {
     this(3, 3, new Integer[3][3]);
   }
 
