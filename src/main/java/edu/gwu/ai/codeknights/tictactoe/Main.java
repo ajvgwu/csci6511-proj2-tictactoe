@@ -78,12 +78,12 @@ public class Main {
       final Integer[][] board = new Integer[dim][dim];
       if (stateArgs != null) {
         for (int i = 0; i < dim; i++) {
-          int idx = 2 + i * dim;
+          int idx = i * dim;
           if (idx >= stateArgs.length) {
             break;
           }
           for (int j = 0; j < dim; j++) {
-            idx = 2 + i * dim + j;
+            idx = i * dim + j;
             if (idx >= stateArgs.length) {
               break;
             }
@@ -123,56 +123,5 @@ public class Main {
       Logger.info("Who won?        {}={}, {}={}", TicTacToeGame.FIRST_PLAYER_CHAR, game.didFirstPlayerWin(),
         TicTacToeGame.OTHER_PLAYER_CHAR, game.didOtherPlayerWin());
     }
-
-    /*
-    // Parse positional command-line arguments
-    // TODO: how best to handle input/output?
-    TicTacToeGame game;
-    if (args.length >= 3) {
-      final int dim = Integer.parseInt(args[0]);
-      final int winLength = Integer.parseInt(args[1]);
-      final Integer[][] board = new Integer[dim][dim];
-      for (int i = 0; i < dim; i++) {
-        int idx = 2 + i * dim;
-        if (idx >= args.length) {
-          break;
-        }
-        for (int j = 0; j < dim; j++) {
-          idx = 2 + i * dim + j;
-          if (idx >= args.length) {
-            break;
-          }
-          final String curArg = args[idx].trim();
-          try {
-            board[i][j] = Integer.parseInt(curArg);
-          }
-          catch (final NumberFormatException e) {
-            if (curArg.equalsIgnoreCase(String.valueOf(TicTacToeGame.FIRST_PLAYER_CHAR))) {
-              board[i][j] = TicTacToeGame.FIRST_PLAYER_VALUE;
-            }
-            else if (curArg.equalsIgnoreCase(String.valueOf(TicTacToeGame.OTHER_PLAYER_CHAR))) {
-              board[i][j] = TicTacToeGame.OTHER_PLAYER_VALUE;
-            }
-            else {
-              board[i][j] = null;
-            }
-          }
-        }
-      }
-      game = new TicTacToeGame(dim, winLength, board);
-    }
-    else if (args.length >= 2) {
-      final int dim = Integer.parseInt(args[0]);
-      final int winLength = Integer.parseInt(args[1]);
-      game = new TicTacToeGame(dim, winLength);
-    }
-    else if (args.length >= 1) {
-      final int dim = Integer.parseInt(args[0]);
-      game = new TicTacToeGame(dim);
-    }
-    else {
-      game = new TicTacToeGame();
-    }
-    */
   }
 }
