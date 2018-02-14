@@ -46,3 +46,7 @@ java -jar ./target/csci6511-proj2-tictactoe-0.1-SNAPSHOT-shaded.jar --dim 3 --wi
 # Or, for usage info:
 java -jar ./target/csci6511-proj2-tictactoe-0.1-SNAPSHOT-shaded.jar --help
 ```
+
+## Screenshot
+
+![Screenshot](/screenshot.png?raw=true "Screenshot")
