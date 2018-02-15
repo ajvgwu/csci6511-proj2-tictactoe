@@ -124,21 +124,24 @@ public class Main {
       final Game game = new Game(dim, winLength, board);
 
       // TODO: actually play the game; create Solver class that selects the best next move
+      // TODO: add command-line options to play a single move, play the whole game, just print current state info, etc.
       Logger.info("All lines on board:\n{}\n", game.toStringAllLines(" * "));
       Logger.info("Game board state:\n{}\n", game.toString());
       Logger.info("# spaces:       {}={}, {}={}, {}={}", Game.FIRST_PLAYER_CHAR, game.countFirstPlayer(),
         Game.OTHER_PLAYER_CHAR, game.countOtherPlayer(), Game.BLANK_SPACE_CHAR, game.countEmpty());
-      final boolean isGameOver = game.isGameOver();
+      boolean isGameOver = game.isGameOver();
       Logger.info("Is game over?   {}", isGameOver);
-      if (isGameOver) {
-        Logger.info("Did anyone win? {}", game.didAnyPlayerWin());
-        Logger.info("Who won?        {}={}, {}={}", Game.FIRST_PLAYER_CHAR, game.didFirstPlayerWin(),
-          Game.OTHER_PLAYER_CHAR, game.didOtherPlayerWin());
-      }
-      else {
+      while (!isGameOver) {
+        final long startMs = System.currentTimeMillis();
         new MoveChooser().makeBestMove(game);
-        Logger.info("Made best move:\n{}", game.toString());
+        final long endMs = System.currentTimeMillis();
+        final double timeSec = (double) (endMs - startMs) / 1000.0;
+        Logger.info("Made best move in {} sec:\n{}\n", timeSec, game.toString());
+        isGameOver = game.isGameOver();
       }
+      Logger.info("Did anyone win? {}", game.didAnyPlayerWin());
+      Logger.info("Who won?        {}={}, {}={}", Game.FIRST_PLAYER_CHAR, game.didFirstPlayerWin(),
+        Game.OTHER_PLAYER_CHAR, game.didOtherPlayerWin());
     }
   }
 }
