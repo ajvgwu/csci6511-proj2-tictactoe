@@ -128,10 +128,17 @@ public class Main {
       Logger.info("Game board state:\n{}\n", game.toString());
       Logger.info("# spaces:       {}={}, {}={}, {}={}", Game.FIRST_PLAYER_CHAR, game.countFirstPlayer(),
         Game.OTHER_PLAYER_CHAR, game.countOtherPlayer(), Game.BLANK_SPACE_CHAR, game.countEmpty());
-      Logger.info("Is game over?   {}", game.isGameOver());
-      Logger.info("Did anyone win? {}", game.didAnyPlayerWin());
-      Logger.info("Who won?        {}={}, {}={}", Game.FIRST_PLAYER_CHAR, game.didFirstPlayerWin(),
-        Game.OTHER_PLAYER_CHAR, game.didOtherPlayerWin());
+      final boolean isGameOver = game.isGameOver();
+      Logger.info("Is game over?   {}", isGameOver);
+      if (isGameOver) {
+        Logger.info("Did anyone win? {}", game.didAnyPlayerWin());
+        Logger.info("Who won?        {}={}, {}={}", Game.FIRST_PLAYER_CHAR, game.didFirstPlayerWin(),
+          Game.OTHER_PLAYER_CHAR, game.didOtherPlayerWin());
+      }
+      else {
+        new MoveChooser().makeBestMove(game);
+        Logger.info("Made best move:\n{}", game.toString());
+      }
     }
   }
 }
