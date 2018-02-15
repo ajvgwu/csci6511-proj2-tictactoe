@@ -97,6 +97,20 @@ public class BoardMatrix {
     return getAllLines(1);
   }
 
+  public long getHash(final int nextPlayer) {
+    long hash = 0;
+    for (int i = 0; i < dim; i++) {
+      for (int j = 0; j < dim; j++) {
+        final Integer value = rowMajorMatrix[i][j];
+        if (value != null) {
+          hash += Math.pow(3, i * dim + j) * (value + 1);
+        }
+      }
+    }
+    hash += Math.pow(3, dim * dim) * (nextPlayer + 1);
+    return hash;
+  }
+
   public BoardMatrix getCopy() {
     return new BoardMatrix(dim, rowMajorMatrix);
   }

@@ -128,6 +128,10 @@ public class Game {
     return countPlayerOrNull(OTHER_PLAYER_VALUE);
   }
 
+  public int getNextPlayer() {
+    return countOtherPlayer() < countFirstPlayer() ? Game.OTHER_PLAYER_VALUE : Game.FIRST_PLAYER_VALUE;
+  }
+
   protected boolean checkLineForWin(final Integer[] line, final int player) {
     if (line.length >= winLength) {
       int numInSequence = 0;
@@ -211,6 +215,10 @@ public class Game {
       }
     }
     return bldr.toString();
+  }
+
+  public long getBoardHash() {
+    return board.getHash(getNextPlayer());
   }
 
   public Game getCopy() throws DimensionException, StateException {

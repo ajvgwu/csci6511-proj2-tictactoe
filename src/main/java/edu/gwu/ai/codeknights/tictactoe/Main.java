@@ -13,16 +13,15 @@ public class Main {
 
   /*
    * TODO: Some things to consider:
-   *   - minimax algorithm?
    *   - alpha beta pruning algorithm?
-   *   - graph-based search by hashing and storing visited already board states?
+   *   - better way of hashing? consider rotations/reflections/etc.?
    *   - pre-compute some lookup tables for various board sizes?
    *   - how to make best-effort choice if we are running out of time?
    *   - is there a general heuristic (for any board size) to choose the BEST FIRST MOVE? i.e., always play close to center?
    *   - what is the API to interface w/ the REST/JSON game server?
    */
 
-  public static void main(final String[] args) throws DimensionException, StateException {
+  public static void main(final String[] args) throws DimensionException, StateException, InterruptedException {
     // Default values
     int dim = 3;
     int winLength = 3;
@@ -41,12 +40,14 @@ public class Main {
         + String.valueOf(Game.OTHER_PLAYER_VALUE) + "'; empty spaces given by '" + String.valueOf(Game.BLANK_SPACE_CHAR)
         + "'")
       .build();
+    final Option testOpt = Option.builder().longOpt("test").desc("run performance test").build();
 
     final Options options = new Options();
     options.addOption(helpOpt);
     options.addOption(dimOpt);
     options.addOption(winLengthOpt);
     options.addOption(stateOpt);
+    options.addOption(testOpt);
 
     // Parse command-line options
     final CommandLineParser parser = new DefaultParser();
@@ -54,8 +55,7 @@ public class Main {
     Logger.trace("parsing command-line options");
     try {
       line = parser.parse(options, args);
-    }
-    catch (final ParseException e) {
+    } catch (final ParseException e) {
       Logger.error(e, "error while parsing command-line options");
     }
     if (line != null) {
@@ -63,8 +63,7 @@ public class Main {
         final String dimVal = line.getOptionValue(dimOpt.getLongOpt());
         try {
           dim = Integer.parseInt(dimVal);
-        }
-        catch (final NumberFormatException e) {
+        } catch (final NumberFormatException e) {
           Logger.error(e, "could not parse dim: " + dimVal);
         }
       }
@@ -72,8 +71,7 @@ public class Main {
         final String winLengthVal = line.getOptionValue(winLengthOpt.getLongOpt());
         try {
           winLength = Integer.parseInt(winLengthVal);
-        }
-        catch (final NumberFormatException e) {
+        } catch (final NumberFormatException e) {
           Logger.error(e, "could not parse winLength: " + winLengthVal);
         }
       }
@@ -106,8 +104,7 @@ public class Main {
             final String curArg = stateArgs[idx].trim();
             try {
               board[i][j] = Integer.parseInt(curArg);
-            }
-            catch (final NumberFormatException e) {
+            } catch (final NumberFormatException e) {
               if (curArg.equalsIgnoreCase(String.valueOf(Game.FIRST_PLAYER_CHAR))) {
                 board[i][j] = Game.FIRST_PLAYER_VALUE;
               }
@@ -123,25 +120,84 @@ public class Main {
       }
       final Game game = new Game(dim, winLength, board);
 
-      // TODO: actually play the game; create Solver class that selects the best next move
-      // TODO: add command-line options to play a single move, play the whole game, just print current state info, etc.
-      Logger.info("All lines on board:\n{}\n", game.toStringAllLines(" * "));
-      Logger.info("Game board state:\n{}\n", game.toString());
-      Logger.info("# spaces:       {}={}, {}={}, {}={}", Game.FIRST_PLAYER_CHAR, game.countFirstPlayer(),
-        Game.OTHER_PLAYER_CHAR, game.countOtherPlayer(), Game.BLANK_SPACE_CHAR, game.countEmpty());
-      boolean isGameOver = game.isGameOver();
-      Logger.info("Is game over?   {}", isGameOver);
-      while (!isGameOver) {
+      if (line.hasOption(testOpt.getLongOpt())) {
+        // Run performance test
+        runPerformanceTest(game);
+      }
+      else {
+        // Play a complete game, starting from the current state
+        playGame(game);
+      }
+    }
+  }
+
+  public static void runPerformanceTest(final Game game)
+    throws DimensionException, StateException, InterruptedException {
+    Logger.info("dim={}, winLength={}, hash={}", game.getDim(), game.getWinLength(), game.getBoardHash());
+    Logger.info("All lines on board:\n{}\n", game.toStringAllLines(" * "));
+    Logger.info("Game board state:\n{}\n", game.toString());
+    Logger.info("# spaces:       {}={}, {}={}, {}={}", Game.FIRST_PLAYER_CHAR, game.countFirstPlayer(),
+      Game.OTHER_PLAYER_CHAR, game.countOtherPlayer(), Game.BLANK_SPACE_CHAR, game.countEmpty());
+    boolean isGameOver = game.isGameOver();
+    Logger.info("Is game over?   {}", isGameOver);
+    Game curGame = game;
+    int moveIdx = 0;
+    while (!isGameOver) {
+      moveIdx++;
+      Logger.info("  Move # {}", moveIdx);
+      Game gameCopy = null;
+      Logger.info("    - Testing parallel algorithm performance...");
+      for (int i = 0; i < 3; i++) {
+        gameCopy = curGame.getCopy();
+        final MoveChooser moveChooser = new MoveChooser();
         final long startMs = System.currentTimeMillis();
-        new MoveChooser().makeBestMove(game);
+        final MoveChooser.Move move = moveChooser.findBestMoveParallel(gameCopy);
         final long endMs = System.currentTimeMillis();
         final double timeSec = (double) (endMs - startMs) / 1000.0;
-        Logger.info("Made best move in {} sec:\n{}\n", timeSec, game.toString());
-        isGameOver = game.isGameOver();
+        Logger.info("      * Found move in {} sec: {}", timeSec, move.toString());
+        gameCopy.setCellValue(move.rowIdx, move.colIdx, move.player);
       }
-      Logger.info("Did anyone win? {}", game.didAnyPlayerWin());
-      Logger.info("Who won?        {}={}, {}={}", Game.FIRST_PLAYER_CHAR, game.didFirstPlayerWin(),
-        Game.OTHER_PLAYER_CHAR, game.didOtherPlayerWin());
+      Logger.info("    - Testing normal algorithm performance...");
+      for (int i = 0; i < 3; i++) {
+        gameCopy = curGame.getCopy();
+        final MoveChooser moveChooser = new MoveChooser();
+        final long startMs = System.currentTimeMillis();
+        final MoveChooser.Move move = moveChooser.findBestMoveNormal(gameCopy);
+        final long endMs = System.currentTimeMillis();
+        final double timeSec = (double) (endMs - startMs) / 1000.0;
+        Logger.info("      * Found move in {} sec: {}", timeSec, move.toString());
+        gameCopy.setCellValue(move.rowIdx, move.colIdx, move.player);
+      }
+      curGame = gameCopy;
+      isGameOver = curGame.isGameOver();
+      Logger.info("Is game over?   {}", isGameOver);
     }
+    Logger.info("Did anyone win? {}", curGame.didAnyPlayerWin());
+    Logger.info("Who won?        {}={}, {}={}", Game.FIRST_PLAYER_CHAR, curGame.didFirstPlayerWin(),
+      Game.OTHER_PLAYER_CHAR, curGame.didOtherPlayerWin());
+  }
+
+  public static void playGame(final Game game) throws DimensionException, StateException, InterruptedException {
+    Logger.info("dim={}, winLength={}, hash={}", game.getDim(), game.getWinLength(), game.getBoardHash());
+    Logger.info("All lines on board:\n{}\n", game.toStringAllLines(" * "));
+    Logger.info("Game board state:\n{}\n", game.toString());
+    Logger.info("# spaces:       {}={}, {}={}, {}={}", Game.FIRST_PLAYER_CHAR, game.countFirstPlayer(),
+      Game.OTHER_PLAYER_CHAR, game.countOtherPlayer(), Game.BLANK_SPACE_CHAR, game.countEmpty());
+    boolean isGameOver = game.isGameOver();
+    Logger.info("Is game over?   {}", isGameOver);
+    while (!isGameOver) {
+      final MoveChooser moveChooser = new MoveChooser();
+      final long startMs = System.currentTimeMillis();
+      final MoveChooser.Move bestMove = moveChooser.findBestMoveParallel(game); // TODO: use a different algorithm ???
+      game.setCellValue(bestMove.rowIdx, bestMove.colIdx, bestMove.player);
+      final long endMs = System.currentTimeMillis();
+      final double timeSec = (double) (endMs - startMs) / 1000.0;
+      Logger.info("Found best move in {} sec: {}\n{}\n", timeSec, bestMove.toString(), game.toString());
+      isGameOver = game.isGameOver();
+      Logger.info("Is game over?   {}", isGameOver);
+    }
+    Logger.info("Did anyone win? {}", game.didAnyPlayerWin());
+    Logger.info("Who won?        {}={}, {}={}", Game.FIRST_PLAYER_CHAR, game.didFirstPlayerWin(),
+      Game.OTHER_PLAYER_CHAR, game.didOtherPlayerWin());
   }
 }
