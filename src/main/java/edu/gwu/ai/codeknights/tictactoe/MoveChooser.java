@@ -2,6 +2,7 @@ package edu.gwu.ai.codeknights.tictactoe;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.pmw.tinylog.Logger;
 
@@ -82,7 +83,7 @@ public class MoveChooser {
     }
     final List<Move> moves = findPossibleMoves(game);
     Integer bestScore = null;
-    Move bestCoord = null;
+    final List<Move> bestMoves = new ArrayList<>();
     for (final Move move : moves) {
       try {
         final Game newGame = game.getCopy();
@@ -90,14 +91,30 @@ public class MoveChooser {
         final int curScore = minimax(newGame, curPlayer);
         if (bestScore == null || curScore > bestScore) {
           bestScore = curScore;
-          bestCoord = move;
+          bestMoves.clear();
+          bestMoves.add(move);
+        }
+        else if (bestScore != null && curScore == bestScore) {
+          bestMoves.add(move);
         }
       }
       catch (DimensionException | StateException e) {
         Logger.error(e, "could not copy game state");
       }
     }
-    return bestCoord;
+
+    if (bestMoves.size() > 1) {
+      // If many moves scored equally, choose randomly from among them
+      return bestMoves.get(new Random().nextInt(bestMoves.size()));
+    }
+    else if (bestMoves.size() > 0) {
+      // Found a single best move
+      return bestMoves.get(0);
+    }
+    else {
+      // No move found !!!
+      return null;
+    }
   }
 
   public void makeBestMove(final Game game) {
