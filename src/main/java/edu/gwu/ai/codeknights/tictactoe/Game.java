@@ -207,48 +207,39 @@ public class Game {
     final Collection<Integer[]> lines = board.getAllLines(winLength).values();
     for (final Integer[] line : lines) {
       int maxConsecutivePlayer = 0;
-      int maxConsecutiveOther = 0;
       int maxConsecutivePlayerOrEmpty = 0;
+      int maxConsecutiveOther = 0;
+      int maxConsecutiveOtherOrEmpty = 0;
       int numConsecutivePlayer = 0;
-      int numConsecutiveOther = 0;
       int numConsecutivePlayerOrEmpty = 0;
+      int numConsecutiveOther = 0;
+      int numConsecutiveOtherOrEmpty = 0;
       for (final Integer value : line) {
-        if (value == null || value == player) {
-          if (value == null) {
-            if (numConsecutivePlayer > maxConsecutivePlayer) {
-              maxConsecutivePlayer = numConsecutivePlayer;
-            }
-            numConsecutivePlayer = 0;
-          }
-          else {
-            numConsecutivePlayer++;
-          }
-          if (numConsecutiveOther > maxConsecutiveOther) {
-            maxConsecutiveOther = numConsecutiveOther;
-          }
-          numConsecutiveOther = 0;
-          numConsecutivePlayerOrEmpty++;
-        }
-        else {
-          if (numConsecutivePlayer > maxConsecutivePlayer) {
-            maxConsecutivePlayer = numConsecutivePlayer;
-          }
+        final boolean isEmpty = value == null;
+        final boolean isPlayer = !isEmpty && value == player;
+        final boolean isOther = !isEmpty && !isPlayer;
+        if (isEmpty) {
           numConsecutivePlayer = 0;
-          numConsecutiveOther++;
-          if (numConsecutivePlayerOrEmpty > maxConsecutivePlayerOrEmpty) {
-            maxConsecutivePlayerOrEmpty = numConsecutivePlayerOrEmpty;
-          }
-          numConsecutivePlayerOrEmpty = 0;
+          numConsecutivePlayerOrEmpty++;
+          numConsecutiveOther = 0;
+          numConsecutiveOtherOrEmpty++;
         }
-      }
-      if (numConsecutivePlayer > maxConsecutivePlayer) {
-        maxConsecutivePlayer = numConsecutivePlayer;
-      }
-      if (numConsecutiveOther > maxConsecutiveOther) {
-        maxConsecutiveOther = numConsecutiveOther;
-      }
-      if (numConsecutivePlayerOrEmpty > maxConsecutivePlayerOrEmpty) {
-        maxConsecutivePlayerOrEmpty = numConsecutivePlayerOrEmpty;
+        else if (isPlayer) {
+          numConsecutivePlayer++;
+          numConsecutivePlayerOrEmpty = 0;
+          numConsecutiveOther = 0;
+          numConsecutiveOtherOrEmpty = 0;
+        }
+        else if (isOther) {
+          numConsecutivePlayer = 0;
+          numConsecutivePlayerOrEmpty = 0;
+          numConsecutiveOther++;
+          numConsecutiveOtherOrEmpty = 0;
+        }
+        maxConsecutivePlayer = Math.max(maxConsecutivePlayer, numConsecutivePlayer);
+        maxConsecutivePlayerOrEmpty = Math.max(maxConsecutivePlayerOrEmpty, numConsecutivePlayerOrEmpty);
+        maxConsecutiveOther = Math.max(maxConsecutiveOther, numConsecutiveOther);
+        maxConsecutiveOtherOrEmpty = Math.max(maxConsecutiveOtherOrEmpty, numConsecutiveOtherOrEmpty);
       }
       if (maxConsecutivePlayer >= winLength) {
         // return Integer.MAX_VALUE;
