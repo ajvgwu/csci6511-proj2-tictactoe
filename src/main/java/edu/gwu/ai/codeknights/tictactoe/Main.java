@@ -40,13 +40,16 @@ public class Main {
         + String.valueOf(Game.OTHER_PLAYER_VALUE) + "'; empty spaces given by '" + String.valueOf(Game.BLANK_SPACE_CHAR)
         + "'")
       .build();
-    final Option testOpt = Option.builder().longOpt("test").desc("run performance test").build();
+    final Option randomizeOpt = Option.builder("r").longOpt("randomize")
+      .desc("when multiple moves are scored equally, randomly choose from among them").build();
+    final Option testOpt = Option.builder("t").longOpt("test").desc("run performance test").build();
 
     final Options options = new Options();
     options.addOption(helpOpt);
     options.addOption(dimOpt);
     options.addOption(winLengthOpt);
     options.addOption(stateOpt);
+    options.addOption(randomizeOpt);
     options.addOption(testOpt);
 
     // Parse command-line options
@@ -123,19 +126,20 @@ public class Main {
         }
       }
       final Game game = new Game(dim, winLength, board);
+      final boolean randomize = line.hasOption(randomizeOpt.getLongOpt());
 
       if (line.hasOption(testOpt.getLongOpt())) {
         // Run performance test
-        runPerformanceTest(game);
+        runPerformanceTest(game, randomize);
       }
       else {
         // Play a complete game, starting from the current state
-        playGame(game);
+        playGame(game, randomize);
       }
     }
   }
 
-  public static void runPerformanceTest(final Game game)
+  public static void runPerformanceTest(final Game game, final boolean randomize)
     throws DimensionException, StateException, InterruptedException {
     Logger.info("dim={}, winLength={}, hash={}", game.getDim(), game.getWinLength(), game.getBoardHash());
     Logger.info("All lines on board:\n{}\n", game.toStringAllLines(" * "));
@@ -154,6 +158,7 @@ public class Main {
       for (int i = 0; i < 3; i++) {
         gameCopy = curGame.getCopy();
         final MoveChooser moveChooser = new ParallelMoveChooser();
+        moveChooser.setRandomChoice(randomize);
         final long startMs = System.currentTimeMillis();
         final MoveChooser.Move move = moveChooser.findBestMove(gameCopy);
         final long endMs = System.currentTimeMillis();
@@ -165,6 +170,7 @@ public class Main {
       for (int i = 0; i < 3; i++) {
         gameCopy = curGame.getCopy();
         final MoveChooser moveChooser = new MoveChooser();
+        moveChooser.setRandomChoice(randomize);
         final long startMs = System.currentTimeMillis();
         final MoveChooser.Move move = moveChooser.findBestMove(gameCopy);
         final long endMs = System.currentTimeMillis();
@@ -181,7 +187,8 @@ public class Main {
       Game.OTHER_PLAYER_CHAR, curGame.didOtherPlayerWin());
   }
 
-  public static void playGame(final Game game) throws DimensionException, StateException, InterruptedException {
+  public static void playGame(final Game game, final boolean randomize)
+    throws DimensionException, StateException, InterruptedException {
     Logger.info("dim={}, winLength={}, hash={}", game.getDim(), game.getWinLength(), game.getBoardHash());
     Logger.info("All lines on board:\n{}\n", game.toStringAllLines(" * "));
     Logger.info("Game board state:\n{}\n", game.toString());
@@ -191,6 +198,7 @@ public class Main {
     Logger.info("Is game over?   {}", isGameOver);
     while (!isGameOver) {
       final MoveChooser moveChooser = new MoveChooser();
+      moveChooser.setRandomChoice(randomize);
       final long startMs = System.currentTimeMillis();
       final MoveChooser.Move bestMove = moveChooser.findBestMove(game);
       game.setCellValue(bestMove.rowIdx, bestMove.colIdx, bestMove.player);

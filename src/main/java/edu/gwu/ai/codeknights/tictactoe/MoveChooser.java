@@ -10,10 +10,20 @@ import org.pmw.tinylog.Logger;
 
 public class MoveChooser {
 
+  private boolean randomChoice;
   private final Map<Long, Integer> hashScoreMap;
 
   public MoveChooser() {
+    randomChoice = false;
     hashScoreMap = new HashMap<>();
+  }
+
+  public boolean isRandomChoice() {
+    return randomChoice;
+  }
+
+  public void setRandomChoice(final boolean randomChoice) {
+    this.randomChoice = randomChoice;
   }
 
   protected List<Move> findPossibleMoves(final Game game) {
@@ -87,6 +97,21 @@ public class MoveChooser {
     return bestScore;
   }
 
+  protected Move getMoveOrNull(final List<Move> moves) {
+    if (moves.size() > 1 && isRandomChoice()) {
+      // If many moves scored equally, choose randomly from among them
+      return moves.get(new Random().nextInt(moves.size()));
+    }
+    else if (moves.size() > 0) {
+      // Return best move
+      return moves.get(0);
+    }
+    else {
+      // No move found !!!
+      return null;
+    }
+  }
+
   public Move findBestMove(final Game game) {
     if (game.isGameOver()) {
       return null;
@@ -122,18 +147,8 @@ public class MoveChooser {
       }
     }
 
-    if (bestMoves.size() > 1) {
-      // If many moves scored equally, choose randomly from among them
-      return bestMoves.get(new Random().nextInt(bestMoves.size()));
-    }
-    else if (bestMoves.size() > 0) {
-      // Found a single best move
-      return bestMoves.get(0);
-    }
-    else {
-      // No move found !!!
-      return null;
-    }
+    // Return result
+    return getMoveOrNull(bestMoves);
   }
 
   public static class Move {
@@ -162,7 +177,7 @@ public class MoveChooser {
 
     @Override
     public String toString() {
-      return String.format("Player %d at (%d,%d) scores %d", player, rowIdx, colIdx, score);
+      return String.format("player %d at (%d,%d) scores %d", player, rowIdx, colIdx, score);
     }
   }
 }

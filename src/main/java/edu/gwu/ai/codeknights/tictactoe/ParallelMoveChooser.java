@@ -2,7 +2,6 @@ package edu.gwu.ai.codeknights.tictactoe;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import org.pmw.tinylog.Logger;
 
@@ -39,14 +38,15 @@ public class ParallelMoveChooser extends MoveChooser {
     for (final MinimaxThread t : threads) {
       try {
         t.join();
-        final int score = t.getScore();
+        final Move move = t.getMove();
+        final int score = move.getScore();
         if (bestScore == null || score > bestScore) {
           bestScore = score;
           bestMoves.clear();
-          bestMoves.add(t.getMove());
+          bestMoves.add(move);
         }
         else if (bestScore != null && score == bestScore) {
-          bestMoves.add(t.getMove());
+          bestMoves.add(move);
         }
       }
       catch (final InterruptedException e) {
@@ -54,19 +54,8 @@ public class ParallelMoveChooser extends MoveChooser {
       }
     }
 
-    Move bestMove = null;
-    if (bestMoves.size() > 1) {
-      // If many moves scored equally, choose randomly from among them
-      bestMove = bestMoves.get(new Random().nextInt(bestMoves.size()));
-    }
-    else if (bestMoves.size() > 0) {
-      // Found a single best move
-      bestMove = bestMoves.get(0);
-    }
-    if (bestMove != null) {
-      bestMove.setScore(bestScore);
-    }
-    return bestMove;
+    // Return result
+    return getMoveOrNull(bestMoves);
   }
 
   private class MinimaxThread extends Thread {
@@ -89,14 +78,11 @@ public class ParallelMoveChooser extends MoveChooser {
     public void run() {
       newGame.setCellValue(move.rowIdx, move.colIdx, curPlayer);
       score = minimax(newGame, curPlayer, 0);
+      move.setScore(score);
     }
 
     public Move getMove() {
       return move;
-    }
-
-    public int getScore() {
-      return score;
     }
   }
 }
