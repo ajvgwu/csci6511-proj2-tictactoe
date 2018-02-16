@@ -26,6 +26,10 @@ public class MoveChooser {
     this.randomChoice = randomChoice;
   }
 
+  protected Map<Long, Integer> getHashScoreMap() {
+    return hashScoreMap;
+  }
+
   protected List<Move> findPossibleMoves(final Game game) {
     final List<Move> moves = new ArrayList<>();
     final int dim = game.getDim();
@@ -55,9 +59,9 @@ public class MoveChooser {
     }
 
     // Check if we've already solved this state
-    synchronized (hashScoreMap) {
+    synchronized (getHashScoreMap()) {
       final long hash = game.getBoardHash();
-      final Integer precomputedScore = hashScoreMap.get(hash);
+      final Integer precomputedScore = getHashScoreMap().get(hash);
       if (precomputedScore != null) {
         return precomputedScore;
       }
@@ -88,9 +92,9 @@ public class MoveChooser {
     }
 
     // Update hashScoreMap
-    synchronized (hashScoreMap) {
+    synchronized (getHashScoreMap()) {
       final long hash = game.getBoardHash();
-      hashScoreMap.put(hash, bestScore);
+      getHashScoreMap().put(hash, bestScore);
     }
 
     // Return best score

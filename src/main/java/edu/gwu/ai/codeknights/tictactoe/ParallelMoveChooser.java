@@ -50,7 +50,7 @@ public class ParallelMoveChooser extends MoveChooser {
         }
       }
       catch (final InterruptedException e) {
-        Logger.error("interrupted while joining thread", e);
+        Logger.error(e, "interrupted while joining thread");
       }
     }
 
