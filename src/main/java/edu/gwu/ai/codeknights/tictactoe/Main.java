@@ -55,7 +55,8 @@ public class Main {
     Logger.trace("parsing command-line options");
     try {
       line = parser.parse(options, args);
-    } catch (final ParseException e) {
+    }
+    catch (final ParseException e) {
       Logger.error(e, "error while parsing command-line options");
     }
     if (line != null) {
@@ -63,7 +64,8 @@ public class Main {
         final String dimVal = line.getOptionValue(dimOpt.getLongOpt());
         try {
           dim = Integer.parseInt(dimVal);
-        } catch (final NumberFormatException e) {
+        }
+        catch (final NumberFormatException e) {
           Logger.error(e, "could not parse dim: " + dimVal);
         }
       }
@@ -71,7 +73,8 @@ public class Main {
         final String winLengthVal = line.getOptionValue(winLengthOpt.getLongOpt());
         try {
           winLength = Integer.parseInt(winLengthVal);
-        } catch (final NumberFormatException e) {
+        }
+        catch (final NumberFormatException e) {
           Logger.error(e, "could not parse winLength: " + winLengthVal);
         }
       }
@@ -104,7 +107,8 @@ public class Main {
             final String curArg = stateArgs[idx].trim();
             try {
               board[i][j] = Integer.parseInt(curArg);
-            } catch (final NumberFormatException e) {
+            }
+            catch (final NumberFormatException e) {
               if (curArg.equalsIgnoreCase(String.valueOf(Game.FIRST_PLAYER_CHAR))) {
                 board[i][j] = Game.FIRST_PLAYER_VALUE;
               }
@@ -149,9 +153,9 @@ public class Main {
       Logger.info("    - Testing parallel algorithm performance...");
       for (int i = 0; i < 3; i++) {
         gameCopy = curGame.getCopy();
-        final MoveChooser moveChooser = new MoveChooser();
+        final MoveChooser moveChooser = new ParallelMoveChooser();
         final long startMs = System.currentTimeMillis();
-        final MoveChooser.Move move = moveChooser.findBestMoveParallel(gameCopy);
+        final MoveChooser.Move move = moveChooser.findBestMove(gameCopy);
         final long endMs = System.currentTimeMillis();
         final double timeSec = (double) (endMs - startMs) / 1000.0;
         Logger.info("      * Found move in {} sec: {}", timeSec, move.toString());
@@ -162,7 +166,7 @@ public class Main {
         gameCopy = curGame.getCopy();
         final MoveChooser moveChooser = new MoveChooser();
         final long startMs = System.currentTimeMillis();
-        final MoveChooser.Move move = moveChooser.findBestMoveNormal(gameCopy);
+        final MoveChooser.Move move = moveChooser.findBestMove(gameCopy);
         final long endMs = System.currentTimeMillis();
         final double timeSec = (double) (endMs - startMs) / 1000.0;
         Logger.info("      * Found move in {} sec: {}", timeSec, move.toString());
@@ -188,7 +192,7 @@ public class Main {
     while (!isGameOver) {
       final MoveChooser moveChooser = new MoveChooser();
       final long startMs = System.currentTimeMillis();
-      final MoveChooser.Move bestMove = moveChooser.findBestMoveParallel(game); // TODO: use a different algorithm ???
+      final MoveChooser.Move bestMove = moveChooser.findBestMove(game);
       game.setCellValue(bestMove.rowIdx, bestMove.colIdx, bestMove.player);
       final long endMs = System.currentTimeMillis();
       final double timeSec = (double) (endMs - startMs) / 1000.0;
