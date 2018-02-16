@@ -141,7 +141,9 @@ public class Main {
 
   public static void runPerformanceTest(final Game game, final boolean randomize)
     throws DimensionException, StateException, InterruptedException {
-    Logger.info("dim={}, winLength={}, hash={}", game.getDim(), game.getWinLength(), game.getBoardHash());
+    Logger.info("dim={}, winLength={}, score({})={}, score({})={}, hash={}", game.getDim(), game.getWinLength(),
+      Game.FIRST_PLAYER_CHAR, game.getScore(Game.FIRST_PLAYER_VALUE), Game.OTHER_PLAYER_CHAR,
+      game.getScore(Game.OTHER_PLAYER_VALUE), game.getBoardHash());
     Logger.info("All lines on board:\n{}\n", game.toStringAllLines(" * "));
     Logger.info("Game board state:\n{}\n", game.toString());
     Logger.info("# spaces:       {}={}, {}={}, {}={}", Game.FIRST_PLAYER_CHAR, game.countFirstPlayer(),
@@ -189,7 +191,9 @@ public class Main {
 
   public static void playGame(final Game game, final boolean randomize)
     throws DimensionException, StateException, InterruptedException {
-    Logger.info("dim={}, winLength={}, hash={}", game.getDim(), game.getWinLength(), game.getBoardHash());
+    Logger.info("dim={}, winLength={}, score({})={}, score({})={}, hash={}", game.getDim(), game.getWinLength(),
+      Game.FIRST_PLAYER_CHAR, game.getScore(Game.FIRST_PLAYER_VALUE), Game.OTHER_PLAYER_CHAR,
+      game.getScore(Game.OTHER_PLAYER_VALUE), game.getBoardHash());
     Logger.info("All lines on board:\n{}\n", game.toStringAllLines(" * "));
     Logger.info("Game board state:\n{}\n", game.toString());
     Logger.info("# spaces:       {}={}, {}={}, {}={}", Game.FIRST_PLAYER_CHAR, game.countFirstPlayer(),

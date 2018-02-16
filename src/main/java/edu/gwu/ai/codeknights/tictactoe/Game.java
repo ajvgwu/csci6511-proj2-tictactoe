@@ -1,5 +1,6 @@
 package edu.gwu.ai.codeknights.tictactoe;
 
+import java.util.Collection;
 import java.util.Map;
 
 import org.pmw.tinylog.Logger;
@@ -199,6 +200,69 @@ public class Game {
 
     // If board is not full, check if either player won
     return isBoardFull || didAnyPlayerWin();
+  }
+
+  public int getScore(final int player) {
+    int score = 0;
+    final Collection<Integer[]> lines = board.getAllLines(winLength).values();
+    for (final Integer[] line : lines) {
+      int maxConsecutivePlayer = 0;
+      int maxConsecutiveOther = 0;
+      int maxConsecutivePlayerOrEmpty = 0;
+      int numConsecutivePlayer = 0;
+      int numConsecutiveOther = 0;
+      int numConsecutivePlayerOrEmpty = 0;
+      for (final Integer value : line) {
+        if (value == null || value == player) {
+          if (value == null) {
+            if (numConsecutivePlayer > maxConsecutivePlayer) {
+              maxConsecutivePlayer = numConsecutivePlayer;
+            }
+            numConsecutivePlayer = 0;
+          }
+          else {
+            numConsecutivePlayer++;
+          }
+          if (numConsecutiveOther > maxConsecutiveOther) {
+            maxConsecutiveOther = numConsecutiveOther;
+          }
+          numConsecutiveOther = 0;
+          numConsecutivePlayerOrEmpty++;
+        }
+        else {
+          if (numConsecutivePlayer > maxConsecutivePlayer) {
+            maxConsecutivePlayer = numConsecutivePlayer;
+          }
+          numConsecutivePlayer = 0;
+          numConsecutiveOther++;
+          if (numConsecutivePlayerOrEmpty > maxConsecutivePlayerOrEmpty) {
+            maxConsecutivePlayerOrEmpty = numConsecutivePlayerOrEmpty;
+          }
+          numConsecutivePlayerOrEmpty = 0;
+        }
+      }
+      if (numConsecutivePlayer > maxConsecutivePlayer) {
+        maxConsecutivePlayer = numConsecutivePlayer;
+      }
+      if (numConsecutiveOther > maxConsecutiveOther) {
+        maxConsecutiveOther = numConsecutiveOther;
+      }
+      if (numConsecutivePlayerOrEmpty > maxConsecutivePlayerOrEmpty) {
+        maxConsecutivePlayerOrEmpty = numConsecutivePlayerOrEmpty;
+      }
+      if (maxConsecutivePlayer >= winLength) {
+        // return Integer.MAX_VALUE;
+        score += dim * dim * dim * maxConsecutivePlayer;
+      }
+      else if (maxConsecutiveOther >= winLength) {
+        // return Integer.MIN_VALUE;
+        score -= dim * dim * dim * maxConsecutiveOther;
+      }
+      else if (maxConsecutivePlayerOrEmpty >= winLength) {
+        score += maxConsecutivePlayerOrEmpty * (maxConsecutivePlayer + 1);
+      }
+    }
+    return score;
   }
 
   protected String toStringAllLines(final String prefix) {

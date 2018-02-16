@@ -47,15 +47,8 @@ public class MoveChooser {
 
   protected int minimax(final Game game, final int player, final int level) {
     // Check for terminal state
-    if (level == game.getDim() * 2 || game.isGameOver()) {
-      int score = 0;
-      if (game.didPlayerWin(player)) {
-        score = 10;
-      }
-      else if (game.didAnyPlayerWin()) {
-        score = -10;
-      }
-      return score;
+    if (game.isGameOver()) {
+      return game.getScore(player);
     }
 
     // Check if we've already solved this state
