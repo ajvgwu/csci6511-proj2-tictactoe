@@ -133,8 +133,10 @@ public class Main {
         runPerformanceTest(game, randomize);
       }
       else {
+        runPerformanceTest(game, randomize);
+
         // Play a complete game, starting from the current state
-        playGame(game, randomize);
+//        playGame(game, randomize);
       }
     }
   }
@@ -154,10 +156,11 @@ public class Main {
       moveIdx++;
       Logger.info("  Move # {}", moveIdx);
       Game gameCopy = null;
-      Logger.info("    - Testing parallel algorithm performance...");
+      Logger.info("    - Testing parallel alpha-beta pruning algorithm " +
+              "performance...");
       for (int i = 0; i < 3; i++) {
         gameCopy = curGame.getCopy();
-        final MoveChooser moveChooser = new ParallelMinimaxChooser();
+        final MoveChooser moveChooser = new ParallelAlphaBetaPruningChooser();
         moveChooser.setRandomChoice(randomize);
         final long startMs = System.currentTimeMillis();
         final Game.Move move = moveChooser.findBestMove(gameCopy);
@@ -166,7 +169,7 @@ public class Main {
         Logger.info("      * Found move in {} sec: {}", timeSec, move.toString());
         gameCopy.setCellValue(move.rowIdx, move.colIdx, move.player);
       }
-      Logger.info("    - Testing normal algorithm performance...");
+      Logger.info("    - Testing normal minimax algorithm performance...");
       for (int i = 0; i < 3; i++) {
         gameCopy = curGame.getCopy();
         final MoveChooser moveChooser = new MinimaxChooser();

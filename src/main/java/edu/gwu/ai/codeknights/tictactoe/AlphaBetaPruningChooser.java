@@ -84,7 +84,7 @@ public class AlphaBetaPruningChooser extends MoveChooser {
             if (numFirst + numOther == 0) {
                 final int dim = game.getDim();
                 final int center = (int) (dim / 2);
-                //return new Game.Move(center, center, curPlayer, null);
+                return new Game.Move(center, center, curPlayer, null);
             }
             final List<Game.Move> moves = findPossibleMoves(game);
             Integer bestScore = null;
