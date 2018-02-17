@@ -23,7 +23,7 @@ public class Main {
 
   public static void main(final String[] args) throws DimensionException, StateException, InterruptedException {
     // Default values
-    int dim = 3;
+    int dim = 4;
     int winLength = 3;
     String[] stateArgs = null;
 
@@ -197,7 +197,7 @@ public class Main {
     boolean isGameOver = game.isGameOver();
     Logger.info("Is game over?   {}", isGameOver);
     while (!isGameOver) {
-      final MoveChooser moveChooser = new ParallelMinimaxChooser();
+      final MoveChooser moveChooser = new ParallelAlphaBetaPruningChooser();
       moveChooser.setRandomChoice(randomize);
       final long startMs = System.currentTimeMillis();
       final Game.Move bestMove = moveChooser.findBestMove(game);
