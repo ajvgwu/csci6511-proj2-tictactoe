@@ -5,10 +5,10 @@ import java.util.List;
 
 import org.pmw.tinylog.Logger;
 
-public class ParallelMoveChooser extends MoveChooser {
+public class ParallelMinimaxChooser extends MinimaxChooser {
 
   @Override
-  public Move findBestMove(final Game game) {
+  public Game.Move findBestMove(final Game game) {
     if (game.isGameOver()) {
       return null;
     }
@@ -18,11 +18,11 @@ public class ParallelMoveChooser extends MoveChooser {
     if (numFirst + numOther == 0) {
       final int dim = game.getDim();
       final int center = (int) (dim / 2);
-      return new Move(center, center, curPlayer, null);
+      return new Game.Move(center, center, curPlayer, null);
     }
-    final List<Move> moves = findPossibleMoves(game);
+    final List<Game.Move> moves = findPossibleMoves(game);
     final List<MinimaxThread> threads = new ArrayList<>();
-    for (final Move move : moves) {
+    for (final Game.Move move : moves) {
       try {
         final Game newGame = game.getCopy();
         final MinimaxThread t = new MinimaxThread(curPlayer, move, newGame);
@@ -34,11 +34,11 @@ public class ParallelMoveChooser extends MoveChooser {
       }
     }
     Integer bestScore = null;
-    final List<Move> bestMoves = new ArrayList<>();
+    final List<Game.Move> bestMoves = new ArrayList<>();
     for (final MinimaxThread t : threads) {
       try {
         t.join();
-        final Move move = t.getMove();
+        final Game.Move move = t.getMove();
         final int score = move.getScore();
         if (bestScore == null || score > bestScore) {
           bestScore = score;
@@ -55,18 +55,18 @@ public class ParallelMoveChooser extends MoveChooser {
     }
 
     // Return result
-    return getMoveOrNull(bestMoves);
+    return selectMove(bestMoves);
   }
 
   private class MinimaxThread extends Thread {
 
     private final int curPlayer;
-    private final Move move;
+    private final Game.Move move;
     private final Game newGame;
 
     private int score;
 
-    public MinimaxThread(final int curPlayer, final Move move, final Game newGame) {
+    public MinimaxThread(final int curPlayer, final Game.Move move, final Game newGame) {
       this.curPlayer = curPlayer;
       this.move = move;
       this.newGame = newGame;
@@ -81,7 +81,7 @@ public class ParallelMoveChooser extends MoveChooser {
       move.setScore(score);
     }
 
-    public Move getMove() {
+    public Game.Move getMove() {
       return move;
     }
   }

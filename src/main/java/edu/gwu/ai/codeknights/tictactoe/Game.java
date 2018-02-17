@@ -1,6 +1,5 @@
 package edu.gwu.ai.codeknights.tictactoe;
 
-import java.util.Collection;
 import java.util.Map;
 
 import org.pmw.tinylog.Logger;
@@ -30,7 +29,6 @@ public class Game {
     if (winLength > MAX_WIN_LENGTH) {
       throw new DimensionException(String.format("winLength=%d, should be <= %d", winLength, MAX_WIN_LENGTH));
     }
-    // TODO: do we need to check that winLength <= dim ? or is it fine that players will always lose?
     this.winLength = winLength;
 
     // Check board size and values
@@ -101,7 +99,6 @@ public class Game {
 
   public void setCellValue(final int rowIdx, final int colIdx, final Integer value) {
     board.setCellValue(rowIdx, colIdx, value);
-    // TODO: is it worthwhile to do any consistency checking here? make sure players are alternating and counts are correct?
   }
 
   protected int countPlayerOrNull(final Integer player) {
@@ -196,13 +193,13 @@ public class Game {
       }
     }
 
-    // TODO: could also check for "early draw" condition, even if board is not full
-
     // If board is not full, check if either player won
     return isBoardFull || didAnyPlayerWin();
   }
 
+  /*
   public int getScore(final int player) {
+    // TODO: fix this ???
     int score = 0;
     final Collection<Integer[]> lines = board.getAllLines(winLength).values();
     for (final Integer[] line : lines) {
@@ -242,12 +239,12 @@ public class Game {
         maxConsecutiveOtherOrEmpty = Math.max(maxConsecutiveOtherOrEmpty, numConsecutiveOtherOrEmpty);
       }
       if (maxConsecutivePlayer >= winLength) {
-        // return Integer.MAX_VALUE;
-        score += dim * dim * dim * maxConsecutivePlayer;
+        return Integer.MAX_VALUE;
+        // score += dim * dim * dim * maxConsecutivePlayer;
       }
       else if (maxConsecutiveOther >= winLength) {
-        // return Integer.MIN_VALUE;
-        score -= dim * dim * dim * maxConsecutiveOther;
+        return Integer.MIN_VALUE;
+        // score -= dim * dim * dim * maxConsecutiveOther;
       }
       else if (maxConsecutivePlayerOrEmpty >= winLength) {
         score += maxConsecutivePlayerOrEmpty * (maxConsecutivePlayer + 1);
@@ -255,6 +252,7 @@ public class Game {
     }
     return score;
   }
+  */
 
   protected String toStringAllLines(final String prefix) {
     final StringBuilder bldr = new StringBuilder();
@@ -295,5 +293,35 @@ public class Game {
       }
     }
     return bldr.toString();
+  }
+
+  public static class Move {
+
+    public final int rowIdx;
+    public final int colIdx;
+    public final int player;
+
+    private Integer score;
+
+    public Move(final int rowIdx, final int colIdx, final int player, final Integer score) {
+      this.rowIdx = rowIdx;
+      this.colIdx = colIdx;
+      this.player = player;
+
+      this.score = score;
+    }
+
+    public Integer getScore() {
+      return score;
+    }
+
+    public void setScore(final Integer score) {
+      this.score = score;
+    }
+
+    @Override
+    public String toString() {
+      return String.format("player %d at (%d,%d) scores %d", player, rowIdx, colIdx, score);
+    }
   }
 }

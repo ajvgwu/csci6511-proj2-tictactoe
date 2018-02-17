@@ -141,9 +141,7 @@ public class Main {
 
   public static void runPerformanceTest(final Game game, final boolean randomize)
     throws DimensionException, StateException, InterruptedException {
-    Logger.info("dim={}, winLength={}, score({})={}, score({})={}, hash={}", game.getDim(), game.getWinLength(),
-      Game.FIRST_PLAYER_CHAR, game.getScore(Game.FIRST_PLAYER_VALUE), Game.OTHER_PLAYER_CHAR,
-      game.getScore(Game.OTHER_PLAYER_VALUE), game.getBoardHash());
+    Logger.info("dim={}, winLength={}, hash={}", game.getDim(), game.getWinLength(), game.getBoardHash());
     Logger.info("All lines on board:\n{}\n", game.toStringAllLines(" * "));
     Logger.info("Game board state:\n{}\n", game.toString());
     Logger.info("# spaces:       {}={}, {}={}, {}={}", Game.FIRST_PLAYER_CHAR, game.countFirstPlayer(),
@@ -159,10 +157,10 @@ public class Main {
       Logger.info("    - Testing parallel algorithm performance...");
       for (int i = 0; i < 3; i++) {
         gameCopy = curGame.getCopy();
-        final MoveChooser moveChooser = new ParallelMoveChooser();
+        final MoveChooser moveChooser = new ParallelMinimaxChooser();
         moveChooser.setRandomChoice(randomize);
         final long startMs = System.currentTimeMillis();
-        final MoveChooser.Move move = moveChooser.findBestMove(gameCopy);
+        final Game.Move move = moveChooser.findBestMove(gameCopy);
         final long endMs = System.currentTimeMillis();
         final double timeSec = (double) (endMs - startMs) / 1000.0;
         Logger.info("      * Found move in {} sec: {}", timeSec, move.toString());
@@ -171,10 +169,10 @@ public class Main {
       Logger.info("    - Testing normal algorithm performance...");
       for (int i = 0; i < 3; i++) {
         gameCopy = curGame.getCopy();
-        final MoveChooser moveChooser = new MoveChooser();
+        final MoveChooser moveChooser = new MinimaxChooser();
         moveChooser.setRandomChoice(randomize);
         final long startMs = System.currentTimeMillis();
-        final MoveChooser.Move move = moveChooser.findBestMove(gameCopy);
+        final Game.Move move = moveChooser.findBestMove(gameCopy);
         final long endMs = System.currentTimeMillis();
         final double timeSec = (double) (endMs - startMs) / 1000.0;
         Logger.info("      * Found move in {} sec: {}", timeSec, move.toString());
@@ -191,9 +189,7 @@ public class Main {
 
   public static void playGame(final Game game, final boolean randomize)
     throws DimensionException, StateException, InterruptedException {
-    Logger.info("dim={}, winLength={}, score({})={}, score({})={}, hash={}", game.getDim(), game.getWinLength(),
-      Game.FIRST_PLAYER_CHAR, game.getScore(Game.FIRST_PLAYER_VALUE), Game.OTHER_PLAYER_CHAR,
-      game.getScore(Game.OTHER_PLAYER_VALUE), game.getBoardHash());
+    Logger.info("dim={}, winLength={}, hash={}", game.getDim(), game.getWinLength(), game.getBoardHash());
     Logger.info("All lines on board:\n{}\n", game.toStringAllLines(" * "));
     Logger.info("Game board state:\n{}\n", game.toString());
     Logger.info("# spaces:       {}={}, {}={}, {}={}", Game.FIRST_PLAYER_CHAR, game.countFirstPlayer(),
@@ -201,10 +197,10 @@ public class Main {
     boolean isGameOver = game.isGameOver();
     Logger.info("Is game over?   {}", isGameOver);
     while (!isGameOver) {
-      final MoveChooser moveChooser = new MoveChooser();
+      final MoveChooser moveChooser = new ParallelMinimaxChooser();
       moveChooser.setRandomChoice(randomize);
       final long startMs = System.currentTimeMillis();
-      final MoveChooser.Move bestMove = moveChooser.findBestMove(game);
+      final Game.Move bestMove = moveChooser.findBestMove(game);
       game.setCellValue(bestMove.rowIdx, bestMove.colIdx, bestMove.player);
       final long endMs = System.currentTimeMillis();
       final double timeSec = (double) (endMs - startMs) / 1000.0;
