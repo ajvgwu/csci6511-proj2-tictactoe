@@ -1,6 +1,7 @@
 package edu.gwu.ai.codeknights.tictactoe;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class MoveChooser {
 
@@ -49,25 +50,26 @@ public abstract class MoveChooser {
                     return Collections.singletonList(new Game.Move(rowIdx, colIdx, curPlayer, null));
                   }
 
-                  // rule 3: only consider moves that are adjacent to non-empty cells
-                  if (hasNeighbors(game, rowIdx, colIdx)) {
-                    moves.add(new Game.Move(rowIdx, colIdx, curPlayer, null));
-                  }
+                  // This is a possible move (empty cell)
+                  moves.add(new Game.Move(rowIdx, colIdx, curPlayer, null));
                 }
             }
         }
+
+        // rule 3: don't consider the move if it is adjacent to none
+        moves = moves.stream().filter(move -> hasNeighbors(game, move)).collect(Collectors.toList());
         return moves;
     }
 
     /**
      * determine if a move has occupied neighbors
      */
-    private boolean hasNeighbors(final Game game, final int rowIdx, final int colIdx) {
+    private boolean hasNeighbors(final Game game, final Game.Move move) {
         int dim = game.getDim();
         // available signal
         boolean flag = false;
-        for (int i = colIdx - 1; i < colIdx + 2; i++) {
-            for (int j = rowIdx - 1; j < rowIdx + 2; j++) {
+        for (int i = move.colIdx - 1; i < move.colIdx + 2; i++) {
+            for (int j = move.rowIdx - 1; j < move.rowIdx + 2; j++) {
                 // skip non-existent moves
                 if (i < dim && j < dim && i > 0 && j > 0) {
                     if (game.getCellValue(j, i) != null) {
