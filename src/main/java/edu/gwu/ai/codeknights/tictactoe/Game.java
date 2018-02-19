@@ -130,6 +130,10 @@ public class Game {
     return countOtherPlayer() < countFirstPlayer() ? Game.OTHER_PLAYER_VALUE : Game.FIRST_PLAYER_VALUE;
   }
 
+  public int getPrevPlayer() {
+    return countOtherPlayer() == countFirstPlayer() ? Game.OTHER_PLAYER_VALUE : Game.FIRST_PLAYER_VALUE;
+  }
+
   protected boolean checkLineForWin(final Integer[] line, final int player) {
     if (line.length >= winLength) {
       int numInSequence = 0;
