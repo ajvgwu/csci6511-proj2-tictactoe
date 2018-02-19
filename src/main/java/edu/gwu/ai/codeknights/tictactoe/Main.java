@@ -24,7 +24,7 @@ public class Main {
   public static void main(final String[] args) throws DimensionException, StateException, InterruptedException {
     // Default values
     int dim = 4;
-    int winLength = 3;
+    int winLength = 4;
     String[] stateArgs = null;
 
     // Command-line options
@@ -133,10 +133,10 @@ public class Main {
         runPerformanceTest(game, randomize);
       }
       else {
-        runPerformanceTest(game, randomize);
+//        runPerformanceTest(game, randomize);
 
         // Play a complete game, starting from the current state
-//        playGame(game, randomize);
+        playGame(game, randomize);
       }
     }
   }
