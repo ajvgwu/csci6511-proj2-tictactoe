@@ -107,7 +107,7 @@ public class Game {
     for (int i = 0; i < dim; i++) {
       for (int j = 0; j < dim; j++) {
         final Integer value = board.getCellValue(i, j);
-        if (value != null && value.equals(player)) {
+        if (Objects.equals(player, value)) {
           count++;
         }
       }
