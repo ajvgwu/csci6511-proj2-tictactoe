@@ -55,7 +55,7 @@ public class ParallelMinimaxChooser extends MinimaxChooser {
     }
 
     // Return result
-    return selectMove(bestMoves);
+    return selectMove(game, bestMoves);
   }
 
   private class MinimaxThread extends Thread {

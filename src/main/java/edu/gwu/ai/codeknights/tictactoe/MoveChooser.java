@@ -25,6 +25,23 @@ public abstract class MoveChooser {
         return hashScoreMap;
     }
 
+    protected List<Game.Move> findEmptyMoves(final Game game){
+        final int dim = game.getDim();
+        List<Game.Move> moves = new ArrayList<>();
+        final int curPlayer = game.getNextPlayer();
+
+        for (int rowIdx = 0; rowIdx < dim; rowIdx++) {
+            for (int colIdx = 0; colIdx < dim; colIdx++) {
+                final Integer value = game.getCellValue(rowIdx, colIdx);
+                if (value == null) {
+                    // This is a possible move (empty cell)
+                    moves.add(new Game.Move(rowIdx, colIdx, curPlayer, null));
+                }
+            }
+        }
+        return moves;
+    }
+
     protected List<Game.Move> findPossibleMoves(final Game game) {
         List<Game.Move> moves = new ArrayList<>();
         final int dim = game.getDim();
@@ -60,13 +77,16 @@ public abstract class MoveChooser {
         moves = moves.stream().filter(move -> hasNeighbors(game, move)).collect(Collectors.toList());
         // rule 4: don't consider the move if it is not adjacent to winning lines
         ArrayList<ArrayList<Game.Move>> sequences = getWinningSequences(game);
-        moves = new ArrayList<>(find(game, moves, sequences));
+        moves = new ArrayList<>(findMovesAdjacentToWinningLine(game, moves, sequences));
         return moves;
     }
 
-    private Set<Game.Move> find(Game game, List<Game.Move> moves,
-                                 ArrayList<ArrayList<Game.Move>> sequences) {
-
+    /**
+     * return set of moves that adjacent to the head and the tail of winning
+     * lines
+     * */
+    private Set<Game.Move> findMovesAdjacentToWinningLine(Game game, List<Game.Move> moves,
+                                                          ArrayList<ArrayList<Game.Move>> sequences) {
         Set<Game.Move> filterMoves = new HashSet<>();
 
         for (ArrayList<Game.Move> sequence : sequences) {
@@ -180,7 +200,7 @@ public abstract class MoveChooser {
         int maxOfFirst = 0;
         int maxOfOther = 0;
 
-        // find the max line length for each player
+        // findMovesAdjacentToWinningLine the max line length for each player
         for (ArrayList<Game.Move> line : sequences) {
             int size = line.size();
             if(size > 0){
@@ -219,7 +239,8 @@ public abstract class MoveChooser {
         return filterSequences;
     }
 
-    protected Game.Move selectMove(final List<Game.Move> moves) {
+    protected Game.Move selectMove(final Game game, final List<Game.Move>
+            moves) {
         if (moves.size() > 1 && isRandomChoice()) {
             // If many moves scored equally, choose randomly from among them
             return moves.get(new Random().nextInt(moves.size()));
@@ -227,8 +248,10 @@ public abstract class MoveChooser {
             // Return best move
             return moves.get(0);
         } else {
-            // No move found !!!
-            return null;
+            // No winning move found !!!
+            List<Game.Move> emptyMoves = findEmptyMoves(game);
+            Collections.shuffle(emptyMoves);
+            return emptyMoves.get(0);
         }
     }
 

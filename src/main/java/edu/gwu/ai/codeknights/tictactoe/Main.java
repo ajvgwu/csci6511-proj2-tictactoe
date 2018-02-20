@@ -23,8 +23,8 @@ public class Main {
 
   public static void main(final String[] args) throws DimensionException, StateException, InterruptedException {
     // Default values
-    int dim = 5;
-    int winLength = 5;
+    int dim = 6;
+    int winLength = 4;
     String[] stateArgs = null;
 
     // Command-line options

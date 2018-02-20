@@ -45,7 +45,7 @@ public class ParallelAlphaBetaPruningChooser extends AlphaBetaPruningChooser {
           bestMoves.clear();
           bestMoves.add(move);
         }
-        else if (score == bestScore) {
+        else if (score.equals(bestScore)) {
           bestMoves.add(move);
         }
       }
@@ -55,7 +55,7 @@ public class ParallelAlphaBetaPruningChooser extends AlphaBetaPruningChooser {
     }
 
     // Return result
-    return selectMove(bestMoves);
+    return selectMove(game, bestMoves);
   }
 
   private class AbpThread extends Thread {

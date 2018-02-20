@@ -55,7 +55,7 @@ public class AlphaBetaPruningChooser extends MoveChooser {
 
         // if the play is next player
         // choose alpha
-        if (player != game.getNextPlayer()) {
+        if (player == game.getNextPlayer()) {
             bestScore = (long) alpha;
         } else {
             bestScore = (long) beta;
@@ -99,7 +99,7 @@ public class AlphaBetaPruningChooser extends MoveChooser {
                     bestScore = curScore;
                     bestMoves.clear();
                     bestMoves.add(move);
-                } else if (bestScore != null && curScore == bestScore) {
+                } else if (curScore == bestScore) {
                     bestMoves.add(move);
                 }
             } catch (DimensionException | StateException e) {
@@ -108,6 +108,6 @@ public class AlphaBetaPruningChooser extends MoveChooser {
         }
 
         // Return result
-        return selectMove(bestMoves);
+        return selectMove(game, bestMoves);
     }
 }

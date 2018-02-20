@@ -90,7 +90,7 @@ public class MinimaxChooser extends MoveChooser {
           bestMoves.clear();
           bestMoves.add(move);
         }
-        else if (bestScore != null && curScore == bestScore) {
+        else if (curScore == bestScore) {
           bestMoves.add(move);
         }
       }
@@ -100,6 +100,6 @@ public class MinimaxChooser extends MoveChooser {
     }
 
     // Return result
-    return selectMove(bestMoves);
+    return selectMove(game, bestMoves);
   }
 }
