@@ -29,10 +29,6 @@ public class BoardMatrix {
     }
   }
 
-  public int getDim() {
-    return dim;
-  }
-
   public Integer getCellValue(final int rowIdx, final int colIdx) {
     return rowMajorMatrix[rowIdx][colIdx];
   }
@@ -66,16 +62,16 @@ public class BoardMatrix {
     return diag.toArray(new Integer[diag.size()]);
   }
 
-  public Game.Move[] getDiagMoves(final int idx){
-      final List<Game.Move> diag = new ArrayList<>();
+  public Move[] getDiagMoves(final int idx){
+      final List<Move> diag = new ArrayList<>();
       int rowIdx = Math.max(0, 0 - idx);
       int colIdx = rowIdx + idx;
       while (rowIdx < dim && colIdx < dim) {
-          diag.add(new Game.Move(rowIdx, colIdx, getCellValue(rowIdx, colIdx), null));
+          diag.add(new Move(rowIdx, colIdx, getCellValue(rowIdx, colIdx), null));
           rowIdx++;
           colIdx++;
       }
-      return diag.toArray(new Game.Move[diag.size()]);
+      return diag.toArray(new Move[diag.size()]);
   }
 
   public Integer[] getAntiDiag(final int idx) {
@@ -90,16 +86,16 @@ public class BoardMatrix {
     return diag.toArray(new Integer[diag.size()]);
   }
 
-    public Game.Move[] getAntiDiagMoves(final int idx) {
-        final List<Game.Move> diag = new ArrayList<>();
+    public Move[] getAntiDiagMoves(final int idx) {
+        final List<Move> diag = new ArrayList<>();
         int rowIdx = Math.min(dim - 1, dim - idx - 1);
         int colIdx = Math.max(0, 0 - idx);
         while (rowIdx >= 0 && colIdx < dim) {
-            diag.add(new Game.Move(rowIdx, colIdx, getCellValue(rowIdx, colIdx), null));
+            diag.add(new Move(rowIdx, colIdx, getCellValue(rowIdx, colIdx), null));
             rowIdx--;
             colIdx++;
         }
-        return diag.toArray(new Game.Move[diag.size()]);
+        return diag.toArray(new Move[diag.size()]);
     }
 
     public Map<String, Integer[]> getAllLines(final int minLength) {
@@ -117,18 +113,18 @@ public class BoardMatrix {
         return lineMap;
     }
 
-    public Map<String, Game.Move[]> getAllLinesOfMove(final int minLength) {
-        final Map<String, Game.Move[]> lines = new LinkedHashMap<>();
+    public Map<String, Move[]> getAllLinesOfMove(final int minLength) {
+        final Map<String, Move[]> lines = new LinkedHashMap<>();
         if (dim >= minLength) {
             for (int i = 0; i < dim; i++) {
-                Game.Move[] row = new Game.Move[dim];
-                Game.Move[] col = new Game.Move[dim];
+                Move[] row = new Move[dim];
+                Move[] col = new Move[dim];
 
                 Integer[] rowValues = getRow(i);
                 Integer[] colValues = getCol(i);
                 for (int j = 0; j < dim; j++) {
-                    row[j] = new Game.Move(i,j,rowValues[j],null);
-                    col[j] = new Game.Move(j,i,colValues[j],null);
+                    row[j] = new Move(i,j,rowValues[j],null);
+                    col[j] = new Move(j,i,colValues[j],null);
                 }
 
                 lines.put("rowIdx="+String.valueOf(i),row);
@@ -143,7 +139,7 @@ public class BoardMatrix {
         return lines;
     }
 
-    public Map<String, Game.Move[]> getAllLinesOfMove() {
+    public Map<String, Move[]> getAllLinesOfMove() {
         return getAllLinesOfMove(1);
     }
 
@@ -163,10 +159,6 @@ public class BoardMatrix {
     }
     hash += Math.pow(3, dim * dim) * (nextPlayer + 1);
     return hash;
-  }
-
-  public BoardMatrix getCopy() {
-    return new BoardMatrix(dim, rowMajorMatrix);
   }
 
   @Override
