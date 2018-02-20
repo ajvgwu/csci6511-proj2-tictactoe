@@ -7,10 +7,10 @@ import java.util.List;
 
 public class AlphaBetaPruningChooser extends MoveChooser {
 
-    protected int alphabetapruning(final Game game, final int player,
+    protected long alphabetapruning(final Game game, final int player,
                                    double alpha, double beta, final int
                                            level) {
-        Integer bestScore = null;
+        Long bestScore = null;
         // Check for terminal state
         if (game.isGameOver()) {
             // return game.getScore(player);
@@ -25,7 +25,7 @@ public class AlphaBetaPruningChooser extends MoveChooser {
         // Check if we've already solved this state
         synchronized (getHashScoreMap()) {
             final long hash = game.getBoardHash();
-            final Integer precomputedScore = getHashScoreMap().get(hash);
+            final Long precomputedScore = getHashScoreMap().get(hash);
             if (precomputedScore != null) {
                 return precomputedScore;
             }
@@ -37,18 +37,12 @@ public class AlphaBetaPruningChooser extends MoveChooser {
             try {
                 final Game newGame = game.getCopy();
                 newGame.setCellValue(move.rowIdx, move.colIdx, move.player);
-                final int curScore = alphabetapruning(newGame, player,
+                final long curScore = alphabetapruning(newGame, player,
                         alpha, beta, level + 1);
                 if (player == move.player) {
-                    if (bestScore == null || curScore > alpha) {
-                        alpha = curScore;
-                        bestScore = (int) alpha;
-                    }
+                    alpha = curScore;
                 } else {
-                    if (bestScore == null || curScore < beta) {
-                        beta = curScore;
-                        bestScore = (int) beta;
-                    }
+                    beta = curScore;
                 }
 
                 if (alpha >= beta) {
@@ -57,6 +51,14 @@ public class AlphaBetaPruningChooser extends MoveChooser {
             } catch (DimensionException | StateException e) {
                 Logger.error(e, "could not copy game state");
             }
+        }
+
+        // if the play is next player
+        // choose alpha
+        if (player != game.getNextPlayer()) {
+            bestScore = (long) alpha;
+        } else {
+            bestScore = (long) beta;
         }
 
         // Update hashScoreMap
@@ -83,13 +85,13 @@ public class AlphaBetaPruningChooser extends MoveChooser {
             return new Game.Move(center, center, curPlayer, null);
         }
         final List<Game.Move> moves = findPossibleMoves(game);
-        Integer bestScore = null;
+        Long bestScore = null;
         final List<Game.Move> bestMoves = new ArrayList<>();
         for (final Game.Move move : moves) {
             try {
                 final Game newGame = game.getCopy();
                 newGame.setCellValue(move.rowIdx, move.colIdx, curPlayer);
-                final int curScore = alphabetapruning(newGame, curPlayer,
+                final long curScore = alphabetapruning(newGame, curPlayer,
                         Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
                         0);
                 move.setScore(curScore);

@@ -1,6 +1,7 @@
 package edu.gwu.ai.codeknights.tictactoe;
 
 import java.util.Map;
+import java.util.Objects;
 
 import org.pmw.tinylog.Logger;
 
@@ -9,9 +10,9 @@ public class Game {
   public static final int MAX_DIM = 20;
   public static final int MAX_WIN_LENGTH = 8;
   public static final char BLANK_SPACE_CHAR = '_';
-  public static final int FIRST_PLAYER_VALUE = 1;
+  public static final int FIRST_PLAYER_VALUE = 10;
   public static final char FIRST_PLAYER_CHAR = 'X';
-  public static final int OTHER_PLAYER_VALUE = 0;
+  public static final int OTHER_PLAYER_VALUE = 20;
   public static final char OTHER_PLAYER_CHAR = 'O';
 
   private final int dim;
@@ -51,7 +52,7 @@ public class Game {
           if (value == FIRST_PLAYER_VALUE) {
             numFirstPlayer++;
           }
-          else if (value == OTHER_PLAYER_VALUE) {
+          else {
             numOtherPlayer++;
           }
         }
@@ -106,7 +107,7 @@ public class Game {
     for (int i = 0; i < dim; i++) {
       for (int j = 0; j < dim; j++) {
         final Integer value = board.getCellValue(i, j);
-        if (value == player) {
+        if (value != null && value.equals(player)) {
           count++;
         }
       }
@@ -200,6 +201,19 @@ public class Game {
     // If board is not full, check if either player won
     return isBoardFull || didAnyPlayerWin();
   }
+
+  public Map<String, Integer[]> getAllLines(){
+    return board.getAllLines();
+  }
+
+  public Map<String, Game.Move[]> getAllLinesOfMove(){
+    return board.getAllLinesOfMove();
+  }
+
+  public Map<String, Game.Move[]> getAllLinesOfMove(int winLength){
+    return board.getAllLinesOfMove(winLength);
+  }
+
 
   /*
   public int getScore(final int player) {
@@ -303,11 +317,12 @@ public class Game {
 
     public final int rowIdx;
     public final int colIdx;
-    public final int player;
+    public final Integer player;
 
-    private Integer score;
+    private Long score;
 
-    public Move(final int rowIdx, final int colIdx, final int player, final Integer score) {
+    public Move(final int rowIdx, final int colIdx, final Integer player, final
+    Long score) {
       this.rowIdx = rowIdx;
       this.colIdx = colIdx;
       this.player = player;
@@ -315,12 +330,28 @@ public class Game {
       this.score = score;
     }
 
-    public Integer getScore() {
+    public Long getScore() {
       return score;
     }
 
-    public void setScore(final Integer score) {
+    public void setScore(final Long score) {
       this.score = score;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      Move move = (Move) o;
+      return rowIdx == move.rowIdx &&
+              colIdx == move.colIdx &&
+              Objects.equals(player, move.player) &&
+              Objects.equals(score, move.score);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(rowIdx, colIdx, player, score);
     }
 
     @Override

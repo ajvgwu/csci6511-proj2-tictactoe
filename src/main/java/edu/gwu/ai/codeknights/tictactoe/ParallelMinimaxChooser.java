@@ -33,19 +33,19 @@ public class ParallelMinimaxChooser extends MinimaxChooser {
         Logger.error(e, "could not copy game state");
       }
     }
-    Integer bestScore = null;
+    Long bestScore = null;
     final List<Game.Move> bestMoves = new ArrayList<>();
     for (final MinimaxThread t : threads) {
       try {
         t.join();
         final Game.Move move = t.getMove();
-        final int score = move.getScore();
+        final Long score = move.getScore();
         if (bestScore == null || score > bestScore) {
           bestScore = score;
           bestMoves.clear();
           bestMoves.add(move);
         }
-        else if (bestScore != null && score == bestScore) {
+        else if (score == bestScore) {
           bestMoves.add(move);
         }
       }
@@ -64,14 +64,14 @@ public class ParallelMinimaxChooser extends MinimaxChooser {
     private final Game.Move move;
     private final Game newGame;
 
-    private int score;
+    private Long score;
 
     public MinimaxThread(final int curPlayer, final Game.Move move, final Game newGame) {
       this.curPlayer = curPlayer;
       this.move = move;
       this.newGame = newGame;
 
-      score = 0;
+      score = 0L;
     }
 
     @Override

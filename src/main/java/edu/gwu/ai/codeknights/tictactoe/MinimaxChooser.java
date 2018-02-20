@@ -7,7 +7,7 @@ import org.pmw.tinylog.Logger;
 
 public class MinimaxChooser extends MoveChooser {
 
-  protected int minimax(final Game game, final int player, final int level) {
+  protected long minimax(final Game game, final int player, final int level) {
     // Check for terminal state
     if (game.isGameOver()) {
       // return game.getScore(player);
@@ -23,7 +23,7 @@ public class MinimaxChooser extends MoveChooser {
     // Check if we've already solved this state
     synchronized (getHashScoreMap()) {
       final long hash = game.getBoardHash();
-      final Integer precomputedScore = getHashScoreMap().get(hash);
+      final Long precomputedScore = getHashScoreMap().get(hash);
       if (precomputedScore != null) {
         return precomputedScore;
       }
@@ -31,12 +31,12 @@ public class MinimaxChooser extends MoveChooser {
 
     // Find move with the best score
     final List<Game.Move> moves = findPossibleMoves(game);
-    Integer bestScore = null;
+    Long bestScore = null;
     for (final Game.Move move : moves) {
       try {
         final Game newGame = game.getCopy();
         newGame.setCellValue(move.rowIdx, move.colIdx, move.player);
-        final int curScore = minimax(newGame, player, level + 1);
+        final long curScore = minimax(newGame, player, level + 1);
         if (player == move.player) {
           if (bestScore == null || curScore > bestScore) {
             bestScore = curScore;
@@ -77,13 +77,13 @@ public class MinimaxChooser extends MoveChooser {
       return new Game.Move(center, center, curPlayer, null);
     }
     final List<Game.Move> moves = findPossibleMoves(game);
-    Integer bestScore = null;
+    Long bestScore = null;
     final List<Game.Move> bestMoves = new ArrayList<>();
     for (final Game.Move move : moves) {
       try {
         final Game newGame = game.getCopy();
         newGame.setCellValue(move.rowIdx, move.colIdx, curPlayer);
-        final int curScore = minimax(newGame, curPlayer, 0);
+        final long curScore = minimax(newGame, curPlayer, 0);
         move.setScore(curScore);
         if (bestScore == null || curScore > bestScore) {
           bestScore = curScore;
