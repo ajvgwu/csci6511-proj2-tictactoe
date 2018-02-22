@@ -98,8 +98,8 @@ public class MainController {
         } else {
             // generate all tge ids for non-EvE-online games
             gameId = new Random().nextInt(10000);
-            masterId = new Random().nextInt(10000);
-            opId = new Random().nextInt(10000);
+            masterId = new Random().nextInt(30);
+            opId = new Random().nextInt(30);
         }
 
         mMasterId.setText(String.valueOf(masterId));

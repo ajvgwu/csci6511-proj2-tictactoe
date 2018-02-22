@@ -26,8 +26,7 @@ public class TicTacToe extends Application {
 
         // load start scene
         FXMLLoadResult result = FXMLUtil.loadAsNode("fxml/start.fxml");
-        FXMLUtil.addStylesheets(result.getNode(), edu.gwu.ai.codeknights.tictactoe.util.Const
-                .UNIVERSAL_STYLESHEET_URL);
+        FXMLUtil.addStylesheets(result.getNode(), edu.gwu.ai.codeknights.tictactoe.util.Const.UNIVERSAL_STYLESHEET_URL);
 
         primaryStage.setTitle("The Code Knights");
         primaryStage.setScene(new Scene(result.getNode()));

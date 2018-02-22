@@ -37,8 +37,8 @@ public class Main {
     int winLength = 4;
     String[] stateArgs = null;
     long gameId = new Random().nextInt(1000);
-    int masterId = new Random().nextInt(1000);
-    int opId = new Random().nextInt(1000);
+    int masterId = new Random().nextInt(30);
+    int opId = new Random().nextInt(30);
 
     // Command-line options
     final Option helpOpt = Option.builder("h").longOpt("help").desc("print this usage information").build();
