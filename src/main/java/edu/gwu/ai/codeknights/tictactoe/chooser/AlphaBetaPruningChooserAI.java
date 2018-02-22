@@ -1,15 +1,12 @@
 package edu.gwu.ai.codeknights.tictactoe.chooser;
 
-import edu.gwu.ai.codeknights.tictactoe.DimensionException;
-import edu.gwu.ai.codeknights.tictactoe.Game;
-import edu.gwu.ai.codeknights.tictactoe.Move;
-import edu.gwu.ai.codeknights.tictactoe.StateException;
-import org.pmw.tinylog.Logger;
+import edu.gwu.ai.codeknights.tictactoe.core.Game;
+import edu.gwu.ai.codeknights.tictactoe.core.Move;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AlphaBetaPruningChooser extends MoveChooser {
+public class AlphaBetaPruningChooserAI extends AIMoveChooser {
 
     protected long alphabetapruning(final Game game, final int player,
                                     double alpha, double beta, final int
@@ -38,22 +35,18 @@ public class AlphaBetaPruningChooser extends MoveChooser {
         // Find move with the best score
         final List<Move> moves = findPossibleMoves(game);
         for (final Move move : moves) {
-            try {
-                final Game newGame = game.getCopy();
-                newGame.setCellValue(move.rowIdx, move.colIdx, move.player);
-                final long curScore = alphabetapruning(newGame, player,
-                        alpha, beta, level + 1);
-                if (player == move.player) {
-                    alpha = curScore;
-                } else {
-                    beta = curScore;
-                }
+            final Game newGame = game.getCopy();
+            newGame.setCellValue(move.rowIdx, move.colIdx, move.player);
+            final long curScore = alphabetapruning(newGame, player,
+                    alpha, beta, level + 1);
+            if (player == move.player) {
+                alpha = curScore;
+            } else {
+                beta = curScore;
+            }
 
-                if (alpha >= beta) {
-                    break;
-                }
-            } catch (DimensionException | StateException e) {
-                Logger.error(e, "could not copy game state");
+            if (alpha >= beta) {
+                break;
             }
         }
 
@@ -76,7 +69,7 @@ public class AlphaBetaPruningChooser extends MoveChooser {
     }
 
     @Override
-    public Move findBestMove(final Game game) {
+    public Move findNextMove(final Game game) {
         if (game.isGameOver()) {
             return null;
         }
@@ -84,7 +77,7 @@ public class AlphaBetaPruningChooser extends MoveChooser {
         final int numOther = game.countOtherPlayer();
         final int curPlayer = game.getNextPlayer();
         if (numFirst + numOther == 0) {
-            final int dim = game.getDim();
+            final int dim = game.getRowLen();
             final int center = (int) (dim / 2);
             return new Move(center, center, curPlayer, null);
         }
@@ -92,22 +85,18 @@ public class AlphaBetaPruningChooser extends MoveChooser {
         Long bestScore = null;
         final List<Move> bestMoves = new ArrayList<>();
         for (final Move move : moves) {
-            try {
-                final Game newGame = game.getCopy();
-                newGame.setCellValue(move.rowIdx, move.colIdx, curPlayer);
-                final long curScore = alphabetapruning(newGame, curPlayer,
-                        Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
-                        0);
-                move.setScore(curScore);
-                if (bestScore == null || curScore > bestScore) {
-                    bestScore = curScore;
-                    bestMoves.clear();
-                    bestMoves.add(move);
-                } else if (curScore == bestScore) {
-                    bestMoves.add(move);
-                }
-            } catch (DimensionException | StateException e) {
-                Logger.error(e, "could not copy game state");
+            final Game newGame = game.getCopy();
+            newGame.setCellValue(move.rowIdx, move.colIdx, curPlayer);
+            final long curScore = alphabetapruning(newGame, curPlayer,
+                    Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
+                    0);
+            move.setScore(curScore);
+            if (bestScore == null || curScore > bestScore) {
+                bestScore = curScore;
+                bestMoves.clear();
+                bestMoves.add(move);
+            } else if (curScore == bestScore) {
+                bestMoves.add(move);
             }
         }
 

@@ -1,4 +1,4 @@
-package edu.gwu.ai.codeknights.tictactoe;
+package edu.gwu.ai.codeknights.tictactoe.core;
 
 import java.util.Objects;
 

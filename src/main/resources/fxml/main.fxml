@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<VBox xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.gwu.ai.codeknights.tictactoe.gui.controller.MainController">
+   <children>
+      <HBox layoutX="10.0" layoutY="10.0">
+         <children>
+            <TitledPane alignment="TOP_CENTER" animated="false" collapsible="false" text="Overview" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+               <content>
+                  <VBox alignment="CENTER">
+                     <children>
+                        <HBox layoutX="20.0" layoutY="301.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <Label alignment="CENTER" prefWidth="100.0" text="Game ID">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                              <Text fx:id="mGameId" strokeType="OUTSIDE" strokeWidth="0.0" text="N/A">
+                                 <HBox.margin>
+                                    <Insets left="30.0" />
+                                 </HBox.margin>
+                              </Text>
+                           </children>
+                           <VBox.margin>
+                              <Insets bottom="10.0" top="10.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox VBox.vgrow="ALWAYS">
+                           <children>
+                              <Label alignment="CENTER" prefWidth="100.0" text="Rows">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                              <Text fx:id="mRowLen" strokeType="OUTSIDE" strokeWidth="0.0" text="N/A">
+                                 <HBox.margin>
+                                    <Insets left="30.0" />
+                                 </HBox.margin>
+                              </Text>
+                           </children>
+                           <VBox.margin>
+                              <Insets bottom="10.0" top="10.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox layoutX="20.0" layoutY="20.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <Label alignment="CENTER" prefWidth="100.0" text="Columns">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                              <Text fx:id="mColLen" strokeType="OUTSIDE" strokeWidth="0.0" text="N/A">
+                                 <HBox.margin>
+                                    <Insets left="30.0" />
+                                 </HBox.margin>
+                              </Text>
+                           </children>
+                           <VBox.margin>
+                              <Insets bottom="10.0" top="10.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox layoutX="20.0" layoutY="120.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <Label alignment="CENTER" prefWidth="100.0" text="Win Length">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                              <Text fx:id="mWinLen" strokeType="OUTSIDE" strokeWidth="0.0" text="N/A">
+                                 <HBox.margin>
+                                    <Insets left="30.0" />
+                                 </HBox.margin>
+                              </Text>
+                           </children>
+                           <VBox.margin>
+                              <Insets bottom="10.0" top="10.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox layoutX="20.0" layoutY="220.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <Label alignment="CENTER" prefWidth="100.0" text="Player X">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                              <Text fx:id="mMasterId" strokeType="OUTSIDE" strokeWidth="0.0" text="N/A">
+                                 <HBox.margin>
+                                    <Insets left="30.0" />
+                                 </HBox.margin>
+                              </Text>
+                           </children>
+                           <VBox.margin>
+                              <Insets bottom="10.0" top="10.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox layoutX="20.0" layoutY="284.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <Label alignment="CENTER" prefWidth="100.0" text="Player O">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                              <Text fx:id="mOpId" strokeType="OUTSIDE" strokeWidth="0.0" text="N/A">
+                                 <HBox.margin>
+                                    <Insets left="30.0" />
+                                 </HBox.margin>
+                              </Text>
+                           </children>
+                           <VBox.margin>
+                              <Insets bottom="10.0" top="10.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox layoutX="24.0" layoutY="224.0">
+                           <children>
+                              <Label alignment="CENTER" prefWidth="100.0" text="Turn">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                              <Text fx:id="mTurn" strokeType="OUTSIDE" strokeWidth="0.0" text="N/A">
+                                 <HBox.margin>
+                                    <Insets left="30.0" />
+                                 </HBox.margin>
+                              </Text>
+                           </children>
+                           <VBox.margin>
+                              <Insets bottom="10.0" top="10.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox layoutX="24.0" layoutY="262.0">
+                           <children>
+                              <Label fx:id="mTurn1" alignment="CENTER" prefWidth="100.0" text="Game State">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                              <Text fx:id="mState" strokeType="OUTSIDE" strokeWidth="0.0" text="N/A">
+                                 <HBox.margin>
+                                    <Insets left="30.0" />
+                                 </HBox.margin>
+                              </Text>
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+               </content>
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </TitledPane>
+            <VBox fx:id="mBoardBox" alignment="TOP_CENTER" HBox.hgrow="ALWAYS">
+               <children>
+                  <Label alignment="CENTER" prefWidth="150.0" text="Game Board">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets bottom="50.0" left="30.0" right="30.0" />
+                     </VBox.margin>
+                  </Label>
+               </children>
+               <HBox.margin>
+                  <Insets bottom="30.0" left="100.0" right="100.0" top="60.0" />
+               </HBox.margin>
+            </VBox>
+            <VBox HBox.hgrow="SOMETIMES">
+               <children>
+                  <TitledPane alignment="CENTER" collapsible="false" text="Move History" textAlignment="CENTER" VBox.vgrow="ALWAYS">
+                     <content>
+                        <TextArea fx:id="mHistory" prefHeight="400.0" prefWidth="150.0" promptText="N/A" />
+                     </content>
+                  </TitledPane>
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+   </children>
+</VBox>

@@ -1,18 +1,16 @@
 package edu.gwu.ai.codeknights.tictactoe.chooser;
 
-import edu.gwu.ai.codeknights.tictactoe.DimensionException;
-import edu.gwu.ai.codeknights.tictactoe.Game;
-import edu.gwu.ai.codeknights.tictactoe.Move;
-import edu.gwu.ai.codeknights.tictactoe.StateException;
+import edu.gwu.ai.codeknights.tictactoe.core.Game;
+import edu.gwu.ai.codeknights.tictactoe.core.Move;
 import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ParallelAlphaBetaPruningChooser extends AlphaBetaPruningChooser {
+public class ParallelAlphaBetaPruningChooser extends AlphaBetaPruningChooserAI {
 
   @Override
-  public Move findBestMove(final Game game) {
+  public Move findNextMove(final Game game) {
     if (game.isGameOver()) {
       return null;
     }
@@ -20,22 +18,17 @@ public class ParallelAlphaBetaPruningChooser extends AlphaBetaPruningChooser {
     final int numOther = game.countOtherPlayer();
     final int curPlayer = game.getNextPlayer();
     if (numFirst + numOther == 0) {
-      final int dim = game.getDim();
+      final int dim = game.getRowLen();
       final int center = (int) (dim / 2);
       return new Move(center, center, curPlayer, null);
     }
     final List<Move> moves = findPossibleMoves(game);
     final List<AbpThread> threads = new ArrayList<>();
     for (final Move move : moves) {
-      try {
-        final Game newGame = game.getCopy();
-        final AbpThread t = new AbpThread(curPlayer, move, newGame);
-        threads.add(t);
-        t.start();
-      }
-      catch (DimensionException | StateException e) {
-        Logger.error(e, "could not copy game state");
-      }
+      final Game newGame = game.getCopy();
+      final AbpThread t = new AbpThread(curPlayer, move, newGame);
+      threads.add(t);
+      t.start();
     }
     Long bestScore = null;
     final List<Move> bestMoves = new ArrayList<>();

@@ -1,17 +1,17 @@
 package edu.gwu.ai.codeknights.tictactoe.chooser;
 
-import edu.gwu.ai.codeknights.tictactoe.Game;
-import edu.gwu.ai.codeknights.tictactoe.Move;
+import edu.gwu.ai.codeknights.tictactoe.core.Game;
+import edu.gwu.ai.codeknights.tictactoe.core.Move;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public abstract class MoveChooser {
+public abstract class AIMoveChooser extends AbstractMoveChooser {
 
     private boolean randomChoice;
     private final Map<Long, Long> hashScoreMap;
 
-    public MoveChooser() {
+    public AIMoveChooser() {
         randomChoice = false;
         hashScoreMap = new HashMap<>();
     }
@@ -29,7 +29,7 @@ public abstract class MoveChooser {
     }
 
     protected List<Move> findEmptyMoves(final Game game){
-        final int dim = game.getDim();
+        final int dim = game.getRowLen();
         List<Move> moves = new ArrayList<>();
         final int curPlayer = game.getNextPlayer();
         for (int rowIdx = 0; rowIdx < dim; rowIdx++) {
@@ -111,7 +111,7 @@ public abstract class MoveChooser {
             return false;
         }
 
-        int dim = game.getDim();
+        int dim = game.getRowLen();
 
         boolean flag = false;
         for (int i = first.colIdx - 1; i < first.colIdx + 2; i++) {
@@ -138,7 +138,7 @@ public abstract class MoveChooser {
      * determine if a move has occupied neighbors
      */
     private boolean hasNeighbors(final Game game, final Move move) {
-        int dim = game.getDim();
+        int dim = game.getRowLen();
         // available signal
         boolean flag = false;
         for (int i = move.colIdx - 1; i < move.colIdx + 2; i++) {
@@ -200,12 +200,12 @@ public abstract class MoveChooser {
         for (ArrayList<Move> line : sequences) {
             int size = line.size();
             if(size > 0){
-                if(line.get(0).player == Game.FIRST_PLAYER_VALUE){
+                if(line.get(0).player == game.getFirstPlayerId()){
                     if(size > maxOfFirst){
                         maxOfFirst = size;
                     }
                 }else{
-                    if(line.get(0).player == Game.OTHER_PLAYER_VALUE){
+                    if(line.get(0).player == game.getOtherPlayerId()){
                         if(size > maxOfOther){
                             maxOfOther = size;
                         }
@@ -218,12 +218,12 @@ public abstract class MoveChooser {
         for (ArrayList<Move> line : sequences) {
             int size = line.size();
             if(size > 0){
-                if(line.get(0).player == Game.FIRST_PLAYER_VALUE){
+                if(line.get(0).player == game.getFirstPlayerId()){
                     if(size >= maxOfFirst){
                         filterSequences.add(line);
                     }
                 }else{
-                    if(line.get(0).player == Game.OTHER_PLAYER_VALUE){
+                    if(line.get(0).player == game.getOtherPlayerId()){
                         if(size >= maxOfOther){
                             filterSequences.add(line);
                         }
@@ -235,7 +235,7 @@ public abstract class MoveChooser {
         return filterSequences;
     }
 
-    protected Move selectMove(final Game game, final List<Move>
+    public Move selectMove(final Game game, final List<Move>
             moves) {
         if (moves.size() > 1 && isRandomChoice()) {
             // If many moves scored equally, choose randomly from among them
@@ -251,5 +251,6 @@ public abstract class MoveChooser {
         }
     }
 
-    public abstract Move findBestMove(final Game game);
+    @Override
+    public abstract Move findNextMove(final Game game);
 }

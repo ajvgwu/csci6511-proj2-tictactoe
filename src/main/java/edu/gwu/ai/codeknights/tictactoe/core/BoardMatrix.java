@@ -1,4 +1,4 @@
-package edu.gwu.ai.codeknights.tictactoe;
+package edu.gwu.ai.codeknights.tictactoe.core;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -11,14 +11,14 @@ public class BoardMatrix {
   private final Integer[][] rowMajorMatrix;
   private final Integer[][] colMajorMatrix;
 
-  public BoardMatrix(final int dim, final Integer[][] rowMajMat) {
-    this.dim = dim;
-    rowMajorMatrix = new Integer[dim][dim];
-    colMajorMatrix = new Integer[dim][dim];
+  public BoardMatrix(final int rowLen,final int colLen, final Integer[][] rowMajMat) {
+    this.dim = rowLen;
+    rowMajorMatrix = new Integer[rowLen][colLen];
+    colMajorMatrix = new Integer[rowLen][colLen];
 
     // Populate both row-major and column-major matrices
-    for (int i = 0; i < dim; i++) {
-      for (int j = 0; j < dim; j++) {
+    for (int i = 0; i < rowLen; i++) {
+      for (int j = 0; j < colLen; j++) {
         if (rowMajMat.length > i && rowMajMat[i].length > j) {
           rowMajorMatrix[i][j] = rowMajMat[i][j];
         }
