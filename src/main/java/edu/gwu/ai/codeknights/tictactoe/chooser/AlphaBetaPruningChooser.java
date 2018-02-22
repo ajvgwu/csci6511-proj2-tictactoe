@@ -6,7 +6,7 @@ import edu.gwu.ai.codeknights.tictactoe.core.Move;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AlphaBetaPruningChooserAI extends AIMoveChooser {
+public class AlphaBetaPruningChooser extends AIMoveChooser {
 
     protected long alphabetapruning(final Game game, final int player,
                                     double alpha, double beta, final int

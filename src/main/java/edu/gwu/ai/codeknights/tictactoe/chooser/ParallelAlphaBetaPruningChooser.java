@@ -7,7 +7,7 @@ import org.pmw.tinylog.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ParallelAlphaBetaPruningChooser extends AlphaBetaPruningChooserAI {
+public class ParallelAlphaBetaPruningChooser extends AlphaBetaPruningChooser {
 
   @Override
   public Move findNextMove(final Game game) {

@@ -4,6 +4,8 @@ import edu.gwu.ai.codeknights.tictactoe.chooser.AbstractMoveChooser;
 import edu.gwu.ai.codeknights.tictactoe.chooser.OnlineMoveChooer;
 import edu.gwu.ai.codeknights.tictactoe.chooser.ParallelAlphaBetaPruningChooser;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
+import edu.gwu.ai.codeknights.tictactoe.core.util.DimensionException;
+import edu.gwu.ai.codeknights.tictactoe.core.util.StateException;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.Const;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.Player;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.StupidMoveChooser;
@@ -61,7 +63,11 @@ public class MainHelper {
 
         // create game matrix
         Integer[][] board = new Integer[rowLen][cowLen];
-        this.game = new Game(gameId, rowLen, cowLen, winLen, board, masterId, opId);
+        try {
+            this.game = new Game(gameId, rowLen, cowLen, winLen, board, masterId, opId);
+        } catch (DimensionException | StateException e) {
+            e.printStackTrace();
+        }
     }
 
 

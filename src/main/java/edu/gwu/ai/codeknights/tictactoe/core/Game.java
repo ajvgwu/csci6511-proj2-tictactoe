@@ -3,11 +3,15 @@ package edu.gwu.ai.codeknights.tictactoe.core;
 import java.util.Map;
 import java.util.Objects;
 
+import edu.gwu.ai.codeknights.tictactoe.core.util.DimensionException;
+import edu.gwu.ai.codeknights.tictactoe.core.util.StateException;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.Player;
 import org.pmw.tinylog.Logger;
 
 public class Game {
 
+    public static final int MAX_DIM = 20;
+    public static final int MAX_WIN_LENGTH = 8;
     public static final char BLANK_SPACE_CHAR = '_';
     public static final char FIRST_PLAYER_CHAR = 'X';
     public static final char OTHER_PLAYER_CHAR = 'O';
@@ -21,13 +25,56 @@ public class Game {
     private final BoardMatrix board;
 
     public Game(final long id, final int rowLen, final int colLen, final int winLength, final
-    Integer[][] board, int masterId, int opId) {
+    Integer[][] board, int masterId, int opId) throws DimensionException, StateException {
         this.id = id;
-        this.rowLen = rowLen;
         this.colLen = colLen;
-        this.winLength = winLength;
         this.firstPlayerId = masterId;
         this.otherPlayerId = opId;
+
+        // Check bounds according to: https://ai2018spring.slack.com/archives/C8LB24170/p1518457851000533
+        if (rowLen > MAX_DIM) {
+            throw new DimensionException(String.format("dim=%d, should be <= %d", rowLen, MAX_DIM));
+        }
+        this.rowLen = rowLen;
+
+        // Check bounds according to: https://ai2018spring.slack.com/archives/C8LB24170/p1518457851000533
+        if (winLength > MAX_WIN_LENGTH) {
+            throw new DimensionException(String.format("winLength=%d, should be <= %d", winLength, MAX_WIN_LENGTH));
+        }
+        this.winLength = winLength;
+
+        // Check board size and values
+        if (board.length != rowLen) {
+            throw new DimensionException(String.format("board has wrong number of rows: %d (dim=%d)", board.length, rowLen));
+        }
+        int numFirstPlayer = 0;
+        int numOtherPlayer = 0;
+        for (int i = 0; i < rowLen; i++) {
+            final Integer[] row = board[i];
+            if (row.length != rowLen) {
+                throw new DimensionException(String.format("board has wrong number of columns: %d (dim=%d)", row.length, row));
+            }
+            for (int j = 0; j < rowLen; j++) {
+                final Integer value = row[j];
+                if (value != null) {
+                    if (value != firstPlayerId && value != otherPlayerId) {
+                        throw new StateException(String.format("illegal value on board at position (%d,%d): %d", i, j, value));
+                    }
+                    if (value == firstPlayerId) {
+                        numFirstPlayer++;
+                    }
+                    else {
+                        numOtherPlayer++;
+                    }
+                }
+            }
+        }
+        if (numOtherPlayer > numFirstPlayer || Math.abs(numFirstPlayer - numOtherPlayer) > 1) {
+            throw new StateException(String.format(
+                    "illegal state, player %d goes first then alternates with player %d (numFirstPlayer=%d, numOtherPlayer=%d)",
+                    firstPlayerId, otherPlayerId, numFirstPlayer, numOtherPlayer));
+        }
+
         this.board = new BoardMatrix(rowLen, colLen, board);
     }
 
@@ -158,7 +205,7 @@ public class Game {
         return board.getAllLinesOfMove(winLength);
     }
 
-    protected String toStringAllLines(final String prefix) {
+    public String toStringAllLines(final String prefix) {
         final StringBuilder bldr = new StringBuilder();
         final Map<String, Integer[]> lineMap = board.getAllLines();
         for (final String name : lineMap.keySet()) {
@@ -196,9 +243,13 @@ public class Game {
         }
     }
 
-    public Game getCopy(){
-        return new Game(id, rowLen, colLen, winLength, board.getAllRows(),
-                firstPlayerId, otherPlayerId);
+    public Game getCopy() {
+        try {
+            return new Game(id, rowLen, colLen, winLength, board.getAllRows(), firstPlayerId, otherPlayerId);
+        } catch (DimensionException | StateException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
