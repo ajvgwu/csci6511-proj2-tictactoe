@@ -7,6 +7,7 @@ import edu.gwu.ai.codeknights.tictactoe.core.Move;
 import edu.gwu.ai.codeknights.tictactoe.core.exception.DimensionException;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.core.exception.StateException;
+import edu.gwu.ai.codeknights.tictactoe.util.Const;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -47,9 +48,9 @@ public class Main {
       .desc("length of sequence required to win (default is " + String.valueOf(winLength) + ")").build();
     final Option stateOpt = Option.builder("s").longOpt("state").hasArgs().argName("CELLS")
       .desc("initial state of board (default is an empty board); moves of the first player given by '"
-        + String.valueOf(Game.FIRST_PLAYER_CHAR) + "' or '" + String.valueOf(masterId)
-        + "'; moves of the other player given by '" + String.valueOf(Game.OTHER_PLAYER_CHAR) + "' or '"
-        + String.valueOf(opId) + "'; empty spaces given by '" + String.valueOf(Game.BLANK_SPACE_CHAR)
+        + String.valueOf(Const.MASTER_PLAYER_CHAR) + "' or '" + String.valueOf(masterId)
+        + "'; moves of the other player given by '" + String.valueOf(Const.OPPONENT_PLAYER_CHAR) + "' or '"
+        + String.valueOf(opId) + "'; empty spaces given by '" + String.valueOf(Const.BLANK_SPACE_CHAR)
         + "'")
       .build();
     final Option randomizeOpt = Option.builder("r").longOpt("randomize")
@@ -124,10 +125,10 @@ public class Main {
               board[i][j] = Integer.parseInt(curArg);
             }
             catch (final NumberFormatException e) {
-              if (curArg.equalsIgnoreCase(String.valueOf(Game.FIRST_PLAYER_CHAR))) {
+              if (curArg.equalsIgnoreCase(String.valueOf(Const.MASTER_PLAYER_CHAR))) {
                 board[i][j] = masterId;
               }
-              else if (curArg.equalsIgnoreCase(String.valueOf(Game.OTHER_PLAYER_CHAR))) {
+              else if (curArg.equalsIgnoreCase(String.valueOf(Const.OPPONENT_PLAYER_CHAR))) {
                 board[i][j] = opId;
               }
               else {
@@ -156,8 +157,8 @@ public class Main {
     Logger.info("dim={}, winLength={}, hash={}", game.getDim(), game.getWinLength(), game.getBoardHash());
     Logger.info("All lines on board:\n{}\n", game.toStringAllLines(" * "));
     Logger.info("Game board state:\n{}\n", game.toString());
-    Logger.info("# spaces:       {}={}, {}={}, {}={}", Game.FIRST_PLAYER_CHAR, game.countFirstPlayer(),
-      Game.OTHER_PLAYER_CHAR, game.countOtherPlayer(), Game.BLANK_SPACE_CHAR, game.countEmpty());
+    Logger.info("# spaces:       {}={}, {}={}, {}={}", Const.MASTER_PLAYER_CHAR, game.countFirstPlayer(),
+      Const.OPPONENT_PLAYER_CHAR, game.countOtherPlayer(), Const.BLANK_SPACE_CHAR, game.countEmpty());
     boolean isGameOver = game.isGameOver();
     Logger.info("Is game over?   {}", isGameOver);
     Game curGame = game;
@@ -196,8 +197,8 @@ public class Main {
       Logger.info("Is game over?   {}", isGameOver);
     }
     Logger.info("Did anyone win? {}", curGame.didAnyPlayerWin());
-    Logger.info("Who won?        {}={}, {}={}", Game.FIRST_PLAYER_CHAR, curGame.didFirstPlayerWin(),
-      Game.OTHER_PLAYER_CHAR, curGame.didOtherPlayerWin());
+    Logger.info("Who won?        {}={}, {}={}", Const.MASTER_PLAYER_CHAR, curGame.didFirstPlayerWin(),
+      Const.OPPONENT_PLAYER_CHAR, curGame.didOtherPlayerWin());
   }
 
   public static void playGame(final Game game, final boolean randomize)
@@ -205,8 +206,8 @@ public class Main {
     Logger.info("dim={}, winLength={}, hash={}", game.getDim(), game.getWinLength(), game.getBoardHash());
     Logger.info("All lines on board:\n{}\n", game.toStringAllLines(" * "));
     Logger.info("Game board state:\n{}\n", game.toString());
-    Logger.info("# spaces:       {}={}, {}={}, {}={}", Game.FIRST_PLAYER_CHAR, game.countFirstPlayer(),
-      Game.OTHER_PLAYER_CHAR, game.countOtherPlayer(), Game.BLANK_SPACE_CHAR, game.countEmpty());
+    Logger.info("# spaces:       {}={}, {}={}, {}={}", Const.MASTER_PLAYER_CHAR, game.countFirstPlayer(),
+      Const.OPPONENT_PLAYER_CHAR, game.countOtherPlayer(), Const.BLANK_SPACE_CHAR, game.countEmpty());
     boolean isGameOver = game.isGameOver();
     Logger.info("Is game over?   {}", isGameOver);
     while (!isGameOver) {
@@ -222,7 +223,7 @@ public class Main {
       Logger.info("Is game over?   {}", isGameOver);
     }
     Logger.info("Did anyone win? {}", game.didAnyPlayerWin());
-    Logger.info("Who won?        {}={}, {}={}", Game.FIRST_PLAYER_CHAR, game.didFirstPlayerWin(),
-      Game.OTHER_PLAYER_CHAR, game.didOtherPlayerWin());
+    Logger.info("Who won?        {}={}, {}={}", Const.MASTER_PLAYER_CHAR, game.didFirstPlayerWin(),
+      Const.OPPONENT_PLAYER_CHAR, game.didOtherPlayerWin());
   }
 }

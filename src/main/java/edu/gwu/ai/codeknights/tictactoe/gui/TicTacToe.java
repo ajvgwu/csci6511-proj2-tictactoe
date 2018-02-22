@@ -1,6 +1,5 @@
 package edu.gwu.ai.codeknights.tictactoe.gui;
 
-import edu.gwu.ai.codeknights.tictactoe.gui.util.Const;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.FXMLLoadResult;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.FXMLUtil;
 import javafx.application.Application;
@@ -10,7 +9,7 @@ import javafx.stage.Stage;
 /**
  * @author zhiyuan
  */
-public class Simulator extends Application {
+public class TicTacToe extends Application {
 
     /**
      * primaryStage is the root component of the UI module
@@ -27,7 +26,7 @@ public class Simulator extends Application {
 
         // load start scene
         FXMLLoadResult result = FXMLUtil.loadAsNode("fxml/start.fxml");
-        FXMLUtil.addStylesheets(result.getNode(), Const
+        FXMLUtil.addStylesheets(result.getNode(), edu.gwu.ai.codeknights.tictactoe.util.Const
                 .UNIVERSAL_STYLESHEET_URL);
 
         primaryStage.setTitle("The Code Knights");
@@ -35,7 +34,7 @@ public class Simulator extends Application {
         primaryStage.setResizable(false);
         primaryStage.show();
 
-        Simulator.primaryStage = primaryStage;
+        TicTacToe.primaryStage = primaryStage;
     }
 
     /**

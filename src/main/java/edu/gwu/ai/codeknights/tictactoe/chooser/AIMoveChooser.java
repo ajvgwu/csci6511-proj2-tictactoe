@@ -202,17 +202,19 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
         ArrayList<ArrayList<Move>> filterSequences = new ArrayList<>();
         int maxOfFirst = 0;
         int maxOfOther = 0;
+        int masterId = game.getFirstPlayerId();
+        int opId = game.getOtherPlayerId();
 
         // findMovesAdjacentToWinningLine the max line length for each player
         for (ArrayList<Move> line : sequences) {
             int size = line.size();
             if(size > 0){
-                if(line.get(0).player == Game.FIRST_PLAYER_VALUE){
+                if(line.get(0).player == masterId){
                     if(size > maxOfFirst){
                         maxOfFirst = size;
                     }
                 }else{
-                    if(line.get(0).player == Game.OTHER_PLAYER_VALUE){
+                    if(line.get(0).player == opId){
                         if(size > maxOfOther){
                             maxOfOther = size;
                         }
@@ -220,24 +222,25 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
                 }
             }
         }
-
+        int finalMaxOfFirst = maxOfFirst;
+        int finalMaxOfOther = maxOfOther;
         // filter max length lines
-        for (ArrayList<Move> line : sequences) {
+        sequences.forEach(line -> {
             int size = line.size();
             if(size > 0){
-                if(line.get(0).player == Game.FIRST_PLAYER_VALUE){
-                    if(size >= maxOfFirst){
+                if(line.get(0).player == masterId){
+                    if(size >= finalMaxOfFirst){
                         filterSequences.add(line);
                     }
                 }else{
-                    if(line.get(0).player == Game.OTHER_PLAYER_VALUE){
-                        if(size >= maxOfOther){
+                    if(line.get(0).player == masterId){
+                        if(size >= finalMaxOfOther){
                             filterSequences.add(line);
                         }
                     }
                 }
             }
-        }
+        });
 
         return filterSequences;
     }

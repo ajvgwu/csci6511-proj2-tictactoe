@@ -1,9 +1,9 @@
 package edu.gwu.ai.codeknights.tictactoe.gui.controller;
 
-import edu.gwu.ai.codeknights.tictactoe.gui.Simulator;
-import edu.gwu.ai.codeknights.tictactoe.gui.util.Const;
+import edu.gwu.ai.codeknights.tictactoe.gui.TicTacToe;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.FXMLLoadResult;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.FXMLUtil;
+import edu.gwu.ai.codeknights.tictactoe.util.Const;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -100,7 +100,7 @@ public class StartController {
 
         int mode = getMode();
 
-        Stage primaryStage = Simulator.getPrimaryStage();
+        Stage primaryStage = TicTacToe.getPrimaryStage();
         try {
             Integer teamId = Integer.parseInt(stTeamId.getText());
             Integer opponentId = Integer.parseInt(stOpId.getText());

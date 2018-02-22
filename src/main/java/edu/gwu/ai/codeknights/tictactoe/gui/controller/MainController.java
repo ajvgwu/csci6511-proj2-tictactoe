@@ -2,10 +2,10 @@ package edu.gwu.ai.codeknights.tictactoe.gui.controller;
 
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.core.Move;
-import edu.gwu.ai.codeknights.tictactoe.gui.Simulator;
+import edu.gwu.ai.codeknights.tictactoe.gui.TicTacToe;
 import edu.gwu.ai.codeknights.tictactoe.gui.helpers.MainHelper;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.API;
-import edu.gwu.ai.codeknights.tictactoe.gui.util.Const;
+import edu.gwu.ai.codeknights.tictactoe.util.Const;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -113,7 +113,7 @@ public class MainController {
 
         // add matrix to main panel
         buildBoard(rowLen, colLen);
-        Simulator.getPrimaryStage().sizeToScene();
+        TicTacToe.getPrimaryStage().sizeToScene();
         helper.createGame(gameId, rowLen, colLen, winLen, mode, masterId, opId);
         game = helper.getGame();
 
@@ -174,14 +174,15 @@ public class MainController {
 
         for (int i = 0; i < rowLen; i++) {
             for (int j = 0; j < colLen; j++) {
-                StringProperty property = new SimpleStringProperty("-");
+                String blank = String.valueOf(Const.BLANK_SPACE_CHAR);
+                StringProperty property = new SimpleStringProperty(blank);
                 Label label = new Label();
                 matrix[i][j] = label;
                 boardProperties[i][j] = property;
                 label.setOnMouseClicked(event -> {
                     // on mouse clicked
                     // only works in PvE
-                    if ("-".equals(label.getText()) && isClickable.get()) {
+                    if (blank.equals(label.getText()) && isClickable.get()) {
                         int row = (int) label.getProperties().get("row");
                         int col = (int) label.getProperties().get("col");
                         pve(row, col);

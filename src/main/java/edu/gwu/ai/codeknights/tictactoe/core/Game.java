@@ -5,21 +5,17 @@ import java.util.Objects;
 
 import edu.gwu.ai.codeknights.tictactoe.core.exception.DimensionException;
 import edu.gwu.ai.codeknights.tictactoe.core.exception.StateException;
+import edu.gwu.ai.codeknights.tictactoe.util.Const;
 import org.pmw.tinylog.Logger;
 
 public class Game {
 
   public static final int MAX_DIM = 20;
   public static final int MAX_WIN_LENGTH = 8;
-  public static final int FIRST_PLAYER_VALUE = 10;
-  public static final int OTHER_PLAYER_VALUE = 20;
-  public static final char BLANK_SPACE_CHAR = '_';
-  public static final char FIRST_PLAYER_CHAR = 'X';
-  public static final char OTHER_PLAYER_CHAR = 'O';
 
   private final long id;
-//  private final int firstPlayerId;
-//  private final int otherPlayerId;
+  private final int firstPlayerId;
+  private final int otherPlayerId;
   private final int dim;
   private final int winLength;
   private final BoardMatrix board;
@@ -27,8 +23,8 @@ public class Game {
   public Game(final long gameId, final int dim, final int winLength, final Integer[][] board, final int masterId, final int opid) throws DimensionException, StateException {
 
     this.id = gameId;
-//    this.firstPlayerId = masterId;
-//    this.otherPlayerId = opid;
+    this.firstPlayerId = masterId;
+    this.otherPlayerId = opid;
 
     // Check bounds according to: https://ai2018spring.slack.com/archives/C8LB24170/p1518457851000533
     if (dim > MAX_DIM) {
@@ -56,10 +52,10 @@ public class Game {
       for (int j = 0; j < dim; j++) {
         final Integer value = row[j];
         if (value != null) {
-          if (value != FIRST_PLAYER_VALUE && value != OTHER_PLAYER_VALUE) {
+          if (value != firstPlayerId && value != otherPlayerId) {
             throw new StateException(String.format("illegal value on board at position (%d,%d): %d", i, j, value));
           }
-          if (value == FIRST_PLAYER_VALUE) {
+          if (value == firstPlayerId) {
             numFirstPlayer++;
           }
           else {
@@ -70,8 +66,7 @@ public class Game {
     }
     if (numOtherPlayer > numFirstPlayer || Math.abs(numFirstPlayer - numOtherPlayer) > 1) {
       throw new StateException(String.format(
-        "illegal state, player %d goes first then alternates with player %d (numFirstPlayer=%d, numOtherPlayer=%d)",
-              FIRST_PLAYER_VALUE, OTHER_PLAYER_VALUE, numFirstPlayer, numOtherPlayer));
+        "illegal state, player %d goes first then alternates with player %d (numFirstPlayer=%d, numOtherPlayer=%d)", firstPlayerId, otherPlayerId, numFirstPlayer, numOtherPlayer));
     }
     this.board = new BoardMatrix(dim, board);
   }
@@ -110,19 +105,19 @@ public class Game {
   }
 
   public int countFirstPlayer() {
-    return countPlayerOrNull(FIRST_PLAYER_VALUE);
+    return countPlayerOrNull(firstPlayerId);
   }
 
   public int countOtherPlayer() {
-    return countPlayerOrNull(OTHER_PLAYER_VALUE);
+    return countPlayerOrNull(otherPlayerId);
   }
 
   public int getNextPlayer() {
-    return countOtherPlayer() < countFirstPlayer() ? OTHER_PLAYER_VALUE : FIRST_PLAYER_VALUE;
+    return countOtherPlayer() < countFirstPlayer() ? otherPlayerId : firstPlayerId;
   }
 
   public int getPrevPlayer() {
-    return countOtherPlayer() == countFirstPlayer() ? OTHER_PLAYER_VALUE : FIRST_PLAYER_VALUE;
+    return countOtherPlayer() == countFirstPlayer() ? otherPlayerId : firstPlayerId;
   }
 
   protected boolean checkLineForWin(final Integer[] line, final int player) {
@@ -162,11 +157,11 @@ public class Game {
   }
 
   public boolean didFirstPlayerWin() {
-    return didPlayerWin(FIRST_PLAYER_VALUE);
+    return didPlayerWin(firstPlayerId);
   }
 
   public boolean didOtherPlayerWin() {
-    return didPlayerWin(OTHER_PLAYER_VALUE);
+    return didPlayerWin(otherPlayerId);
   }
 
   public boolean didAnyPlayerWin() {
@@ -225,8 +220,7 @@ public class Game {
   }
 
   public Game getCopy() throws DimensionException, StateException {
-    return new Game(id,dim, winLength, board.getAllRows(), FIRST_PLAYER_VALUE,
-            OTHER_PLAYER_VALUE);
+    return new Game(id,dim, winLength, board.getAllRows(), firstPlayerId, otherPlayerId);
   }
 
   public String getBoardStatus(){
@@ -239,9 +233,9 @@ public class Game {
         return "DRAW";
       }else{
         if(didFirstPlayerWin()){
-          return String.valueOf(FIRST_PLAYER_VALUE)+" WIN";
+          return String.valueOf(firstPlayerId)+" WIN";
         }else{
-          return String.valueOf(OTHER_PLAYER_VALUE)+" WIN";
+          return String.valueOf(otherPlayerId)+" WIN";
         }
       }
     }
@@ -257,9 +251,9 @@ public class Game {
       for (int j = 0; j < dim; j++) {
         final Integer value = board.getCellValue(i, j);
         bldr.append(" " + (value != null
-          ? value == FIRST_PLAYER_VALUE ? FIRST_PLAYER_CHAR : value == OTHER_PLAYER_VALUE ?
-                OTHER_PLAYER_CHAR : "?"
-          : BLANK_SPACE_CHAR) + " ");
+          ? value == firstPlayerId ? Const.MASTER_PLAYER_CHAR : value == otherPlayerId ?
+                Const.OPPONENT_PLAYER_CHAR : "?"
+          : Const.BLANK_SPACE_CHAR) + " ");
       }
     }
     return bldr.toString();
@@ -268,4 +262,12 @@ public class Game {
     public long getId() {
         return id;
     }
+
+  public int getFirstPlayerId() {
+    return firstPlayerId;
+  }
+
+  public int getOtherPlayerId() {
+    return otherPlayerId;
+  }
 }
