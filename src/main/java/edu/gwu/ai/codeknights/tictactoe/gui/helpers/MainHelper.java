@@ -25,35 +25,35 @@ public class MainHelper {
 
     public void createGame(long gameId, int rowLen, int cowLen, int winLen, int mode, int masterId, int opId) {
 
-        String selfSymbol;
-        AbstractMoveChooser selfMoveChooser;
+        String masterSymbol;
+        AbstractMoveChooser masterMoveChooser;
         String opSymbol;
         AbstractMoveChooser opMoveChooser;
 
         // set player symbols
-        selfSymbol = Const.PLAYER_SYMBOL_MASTER;
+        masterSymbol = Const.PLAYER_SYMBOL_MASTER;
         opSymbol = Const.PLAYER_SYMBOL_OPPONENT;
 
         // create two players
         switch (mode) {
             case 1:
                 // pve
-                selfMoveChooser = new StupidMoveChooser();
-                this.master = new Player(masterId, selfSymbol, selfMoveChooser);
+                masterMoveChooser = new StupidMoveChooser();
+                this.master = new Player(masterId, masterSymbol, masterMoveChooser);
                 opMoveChooser = new ParallelAlphaBetaPruningChooser();
                 this.opponent = new Player(opId, opSymbol, opMoveChooser);
                 break;
             case 2:
                 // eve
-                selfMoveChooser = new ParallelAlphaBetaPruningChooser();
-                this.master = new Player(masterId, selfSymbol, selfMoveChooser);
+                masterMoveChooser = new ParallelAlphaBetaPruningChooser();
+                this.master = new Player(masterId, masterSymbol, masterMoveChooser);
                 opMoveChooser = new ParallelAlphaBetaPruningChooser();
                 this.opponent = new Player(opId, opSymbol, opMoveChooser);
                 break;
             case 3:
                 // eve online
-                selfMoveChooser = new ParallelAlphaBetaPruningChooser();
-                this.master = new Player(masterId, selfSymbol, selfMoveChooser);
+                masterMoveChooser = new ParallelAlphaBetaPruningChooser();
+                this.master = new Player(masterId, masterSymbol, masterMoveChooser);
                 opMoveChooser = new OnlineMoveChooer();
                 this.opponent = new Player(opId, opSymbol, opMoveChooser);
                 break;
@@ -70,6 +70,13 @@ public class MainHelper {
         }
     }
 
+    public Player getNextPlayer(){
+        if(game.getNextPlayer() == master.getId()){
+            return master;
+        }else{
+            return opponent;
+        }
+    }
 
 
     public Game getGame() {

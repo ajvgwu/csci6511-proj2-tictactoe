@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TitledPane?>
@@ -138,7 +139,7 @@
                         </HBox>
                         <HBox layoutX="24.0" layoutY="262.0">
                            <children>
-                              <Label fx:id="mTurn1" alignment="CENTER" prefWidth="100.0" text="Game State">
+                              <Label alignment="CENTER" prefWidth="100.0" text="Game State">
                                  <font>
                                     <Font size="14.0" />
                                  </font>
@@ -149,6 +150,17 @@
                                  </HBox.margin>
                               </Text>
                            </children>
+                           <VBox.margin>
+                              <Insets bottom="10.0" top="10.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox alignment="CENTER" layoutX="24.0" layoutY="290.0">
+                           <children>
+                              <Button fx:id="mNext" alignment="CENTER" mnemonicParsing="false" onAction="#nextHandler" styleClass="danger" text="Next" />
+                           </children>
+                           <VBox.margin>
+                              <Insets bottom="10.0" top="10.0" />
+                           </VBox.margin>
                         </HBox>
                      </children>
                   </VBox>

@@ -5,14 +5,17 @@ import edu.gwu.ai.codeknights.tictactoe.core.Move;
 import edu.gwu.ai.codeknights.tictactoe.gui.TicTacToe;
 import edu.gwu.ai.codeknights.tictactoe.gui.helpers.MainHelper;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.API;
+import edu.gwu.ai.codeknights.tictactoe.gui.util.Player;
 import edu.gwu.ai.codeknights.tictactoe.util.Const;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.*;
@@ -58,6 +61,9 @@ public class MainController {
 
     @FXML
     private Text mState;
+
+    @FXML
+    private Button mNext;
 
     @FXML
     private VBox mBoardBox;
@@ -131,6 +137,10 @@ public class MainController {
                 mTurn.setText(Const.PLAYER_SYMBOL_OPPONENT);
             }
         });
+
+        if(mode == 1){
+            mNext.setDisable(true);
+        }
     }
 
     /**
@@ -168,7 +178,11 @@ public class MainController {
         isClickable = new BooleanBinding() {
             @Override
             protected boolean computeValue() {
-                return isMasterTurn.get() && mode == 1;
+                if(helper.getNextPlayer() == helper.getMaster() && mode == 1){
+                    return true;
+                }else{
+                    return false;
+                }
             }
         };
 
@@ -206,29 +220,36 @@ public class MainController {
         helper.history.set("["+helper.getMaster().getSymbol()
                 +"]["+(row+1)+", "+(col+1)+"]\n"+helper.history.get());
         boardProperties[row][col].set(helper.getMaster().getSymbol());
+        mState.setText(game.getBoardStatus());
         boolean isGameOver = game.isGameOver();
         if (!isGameOver) {
             // ai play
-            Move aiMove = helper.getOpponent().getMoveChooser
-                    ().findNextMove(game);
-            game.setCellValue(aiMove.rowIdx, aiMove.colIdx,
-                    aiMove.player);
-            boardProperties[aiMove.rowIdx][aiMove.colIdx].set(helper
-                    .getOpponent()
-                    .getSymbol());
-            helper.history.set("["+helper.getOpponent().getSymbol()
-                    +"]["+(aiMove.rowIdx+1)+", "+(aiMove.colIdx+1)+"]\n"+helper
-                    .history.get
-                    ());
-            isGameOver = game.isGameOver();
-            if (isGameOver) {
-                // game is over
-                mState.setText(game.getBoardStatus());
-            }
-        } else {
-            // game is over
-            mState.setText(game.getBoardStatus());
+            aiMove(helper.getOpponent());
         }
+    }
+
+    @FXML
+    void nextHandler(ActionEvent event){
+        if(game.getNextPlayer() == helper.getMaster().getId()){
+            aiMove(helper.getMaster());
+        }else{
+            aiMove(helper.getOpponent());
+        }
+        if(game.isGameOver()){
+            mNext.setDisable(true);
+        }
+    }
+
+    private void aiMove(Player player){
+
+        // ai play
+        Move aiMove = player.getMoveChooser().findNextMove(game);
+        game.setCellValue(aiMove.rowIdx, aiMove.colIdx, aiMove.player);
+        boardProperties[aiMove.rowIdx][aiMove.colIdx].set(player.getSymbol());
+        helper.history.set("["+player.getSymbol()
+                +"]["+(aiMove.rowIdx+1)+", "+(aiMove.colIdx+1)+"]\n"+helper
+                .history.get());
+        mState.setText(game.getBoardStatus());
     }
 
     public Game getGame() {
