@@ -1,14 +1,17 @@
-package edu.gwu.ai.codeknights.tictactoe;
+package edu.gwu.ai.codeknights.tictactoe.chooser;
+
+import edu.gwu.ai.codeknights.tictactoe.core.Game;
+import edu.gwu.ai.codeknights.tictactoe.core.Move;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public abstract class MoveChooser {
+public abstract class AIMoveChooser extends AbstractMoveChooser {
 
     private boolean randomChoice;
     private final Map<Long, Long> hashScoreMap;
 
-    public MoveChooser() {
+    public AIMoveChooser() {
         randomChoice = false;
         hashScoreMap = new HashMap<>();
     }
@@ -25,9 +28,9 @@ public abstract class MoveChooser {
         return hashScoreMap;
     }
 
-    protected List<Game.Move> findEmptyMoves(final Game game){
+    protected List<Move> findEmptyMoves(final Game game){
         final int dim = game.getDim();
-        List<Game.Move> moves = new ArrayList<>();
+        List<Move> moves = new ArrayList<>();
         final int curPlayer = game.getNextPlayer();
 
         for (int rowIdx = 0; rowIdx < dim; rowIdx++) {
@@ -35,15 +38,15 @@ public abstract class MoveChooser {
                 final Integer value = game.getCellValue(rowIdx, colIdx);
                 if (value == null) {
                     // This is a possible move (empty cell)
-                    moves.add(new Game.Move(rowIdx, colIdx, curPlayer, null));
+                    moves.add(new Move(rowIdx, colIdx, curPlayer, null));
                 }
             }
         }
         return moves;
     }
 
-    protected List<Game.Move> findPossibleMoves(final Game game) {
-        List<Game.Move> moves = new ArrayList<>();
+    protected List<Move> findPossibleMoves(final Game game) {
+        List<Move> moves = new ArrayList<>();
         final int dim = game.getDim();
         final int prevPlayer = game.getPrevPlayer();
         final int curPlayer = game.getNextPlayer();
@@ -56,7 +59,7 @@ public abstract class MoveChooser {
                     final boolean didWin = game.didPlayerWin(curPlayer);
                     game.setCellValue(rowIdx, colIdx, null);
                     if (didWin) {
-                        return Collections.singletonList(new Game.Move(rowIdx, colIdx, curPlayer, null));
+                        return Collections.singletonList(new Move(rowIdx, colIdx, curPlayer, null));
                     }
 
                     // rule 2: if the other player can win, block it immediately
@@ -64,11 +67,11 @@ public abstract class MoveChooser {
                     final boolean didLose = game.didPlayerWin(prevPlayer);
                     game.setCellValue(rowIdx, colIdx, null);
                     if (didLose) {
-                        return Collections.singletonList(new Game.Move(rowIdx, colIdx, curPlayer, null));
+                        return Collections.singletonList(new Move(rowIdx, colIdx, curPlayer, null));
                     }
 
                     // This is a possible move (empty cell)
-                    moves.add(new Game.Move(rowIdx, colIdx, curPlayer, null));
+                    moves.add(new Move(rowIdx, colIdx, curPlayer, null));
                 }
             }
         }
@@ -76,7 +79,7 @@ public abstract class MoveChooser {
         // rule 3: don't consider the move if it is adjacent to none
         moves = moves.stream().filter(move -> hasNeighbors(game, move)).collect(Collectors.toList());
         // rule 4: don't consider the move if it is not adjacent to winning lines
-        ArrayList<ArrayList<Game.Move>> sequences = getWinningSequences(game);
+        ArrayList<ArrayList<Move>> sequences = getWinningSequences(game);
         moves = new ArrayList<>(findMovesAdjacentToWinningLine(game, moves, sequences));
         return moves;
     }
@@ -85,20 +88,20 @@ public abstract class MoveChooser {
      * return set of moves that adjacent to the head and the tail of winning
      * lines
      * */
-    private Set<Game.Move> findMovesAdjacentToWinningLine(Game game, List<Game.Move> moves,
-                                                          ArrayList<ArrayList<Game.Move>> sequences) {
-        Set<Game.Move> filterMoves = new HashSet<>();
+    private Set<Move> findMovesAdjacentToWinningLine(Game game, List<Move> moves,
+                                                     ArrayList<ArrayList<Move>> sequences) {
+        Set<Move> filterMoves = new HashSet<>();
 
-        for (ArrayList<Game.Move> sequence : sequences) {
-            Game.Move head = null;
-            Game.Move tail = null;
+        for (ArrayList<Move> sequence : sequences) {
+            Move head = null;
+            Move tail = null;
             int size = sequence.size();
             if (size > 0) {
                 head = sequence.get(0);
                 tail = sequence.get(size - 1);
             }
 
-            for (Game.Move move : moves) {
+            for (Move move : moves) {
                 if(isNeighbors(game, head, move) || isNeighbors(game, tail, move)){
                     filterMoves.add(move);
                 }
@@ -108,8 +111,8 @@ public abstract class MoveChooser {
         return filterMoves;
     }
 
-    private boolean isNeighbors(final Game game, final Game.Move first, final
-    Game.Move second) {
+    private boolean isNeighbors(final Game game, final Move first, final
+    Move second) {
 
         if(first == null || second == null){
             return false;
@@ -141,7 +144,7 @@ public abstract class MoveChooser {
      * rule 3
      * determine if a move has occupied neighbors
      */
-    private boolean hasNeighbors(final Game game, final Game.Move move) {
+    private boolean hasNeighbors(final Game game, final Move move) {
         int dim = game.getDim();
         // available signal
         boolean flag = false;
@@ -164,13 +167,13 @@ public abstract class MoveChooser {
         return flag;
     }
 
-    private ArrayList<ArrayList<Game.Move>> getWinningSequences(Game game) {
-        ArrayList<ArrayList<Game.Move>> sequences = new ArrayList<>();
-        final Map<String, Game.Move[]> lines = game.getAllLinesOfMove(game.getWinLength());
-        for (Game.Move[] line : lines.values()) {
-            ArrayList<Game.Move> sequence = null;
+    private ArrayList<ArrayList<Move>> getWinningSequences(Game game) {
+        ArrayList<ArrayList<Move>> sequences = new ArrayList<>();
+        final Map<String, Move[]> lines = game.getAllLinesOfMove(game.getWinLength());
+        for (Move[] line : lines.values()) {
+            ArrayList<Move> sequence = null;
             Integer prevPlayer = null;
-            for (Game.Move move : line) {
+            for (Move move : line) {
                 Integer player = move.player;
 
                 // current move is empty
@@ -196,12 +199,12 @@ public abstract class MoveChooser {
             }
         }
 
-        ArrayList<ArrayList<Game.Move>> filterSequences = new ArrayList<>();
+        ArrayList<ArrayList<Move>> filterSequences = new ArrayList<>();
         int maxOfFirst = 0;
         int maxOfOther = 0;
 
         // findMovesAdjacentToWinningLine the max line length for each player
-        for (ArrayList<Game.Move> line : sequences) {
+        for (ArrayList<Move> line : sequences) {
             int size = line.size();
             if(size > 0){
                 if(line.get(0).player == Game.FIRST_PLAYER_VALUE){
@@ -219,7 +222,7 @@ public abstract class MoveChooser {
         }
 
         // filter max length lines
-        for (ArrayList<Game.Move> line : sequences) {
+        for (ArrayList<Move> line : sequences) {
             int size = line.size();
             if(size > 0){
                 if(line.get(0).player == Game.FIRST_PLAYER_VALUE){
@@ -239,7 +242,7 @@ public abstract class MoveChooser {
         return filterSequences;
     }
 
-    protected Game.Move selectMove(final Game game, final List<Game.Move>
+    protected Move selectMove(final Game game, final List<Move>
             moves) {
         if (moves.size() > 1 && isRandomChoice()) {
             // If many moves scored equally, choose randomly from among them
@@ -249,11 +252,12 @@ public abstract class MoveChooser {
             return moves.get(0);
         } else {
             // No winning move found !!!
-            List<Game.Move> emptyMoves = findEmptyMoves(game);
+            List<Move> emptyMoves = findEmptyMoves(game);
             Collections.shuffle(emptyMoves);
             return emptyMoves.get(0);
         }
     }
 
-    public abstract Game.Move findBestMove(final Game game);
+    @Override
+    public abstract Move findNextMove(final Game game);
 }

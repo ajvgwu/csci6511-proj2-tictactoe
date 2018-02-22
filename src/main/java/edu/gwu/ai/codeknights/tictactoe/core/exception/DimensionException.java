@@ -1,4 +1,4 @@
-package edu.gwu.ai.codeknights.tictactoe;
+package edu.gwu.ai.codeknights.tictactoe.core.exception;
 
 public class DimensionException extends GameException {
   private static final long serialVersionUID = -2706358295034033428L;

@@ -1,14 +1,18 @@
-package edu.gwu.ai.codeknights.tictactoe;
+package edu.gwu.ai.codeknights.tictactoe.chooser;
 
+import edu.gwu.ai.codeknights.tictactoe.core.Move;
+import edu.gwu.ai.codeknights.tictactoe.core.exception.DimensionException;
+import edu.gwu.ai.codeknights.tictactoe.core.Game;
+import edu.gwu.ai.codeknights.tictactoe.core.exception.StateException;
 import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AlphaBetaPruningChooser extends MoveChooser {
+public class AlphaBetaPruningChooser extends AIMoveChooser {
 
     protected long alphabetapruning(final Game game, final int player,
-                                   double alpha, double beta, final int
+                                    double alpha, double beta, final int
                                            level) {
         Long bestScore = null;
         // Check for terminal state
@@ -32,8 +36,8 @@ public class AlphaBetaPruningChooser extends MoveChooser {
         }
 
         // Find move with the best score
-        final List<Game.Move> moves = findPossibleMoves(game);
-        for (final Game.Move move : moves) {
+        final List<Move> moves = findPossibleMoves(game);
+        for (final Move move : moves) {
             try {
                 final Game newGame = game.getCopy();
                 newGame.setCellValue(move.rowIdx, move.colIdx, move.player);
@@ -72,7 +76,7 @@ public class AlphaBetaPruningChooser extends MoveChooser {
     }
 
     @Override
-    public Game.Move findBestMove(final Game game) {
+    public Move findNextMove(final Game game) {
         if (game.isGameOver()) {
             return null;
         }
@@ -82,12 +86,12 @@ public class AlphaBetaPruningChooser extends MoveChooser {
         if (numFirst + numOther == 0) {
             final int dim = game.getDim();
             final int center = (int) (dim / 2);
-            return new Game.Move(center, center, curPlayer, null);
+            return new Move(center, center, curPlayer, null);
         }
-        final List<Game.Move> moves = findPossibleMoves(game);
+        final List<Move> moves = findPossibleMoves(game);
         Long bestScore = null;
-        final List<Game.Move> bestMoves = new ArrayList<>();
-        for (final Game.Move move : moves) {
+        final List<Move> bestMoves = new ArrayList<>();
+        for (final Move move : moves) {
             try {
                 final Game newGame = game.getCopy();
                 newGame.setCellValue(move.rowIdx, move.colIdx, curPlayer);

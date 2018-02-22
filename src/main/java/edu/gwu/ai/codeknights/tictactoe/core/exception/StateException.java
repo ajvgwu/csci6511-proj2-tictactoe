@@ -1,4 +1,4 @@
-package edu.gwu.ai.codeknights.tictactoe;
+package edu.gwu.ai.codeknights.tictactoe.core.exception;
 
 public class StateException extends GameException {
   private static final long serialVersionUID = 3438706730720706377L;

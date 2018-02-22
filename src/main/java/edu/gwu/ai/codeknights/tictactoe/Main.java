@@ -1,5 +1,12 @@
 package edu.gwu.ai.codeknights.tictactoe;
 
+import edu.gwu.ai.codeknights.tictactoe.chooser.AlphaBetaPruningChooser;
+import edu.gwu.ai.codeknights.tictactoe.chooser.AIMoveChooser;
+import edu.gwu.ai.codeknights.tictactoe.chooser.ParallelAlphaBetaPruningChooser;
+import edu.gwu.ai.codeknights.tictactoe.core.Move;
+import edu.gwu.ai.codeknights.tictactoe.core.exception.DimensionException;
+import edu.gwu.ai.codeknights.tictactoe.core.Game;
+import edu.gwu.ai.codeknights.tictactoe.core.exception.StateException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -8,6 +15,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.pmw.tinylog.Logger;
+
+import java.util.Random;
 
 public class Main {
 
@@ -26,6 +35,9 @@ public class Main {
     int dim = 6;
     int winLength = 4;
     String[] stateArgs = null;
+    long gameId = new Random().nextInt(1000);
+    int masterId = new Random().nextInt(1000);
+    int opId = new Random().nextInt(1000);
 
     // Command-line options
     final Option helpOpt = Option.builder("h").longOpt("help").desc("print this usage information").build();
@@ -35,9 +47,9 @@ public class Main {
       .desc("length of sequence required to win (default is " + String.valueOf(winLength) + ")").build();
     final Option stateOpt = Option.builder("s").longOpt("state").hasArgs().argName("CELLS")
       .desc("initial state of board (default is an empty board); moves of the first player given by '"
-        + String.valueOf(Game.FIRST_PLAYER_CHAR) + "' or '" + String.valueOf(Game.FIRST_PLAYER_VALUE)
+        + String.valueOf(Game.FIRST_PLAYER_CHAR) + "' or '" + String.valueOf(masterId)
         + "'; moves of the other player given by '" + String.valueOf(Game.OTHER_PLAYER_CHAR) + "' or '"
-        + String.valueOf(Game.OTHER_PLAYER_VALUE) + "'; empty spaces given by '" + String.valueOf(Game.BLANK_SPACE_CHAR)
+        + String.valueOf(opId) + "'; empty spaces given by '" + String.valueOf(Game.BLANK_SPACE_CHAR)
         + "'")
       .build();
     final Option randomizeOpt = Option.builder("r").longOpt("randomize")
@@ -113,10 +125,10 @@ public class Main {
             }
             catch (final NumberFormatException e) {
               if (curArg.equalsIgnoreCase(String.valueOf(Game.FIRST_PLAYER_CHAR))) {
-                board[i][j] = Game.FIRST_PLAYER_VALUE;
+                board[i][j] = masterId;
               }
               else if (curArg.equalsIgnoreCase(String.valueOf(Game.OTHER_PLAYER_CHAR))) {
-                board[i][j] = Game.OTHER_PLAYER_VALUE;
+                board[i][j] = opId;
               }
               else {
                 board[i][j] = null;
@@ -125,7 +137,7 @@ public class Main {
           }
         }
       }
-      final Game game = new Game(dim, winLength, board);
+      final Game game = new Game(gameId, dim, winLength, board, masterId, opId);
       final boolean randomize = line.hasOption(randomizeOpt.getLongOpt());
 
       if (line.hasOption(testOpt.getLongOpt())) {
@@ -158,10 +170,10 @@ public class Main {
               "performance...");
       for (int i = 0; i < 3; i++) {
         gameCopy = curGame.getCopy();
-        final MoveChooser moveChooser = new ParallelAlphaBetaPruningChooser();
+        final AIMoveChooser moveChooser = new ParallelAlphaBetaPruningChooser();
         moveChooser.setRandomChoice(randomize);
         final long startMs = System.currentTimeMillis();
-        final Game.Move move = moveChooser.findBestMove(gameCopy);
+        final Move move = moveChooser.findNextMove(gameCopy);
         final long endMs = System.currentTimeMillis();
         final double timeSec = (double) (endMs - startMs) / 1000.0;
         Logger.info("      * Found move in {} sec: {}", timeSec, move.toString());
@@ -170,10 +182,10 @@ public class Main {
       Logger.info("    - Testing normal alpha-beta pruning algorithm performance...");
       for (int i = 0; i < 3; i++) {
         gameCopy = curGame.getCopy();
-        final MoveChooser moveChooser = new AlphaBetaPruningChooser();
+        final AIMoveChooser moveChooser = new AlphaBetaPruningChooser();
         moveChooser.setRandomChoice(randomize);
         final long startMs = System.currentTimeMillis();
-        final Game.Move move = moveChooser.findBestMove(gameCopy);
+        final Move move = moveChooser.findNextMove(gameCopy);
         final long endMs = System.currentTimeMillis();
         final double timeSec = (double) (endMs - startMs) / 1000.0;
         Logger.info("      * Found move in {} sec: {}", timeSec, move.toString());
@@ -198,10 +210,10 @@ public class Main {
     boolean isGameOver = game.isGameOver();
     Logger.info("Is game over?   {}", isGameOver);
     while (!isGameOver) {
-      final MoveChooser moveChooser = new ParallelAlphaBetaPruningChooser();
-      moveChooser.setRandomChoice(randomize);
+      final AIMoveChooser AIMoveChooser = new ParallelAlphaBetaPruningChooser();
+      AIMoveChooser.setRandomChoice(randomize);
       final long startMs = System.currentTimeMillis();
-      final Game.Move bestMove = moveChooser.findBestMove(game);
+      final Move bestMove = AIMoveChooser.findNextMove(game);
       game.setCellValue(bestMove.rowIdx, bestMove.colIdx, bestMove.player);
       final long endMs = System.currentTimeMillis();
       final double timeSec = (double) (endMs - startMs) / 1000.0;

@@ -1,5 +1,9 @@
-package edu.gwu.ai.codeknights.tictactoe;
+package edu.gwu.ai.codeknights.tictactoe.chooser;
 
+import edu.gwu.ai.codeknights.tictactoe.core.Move;
+import edu.gwu.ai.codeknights.tictactoe.core.exception.DimensionException;
+import edu.gwu.ai.codeknights.tictactoe.core.Game;
+import edu.gwu.ai.codeknights.tictactoe.core.exception.StateException;
 import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
@@ -8,7 +12,7 @@ import java.util.List;
 public class ParallelAlphaBetaPruningChooser extends AlphaBetaPruningChooser {
 
   @Override
-  public Game.Move findBestMove(final Game game) {
+  public Move findNextMove(final Game game) {
     if (game.isGameOver()) {
       return null;
     }
@@ -18,11 +22,11 @@ public class ParallelAlphaBetaPruningChooser extends AlphaBetaPruningChooser {
     if (numFirst + numOther == 0) {
       final int dim = game.getDim();
       final int center = (int) (dim / 2);
-      return new Game.Move(center, center, curPlayer, null);
+      return new Move(center, center, curPlayer, null);
     }
-    final List<Game.Move> moves = findPossibleMoves(game);
+    final List<Move> moves = findPossibleMoves(game);
     final List<AbpThread> threads = new ArrayList<>();
-    for (final Game.Move move : moves) {
+    for (final Move move : moves) {
       try {
         final Game newGame = game.getCopy();
         final AbpThread t = new AbpThread(curPlayer, move, newGame);
@@ -34,11 +38,11 @@ public class ParallelAlphaBetaPruningChooser extends AlphaBetaPruningChooser {
       }
     }
     Long bestScore = null;
-    final List<Game.Move> bestMoves = new ArrayList<>();
+    final List<Move> bestMoves = new ArrayList<>();
     for (final AbpThread t : threads) {
       try {
         t.join();
-        final Game.Move move = t.getMove();
+        final Move move = t.getMove();
         final Long score = move.getScore();
         if (bestScore == null || score > bestScore) {
           bestScore = score;
@@ -61,12 +65,12 @@ public class ParallelAlphaBetaPruningChooser extends AlphaBetaPruningChooser {
   private class AbpThread extends Thread {
 
     private final int curPlayer;
-    private final Game.Move move;
+    private final Move move;
     private final Game newGame;
 
     private Long score;
 
-    public AbpThread(final int curPlayer, final Game.Move move, final Game newGame) {
+    public AbpThread(final int curPlayer, final Move move, final Game newGame) {
       this.curPlayer = curPlayer;
       this.move = move;
       this.newGame = newGame;
@@ -81,7 +85,7 @@ public class ParallelAlphaBetaPruningChooser extends AlphaBetaPruningChooser {
       move.setScore(score);
     }
 
-    public Game.Move getMove() {
+    public Move getMove() {
       return move;
     }
   }
