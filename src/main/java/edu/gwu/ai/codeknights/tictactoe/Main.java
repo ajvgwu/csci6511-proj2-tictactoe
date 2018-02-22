@@ -167,10 +167,10 @@ public class Main {
         Logger.info("      * Found move in {} sec: {}", timeSec, move.toString());
         gameCopy.setCellValue(move.rowIdx, move.colIdx, move.player);
       }
-      Logger.info("    - Testing normal minimax algorithm performance...");
+      Logger.info("    - Testing normal alpha-beta pruning algorithm performance...");
       for (int i = 0; i < 3; i++) {
         gameCopy = curGame.getCopy();
-        final MoveChooser moveChooser = new MinimaxChooser();
+        final MoveChooser moveChooser = new AlphaBetaPruningChooser();
         moveChooser.setRandomChoice(randomize);
         final long startMs = System.currentTimeMillis();
         final Game.Move move = moveChooser.findBestMove(gameCopy);
