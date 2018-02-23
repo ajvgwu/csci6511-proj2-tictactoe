@@ -33,12 +33,12 @@ public class Main {
 
   public static void main(final String[] args) throws DimensionException, StateException, InterruptedException {
     // Default values
-    int dim = 6;
+    int dim = 5;
     int winLength = 4;
     String[] stateArgs = null;
     long gameId = new Random().nextInt(1000);
-    int masterId = new Random().nextInt(30);
-    int opId = new Random().nextInt(30);
+    int masterId = 10;
+    int opId = 20;
 
     // Command-line options
     final Option helpOpt = Option.builder("h").longOpt("help").desc("print this usage information").build();
@@ -178,19 +178,7 @@ public class Main {
         final long endMs = System.currentTimeMillis();
         final double timeSec = (double) (endMs - startMs) / 1000.0;
         Logger.info("      * Found move in {} sec: {}", timeSec, move.toString());
-        gameCopy.setCellValue(move.rowIdx, move.colIdx, move.player);
-      }
-      Logger.info("    - Testing normal alpha-beta pruning algorithm performance...");
-      for (int i = 0; i < 3; i++) {
-        gameCopy = curGame.getCopy();
-        final AIMoveChooser moveChooser = new AlphaBetaPruningChooser();
-        moveChooser.setRandomChoice(randomize);
-        final long startMs = System.currentTimeMillis();
-        final Move move = moveChooser.findNextMove(gameCopy);
-        final long endMs = System.currentTimeMillis();
-        final double timeSec = (double) (endMs - startMs) / 1000.0;
-        Logger.info("      * Found move in {} sec: {}", timeSec, move.toString());
-        gameCopy.setCellValue(move.rowIdx, move.colIdx, move.player);
+        gameCopy.setCellValue(move.rowIdx, move.colIdx, game.getNextPlayer());
       }
       curGame = gameCopy;
       isGameOver = curGame.isGameOver();
@@ -215,7 +203,7 @@ public class Main {
       AIMoveChooser.setRandomChoice(randomize);
       final long startMs = System.currentTimeMillis();
       final Move bestMove = AIMoveChooser.findNextMove(game);
-      game.setCellValue(bestMove.rowIdx, bestMove.colIdx, bestMove.player);
+      game.setCellValue(bestMove.rowIdx, bestMove.colIdx, game.getNextPlayer());
       final long endMs = System.currentTimeMillis();
       final double timeSec = (double) (endMs - startMs) / 1000.0;
       Logger.info("Found best move in {} sec: {}\n{}\n", timeSec, bestMove.toString(), game.toString());

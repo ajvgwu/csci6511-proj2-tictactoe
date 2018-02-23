@@ -22,7 +22,7 @@ public class ParallelAlphaBetaPruningChooser extends AlphaBetaPruningChooser {
     if (numFirst + numOther == 0) {
       final int dim = game.getDim();
       final int center = (int) (dim / 2);
-      return new Move(center, center, curPlayer, null);
+      return new Move(center, center, null, null);
     }
     final List<Move> moves = findPossibleMoves(game);
     final List<AbpThread> threads = new ArrayList<>();
@@ -32,8 +32,7 @@ public class ParallelAlphaBetaPruningChooser extends AlphaBetaPruningChooser {
         final AbpThread t = new AbpThread(curPlayer, move, newGame);
         threads.add(t);
         t.start();
-      }
-      catch (DimensionException | StateException e) {
+      } catch (DimensionException | StateException e) {
         Logger.error(e, "could not copy game state");
       }
     }
@@ -48,12 +47,10 @@ public class ParallelAlphaBetaPruningChooser extends AlphaBetaPruningChooser {
           bestScore = score;
           bestMoves.clear();
           bestMoves.add(move);
-        }
-        else if (score.equals(bestScore)) {
+        } else if (score.equals(bestScore)) {
           bestMoves.add(move);
         }
-      }
-      catch (final InterruptedException e) {
+      } catch (final InterruptedException e) {
         Logger.error(e, "interrupted while joining thread");
       }
     }
@@ -81,7 +78,8 @@ public class ParallelAlphaBetaPruningChooser extends AlphaBetaPruningChooser {
     @Override
     public void run() {
       newGame.setCellValue(move.rowIdx, move.colIdx, curPlayer);
-      score = alphabetapruning(newGame, curPlayer,Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 0);
+      score = alphabetapruning(newGame, curPlayer, Double.NEGATIVE_INFINITY,
+          Double.POSITIVE_INFINITY, 0);
       move.setScore(score);
     }
 

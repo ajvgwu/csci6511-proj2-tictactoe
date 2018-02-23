@@ -105,8 +105,8 @@ public class MainController {
         } else {
             // generate all tge ids for non-EvE-online games
             gameId = new Random().nextInt(10000);
-            masterId = new Random().nextInt(30);
-            opId = new Random().nextInt(30);
+            masterId = new Random().nextInt(20);
+            opId = new Random().nextInt(20);
         }
 
         mMasterId.setText(String.valueOf(masterId));
@@ -218,7 +218,7 @@ public class MainController {
     private void makeMove(){
         Player player = helper.getNextPlayer();
         Move move = player.getMoveChooser().findNextMove(game);
-        game.setCellValue(move.rowIdx, move.colIdx, move.player);
+        game.setCellValue(move.rowIdx, move.colIdx, player.getId());
         boardProperties[move.rowIdx][move.colIdx].set(player.getSymbol());
         helper.history.set(String.format("[%s][%d, %d]\n%s", player.getSymbol(), move.rowIdx + 1, move.colIdx + 1, helper.history.get()));
         mState.setText(game.getBoardStatus());

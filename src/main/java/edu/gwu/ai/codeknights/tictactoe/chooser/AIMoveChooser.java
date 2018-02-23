@@ -31,14 +31,13 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
     protected List<Move> findEmptyMoves(final Game game){
         final int dim = game.getDim();
         List<Move> moves = new ArrayList<>();
-        final int curPlayer = game.getNextPlayer();
 
         for (int rowIdx = 0; rowIdx < dim; rowIdx++) {
             for (int colIdx = 0; colIdx < dim; colIdx++) {
                 final Integer value = game.getCellValue(rowIdx, colIdx);
                 if (value == null) {
                     // This is a possible move (empty cell)
-                    moves.add(new Move(rowIdx, colIdx, curPlayer, null));
+                    moves.add(new Move(rowIdx, colIdx, null, null));
                 }
             }
         }
@@ -46,36 +45,29 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
     }
 
     protected List<Move> findPossibleMoves(final Game game) {
-        List<Move> moves = new ArrayList<>();
-        final int dim = game.getDim();
         final int prevPlayer = game.getPrevPlayer();
         final int curPlayer = game.getNextPlayer();
-        for (int rowIdx = 0; rowIdx < dim; rowIdx++) {
-            for (int colIdx = 0; colIdx < dim; colIdx++) {
-                final Integer value = game.getCellValue(rowIdx, colIdx);
-                if (value == null) {
-                    // rule 1: if there's a chance to win, take it immediately
-                    game.setCellValue(rowIdx, colIdx, curPlayer);
-                    final boolean didWin = game.didPlayerWin(curPlayer);
-                    game.setCellValue(rowIdx, colIdx, null);
-                    if (didWin) {
-                        return Collections.singletonList(new Move(rowIdx, colIdx, curPlayer, null));
-                    }
+        List<Move> moves = findEmptyMoves(game);
+        for (Move move : moves){
+            int rowIdx = move.rowIdx;
+            int colIdx = move.colIdx;
+            final Move tempMove = new Move(rowIdx, colIdx, curPlayer, null);
+            // rule 1: if there's a chance to win, take it immediately
+            game.setCellValue(rowIdx, colIdx, curPlayer);
+            final boolean didWin = game.didPlayerWin(curPlayer);
+            game.setCellValue(rowIdx, colIdx, null);
+            if (didWin) {
+                return Collections.singletonList(tempMove);
+            }
 
-                    // rule 2: if the other player can win, block it immediately
-                    game.setCellValue(rowIdx, colIdx, prevPlayer);
-                    final boolean didLose = game.didPlayerWin(prevPlayer);
-                    game.setCellValue(rowIdx, colIdx, null);
-                    if (didLose) {
-                        return Collections.singletonList(new Move(rowIdx, colIdx, curPlayer, null));
-                    }
-
-                    // This is a possible move (empty cell)
-                    moves.add(new Move(rowIdx, colIdx, curPlayer, null));
-                }
+            // rule 2: if the other player can win, block it immediately
+            game.setCellValue(rowIdx, colIdx, prevPlayer);
+            final boolean didLose = game.didPlayerWin(prevPlayer);
+            game.setCellValue(rowIdx, colIdx, null);
+            if (didLose) {
+                return Collections.singletonList(tempMove);
             }
         }
-
         // rule 3: don't consider the move if it is adjacent to none
         moves = moves.stream().filter(move -> hasNeighbors(game, move)).collect(Collectors.toList());
         // rule 4: don't consider the move if it is not adjacent to winning lines

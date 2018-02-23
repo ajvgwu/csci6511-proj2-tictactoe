@@ -6,10 +6,9 @@ import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.core.exception.StateException;
 import org.pmw.tinylog.Logger;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class AlphaBetaPruningChooser extends AIMoveChooser {
+public abstract class AlphaBetaPruningChooser extends AIMoveChooser {
 
     protected long alphabetapruning(final Game game, final int player,
                                     double alpha, double beta, final int
@@ -17,13 +16,14 @@ public class AlphaBetaPruningChooser extends AIMoveChooser {
         Long bestScore = null;
         // Check for terminal state
         if (game.isGameOver()) {
-            // return game.getScore(player);
             if (game.didPlayerWin(player)) {
-                return 10 - level;
+                bestScore = (long) (10 - level);
             } else if (game.didAnyPlayerWin()) {
-                return -10 + level;
+                bestScore = (long) (-10 + level);
+            }else{
+                bestScore = 0L;
             }
-            return 0;
+            return bestScore;
         }
 
         // Check if we've already solved this state
@@ -37,24 +37,32 @@ public class AlphaBetaPruningChooser extends AIMoveChooser {
 
         // Find move with the best score
         final List<Move> moves = findPossibleMoves(game);
-        for (final Move move : moves) {
-            try {
-                final Game newGame = game.getCopy();
-                newGame.setCellValue(move.rowIdx, move.colIdx, move.player);
+        try {
+            // there is no need to copy the game so many times
+            final Game newGame = game.getCopy();
+            final int curPlayer = game.getNextPlayer();
+            for (final Move move : moves) {
+                newGame.setCellValue(move.rowIdx, move.colIdx, curPlayer);
                 final long curScore = alphabetapruning(newGame, player,
-                        alpha, beta, level + 1);
-                if (player == move.player) {
-                    alpha = curScore;
+                    alpha, beta, level + 1);
+                if (player == curPlayer) {
+                    if (curScore > alpha) {
+                        alpha = curScore;
+                    }
                 } else {
-                    beta = curScore;
+                    if (curScore < beta) {
+                        beta = curScore;
+                    }
                 }
-
                 if (alpha >= beta) {
                     break;
                 }
-            } catch (DimensionException | StateException e) {
-                Logger.error(e, "could not copy game state");
+
+                // reset the move
+                newGame.setCellValue(move.rowIdx, move.colIdx, null);
             }
+        } catch (DimensionException | StateException e) {
+            Logger.error(e, "could not copy game state");
         }
 
         // if the play is next player
@@ -76,42 +84,5 @@ public class AlphaBetaPruningChooser extends AIMoveChooser {
     }
 
     @Override
-    public Move findNextMove(final Game game) {
-        if (game.isGameOver()) {
-            return null;
-        }
-        final int numFirst = game.countFirstPlayer();
-        final int numOther = game.countOtherPlayer();
-        final int curPlayer = game.getNextPlayer();
-        if (numFirst + numOther == 0) {
-            final int dim = game.getDim();
-            final int center = (int) (dim / 2);
-            return new Move(center, center, curPlayer, null);
-        }
-        final List<Move> moves = findPossibleMoves(game);
-        Long bestScore = null;
-        final List<Move> bestMoves = new ArrayList<>();
-        for (final Move move : moves) {
-            try {
-                final Game newGame = game.getCopy();
-                newGame.setCellValue(move.rowIdx, move.colIdx, curPlayer);
-                final long curScore = alphabetapruning(newGame, curPlayer,
-                        Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
-                        0);
-                move.setScore(curScore);
-                if (bestScore == null || curScore > bestScore) {
-                    bestScore = curScore;
-                    bestMoves.clear();
-                    bestMoves.add(move);
-                } else if (curScore == bestScore) {
-                    bestMoves.add(move);
-                }
-            } catch (DimensionException | StateException e) {
-                Logger.error(e, "could not copy game state");
-            }
-        }
-
-        // Return result
-        return selectMove(game, bestMoves);
-    }
+    public abstract Move findNextMove(final Game game);
 }
