@@ -33,7 +33,6 @@ public class MainController {
     private Game game;
     private BooleanBinding isClickable;
     private int mode;
-    private BooleanBinding isMasterTurn;
 
     private StringProperty[][] boardProperties;
     private Label[][] matrix;
@@ -97,9 +96,11 @@ public class MainController {
     public void setup(int mode, int masterId, long gameId, int rowLen, int colLen, int winLen, int opId) {
         if (mode == 3) {
             if (gameId == 0) {
-                // create a game on the server, fetch the gameId
+                // TODO create a game on the server, fetch the gameId
 //                API.getApiService().post();
-                API.getApiService().getMoves(String.valueOf(gameId), Integer.MAX_VALUE);
+//                API.getApiService().getMoves(String.valueOf(gameId), Integer.MAX_VALUE);
+            }else{
+                // hook on a existing game
             }
         } else {
             // generate all tge ids for non-EvE-online games
@@ -122,22 +123,6 @@ public class MainController {
         TicTacToe.getPrimaryStage().sizeToScene();
         helper.createGame(gameId, rowLen, colLen, winLen, mode, masterId, opId);
         game = helper.getGame();
-
-        isMasterTurn = new BooleanBinding() {
-            @Override
-            protected boolean computeValue() {
-                return game.getNextPlayer() == helper.getMaster().getId();
-            }
-        };
-
-        isMasterTurn.addListener((observable, oldValue, newValue) -> {
-            if(newValue){
-                mTurn.setText(Const.PLAYER_SYMBOL_MASTER);
-            }else{
-                mTurn.setText(Const.PLAYER_SYMBOL_OPPONENT);
-            }
-        });
-
         if(mode == 1){
             mNext.setDisable(true);
         }
@@ -178,11 +163,8 @@ public class MainController {
         isClickable = new BooleanBinding() {
             @Override
             protected boolean computeValue() {
-                if(helper.getNextPlayer() == helper.getMaster() && mode == 1){
-                    return true;
-                }else{
-                    return false;
-                }
+                return helper.getNextPlayer() == helper.getMaster() && mode == 1
+                        && !game.isGameOver();
             }
         };
 
@@ -216,40 +198,33 @@ public class MainController {
 
     private void pve(int row, int col) {
         // master play
-        game.setCellValue(row, col, helper.getMaster().getId());
+        game.setCellValue(row, col, game.getNextPlayer());
         helper.history.set("["+helper.getMaster().getSymbol()
                 +"]["+(row+1)+", "+(col+1)+"]\n"+helper.history.get());
         boardProperties[row][col].set(helper.getMaster().getSymbol());
         mState.setText(game.getBoardStatus());
         boolean isGameOver = game.isGameOver();
         if (!isGameOver) {
-            // ai play
-            aiMove(helper.getOpponent());
+            // ai opponent make a move
+            makeMove();
         }
     }
 
     @FXML
     void nextHandler(ActionEvent event){
-        if(game.getNextPlayer() == helper.getMaster().getId()){
-            aiMove(helper.getMaster());
-        }else{
-            aiMove(helper.getOpponent());
-        }
+        makeMove();
+    }
+
+    private void makeMove(){
+        Player player = helper.getNextPlayer();
+        Move move = player.getMoveChooser().findNextMove(game);
+        game.setCellValue(move.rowIdx, move.colIdx, move.player);
+        boardProperties[move.rowIdx][move.colIdx].set(player.getSymbol());
+        helper.history.set(String.format("[%s][%d, %d]\n%s", player.getSymbol(), move.rowIdx + 1, move.colIdx + 1, helper.history.get()));
+        mState.setText(game.getBoardStatus());
         if(game.isGameOver()){
             mNext.setDisable(true);
         }
-    }
-
-    private void aiMove(Player player){
-
-        // ai play
-        Move aiMove = player.getMoveChooser().findNextMove(game);
-        game.setCellValue(aiMove.rowIdx, aiMove.colIdx, aiMove.player);
-        boardProperties[aiMove.rowIdx][aiMove.colIdx].set(player.getSymbol());
-        helper.history.set("["+player.getSymbol()
-                +"]["+(aiMove.rowIdx+1)+", "+(aiMove.colIdx+1)+"]\n"+helper
-                .history.get());
-        mState.setText(game.getBoardStatus());
     }
 
     public Game getGame() {

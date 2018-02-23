@@ -70,14 +70,13 @@ public class MainHelper {
         }
     }
 
-    public Player getNextPlayer(){
-        if(game.getNextPlayer() == master.getId()){
+    public Player getNextPlayer() {
+        if (game.getNextPlayer() == master.getId()) {
             return master;
-        }else{
+        } else {
             return opponent;
         }
     }
-
 
     public Game getGame() {
         return game;
