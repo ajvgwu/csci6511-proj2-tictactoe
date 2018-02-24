@@ -78,8 +78,8 @@ public class ParallelAlphaBetaPruningChooser extends AlphaBetaPruningChooser {
     @Override
     public void run() {
       newGame.setCellValue(move.rowIdx, move.colIdx, curPlayer);
-      score = alphabetapruning(newGame, curPlayer, Double.NEGATIVE_INFINITY,
-          Double.POSITIVE_INFINITY, 0);
+      score = alphabetapruning(newGame, curPlayer, Long.MIN_VALUE,
+          Long.MAX_VALUE, 0);
       move.setScore(score);
     }
 

@@ -7,6 +7,7 @@ import edu.gwu.ai.codeknights.tictactoe.core.Move;
 import edu.gwu.ai.codeknights.tictactoe.core.exception.DimensionException;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.core.exception.StateException;
+import edu.gwu.ai.codeknights.tictactoe.gui.util.Player;
 import edu.gwu.ai.codeknights.tictactoe.util.Const;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -198,6 +199,10 @@ public class Main {
       Const.OPPONENT_PLAYER_CHAR, game.countOtherPlayer(), Const.BLANK_SPACE_CHAR, game.countEmpty());
     boolean isGameOver = game.isGameOver();
     Logger.info("Is game over?   {}", isGameOver);
+    final AIMoveChooser AIMoveChooser1 = new ParallelAlphaBetaPruningChooser();
+    final AIMoveChooser AIMoveChooser2 = new ParallelAlphaBetaPruningChooser();
+    Player master = new Player(10, Const.PLAYER_SYMBOL_MASTER, AIMoveChooser1);
+
     while (!isGameOver) {
       final AIMoveChooser AIMoveChooser = new ParallelAlphaBetaPruningChooser();
       AIMoveChooser.setRandomChoice(randomize);

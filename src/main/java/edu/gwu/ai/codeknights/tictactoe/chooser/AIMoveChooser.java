@@ -69,7 +69,8 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
             }
         }
         // rule 3: don't consider the move if it is adjacent to none
-        moves = moves.stream().filter(move -> hasNeighbors(game, move)).collect(Collectors.toList());
+        moves = moves.stream().filter(move -> hasNeighbors(game, move))
+            .collect(Collectors.toList());
         // rule 4: don't consider the move if it is not adjacent to winning lines
         ArrayList<ArrayList<Move>> sequences = getWinningSequences(game);
         moves = new ArrayList<>(findMovesAdjacentToWinningLine(game, moves, sequences));
@@ -85,6 +86,13 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
         Set<Move> filterMoves = new HashSet<>();
 
         for (ArrayList<Move> sequence : sequences) {
+
+            int direction = lineDirection();
+
+            switch (direction){
+
+            }
+
             Move head = null;
             Move tail = null;
             int size = sequence.size();
@@ -197,7 +205,7 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
         int masterId = game.getFirstPlayerId();
         int opId = game.getOtherPlayerId();
 
-        // findMovesAdjacentToWinningLine the max line length for each player
+        // find the max line length for each player
         for (ArrayList<Move> line : sequences) {
             int size = line.size();
             if(size > 0){
@@ -235,6 +243,22 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
         });
 
         return filterSequences;
+    }
+
+    /**
+     * get direction of a line
+     *  0: no direction, single or none
+     *  1: N
+     *  2: NE
+     *  3: E
+     *  4: SE
+     *  5: S
+     *  6: SW
+     *  7: W
+     *  8: NW
+     * */
+    private int lineDirection(){
+        return 0;
     }
 
     protected Move selectMove(final Game game, final List<Move>

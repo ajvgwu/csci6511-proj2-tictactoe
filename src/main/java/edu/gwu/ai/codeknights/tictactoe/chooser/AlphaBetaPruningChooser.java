@@ -11,15 +11,15 @@ import java.util.List;
 public abstract class AlphaBetaPruningChooser extends AIMoveChooser {
 
     protected long alphabetapruning(final Game game, final int player,
-                                    double alpha, double beta, final int
-                                           level) {
+                                    long alpha, long beta, final int level) {
         Long bestScore = null;
+        long upperBound = game.getDim()*game.getDim();
         // Check for terminal state
         if (game.isGameOver()) {
             if (game.didPlayerWin(player)) {
-                bestScore = (long) (10 - level);
+                bestScore =  upperBound - level;
             } else if (game.didAnyPlayerWin()) {
-                bestScore = (long) (-10 + level);
+                bestScore = -upperBound + level;
             }else{
                 bestScore = 0L;
             }
@@ -36,11 +36,21 @@ public abstract class AlphaBetaPruningChooser extends AIMoveChooser {
         }
 
         // Find move with the best score
-        final List<Move> moves = findPossibleMoves(game);
+        List<Move> moves = findPossibleMoves(game);
+
         try {
-            // there is no need to copy the game so many times
             final Game newGame = game.getCopy();
             final int curPlayer = game.getNextPlayer();
+            if(moves.size() == 0){
+                int leftLevel = findEmptyMoves(game).size()/2;
+                if (player == curPlayer) {
+                    alpha = 10-level-leftLevel;
+
+                } else {
+                    beta = -10 + leftLevel + level;
+                }
+            }
+
             for (final Move move : moves) {
                 newGame.setCellValue(move.rowIdx, move.colIdx, curPlayer);
                 final long curScore = alphabetapruning(newGame, player,
@@ -68,9 +78,9 @@ public abstract class AlphaBetaPruningChooser extends AIMoveChooser {
         // if the play is next player
         // choose alpha
         if (player == game.getNextPlayer()) {
-            bestScore = (long) alpha;
+            bestScore = alpha;
         } else {
-            bestScore = (long) beta;
+            bestScore = beta;
         }
 
         // Update hashScoreMap
