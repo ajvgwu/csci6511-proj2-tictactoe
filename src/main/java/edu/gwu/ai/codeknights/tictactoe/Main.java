@@ -1,6 +1,5 @@
 package edu.gwu.ai.codeknights.tictactoe;
 
-import edu.gwu.ai.codeknights.tictactoe.chooser.AlphaBetaPruningChooser;
 import edu.gwu.ai.codeknights.tictactoe.chooser.AIMoveChooser;
 import edu.gwu.ai.codeknights.tictactoe.chooser.ParallelAlphaBetaPruningChooser;
 import edu.gwu.ai.codeknights.tictactoe.core.Move;
@@ -21,16 +20,6 @@ import org.pmw.tinylog.Logger;
 import java.util.Random;
 
 public class Main {
-
-  /*
-   * TODO: Some things to consider:
-   *   - alpha beta pruning algorithm?
-   *   - better way of hashing? consider rotations/reflections/etc.?
-   *   - pre-compute some lookup tables for various board sizes?
-   *   - how to make best-effort choice if we are running out of time?
-   *   - is there a general heuristic (for any board size) to choose the BEST FIRST MOVE? i.e., always play close to center?
-   *   - what is the API to interface w/ the REST/JSON game server?
-   */
 
   public static void main(final String[] args) throws DimensionException, StateException, InterruptedException {
     // Default values
@@ -202,18 +191,34 @@ public class Main {
     final AIMoveChooser AIMoveChooser1 = new ParallelAlphaBetaPruningChooser();
     final AIMoveChooser AIMoveChooser2 = new ParallelAlphaBetaPruningChooser();
     Player master = new Player(10, Const.PLAYER_SYMBOL_MASTER, AIMoveChooser1);
+    Player op = new Player(10, Const.PLAYER_SYMBOL_MASTER, AIMoveChooser1);
 
     while (!isGameOver) {
-      final AIMoveChooser AIMoveChooser = new ParallelAlphaBetaPruningChooser();
-      AIMoveChooser.setRandomChoice(randomize);
-      final long startMs = System.currentTimeMillis();
-      final Move bestMove = AIMoveChooser.findNextMove(game);
+      AIMoveChooser1.setRandomChoice(randomize);
+      AIMoveChooser2.setRandomChoice(randomize);
+      long startMs = System.currentTimeMillis();
+      Move bestMove = AIMoveChooser1.findNextMove(game);
       game.setCellValue(bestMove.rowIdx, bestMove.colIdx, game.getNextPlayer());
-      final long endMs = System.currentTimeMillis();
-      final double timeSec = (double) (endMs - startMs) / 1000.0;
+      long endMs = System.currentTimeMillis();
+      double timeSec = (double) (endMs - startMs) / 1000.0;
       Logger.info("Found best move in {} sec: {}\n{}\n", timeSec, bestMove.toString(), game.toString());
       isGameOver = game.isGameOver();
       Logger.info("Is game over?   {}", isGameOver);
+      if(isGameOver){
+        break;
+      }
+
+      startMs = System.currentTimeMillis();
+      bestMove = AIMoveChooser1.findNextMove(game);
+      game.setCellValue(bestMove.rowIdx, bestMove.colIdx, game.getNextPlayer());
+      endMs = System.currentTimeMillis();
+      timeSec = (double) (endMs - startMs) / 1000.0;
+      Logger.info("Found best move in {} sec: {}\n{}\n", timeSec, bestMove.toString(), game.toString());
+      isGameOver = game.isGameOver();
+      Logger.info("Is game over?   {}", isGameOver);
+      if(isGameOver){
+        break;
+      }
     }
     Logger.info("Did anyone win? {}", game.didAnyPlayerWin());
     Logger.info("Who won?        {}={}, {}={}", Const.MASTER_PLAYER_CHAR, game.didFirstPlayerWin(),

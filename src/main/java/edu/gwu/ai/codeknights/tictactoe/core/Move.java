@@ -10,7 +10,6 @@ public class Move {
   public final int rowIdx;
   public final int colIdx;
   public final Integer player;
-
   private Long score;
 
   public Move(final int rowIdx, final int colIdx, final Integer player, final

@@ -21,7 +21,7 @@ public class ParallelAlphaBetaPruningChooser extends AlphaBetaPruningChooser {
     final int curPlayer = game.getNextPlayer();
     if (numFirst + numOther == 0) {
       final int dim = game.getDim();
-      final int center = (int) (dim / 2);
+      final int center = dim / 2;
       return new Move(center, center, null, null);
     }
     final List<Move> moves = findPossibleMoves(game);
