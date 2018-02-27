@@ -1,7 +1,6 @@
 package edu.gwu.ai.codeknights.tictactoe;
 
 import edu.gwu.ai.codeknights.tictactoe.chooser.AIMoveChooser;
-import edu.gwu.ai.codeknights.tictactoe.chooser.AlphaBetaPruningChooser;
 import edu.gwu.ai.codeknights.tictactoe.chooser.ParallelAlphaBetaPruningChooser;
 import edu.gwu.ai.codeknights.tictactoe.core.Move;
 import edu.gwu.ai.codeknights.tictactoe.core.exception.DimensionException;
@@ -23,8 +22,8 @@ public class Main {
 
   public static void main(final String[] args) throws DimensionException, StateException, InterruptedException {
     // Default values
-    int dim = 6;
-    int winLength = 4;
+    int dim = 15;
+    int winLength = 8;
     String[] stateArgs = null;
     long gameId = new Random().nextInt(1000);
     int masterId = 10;
@@ -206,7 +205,7 @@ public class Main {
       }
 
       startMs = System.currentTimeMillis();
-      bestMove = AIMoveChooser1.findNextMove(game);
+      bestMove = AIMoveChooser2.findNextMove(game);
       game.setCellValue(bestMove.rowIdx, bestMove.colIdx, game.getNextPlayer());
       endMs = System.currentTimeMillis();
       timeSec = (double) (endMs - startMs) / 1000.0;

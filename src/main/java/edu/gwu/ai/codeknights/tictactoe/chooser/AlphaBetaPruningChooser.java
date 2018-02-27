@@ -112,7 +112,7 @@ public class AlphaBetaPruningChooser extends AIMoveChooser {
     try {
       final Game newGame = game.getCopy();
       int maxDepth = newGame.countEmpty();
-      int curMaxLevel = 0;
+      int curMaxLevel = 1;
       while (curMaxLevel < maxDepth){
         curMaxLevel++;
         for (final Move move : moves) {
@@ -137,6 +137,8 @@ public class AlphaBetaPruningChooser extends AIMoveChooser {
     }
 
     // Return result
-    return selectMove(game, new ArrayList<>(bestMoves));
+    Move move = selectMove(game, new ArrayList<>(bestMoves));
+    move.player = curPlayer;
+    return move;
   }
 }

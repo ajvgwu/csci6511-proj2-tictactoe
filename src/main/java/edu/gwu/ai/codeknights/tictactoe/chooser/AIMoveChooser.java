@@ -40,7 +40,7 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
         final Integer value = game.getCellValue(rowIdx, colIdx);
         if (value == null) {
           // This is a possible move (empty cell)
-          moves.add(new Move(rowIdx, colIdx, game.getNextPlayer(), null));
+          moves.add(new Move(rowIdx, colIdx, null, null));
         }
       }
     }
@@ -60,8 +60,6 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
         .collect(Collectors.toList());
     List<List<Move>> sequences = getLongestLines(game);
     moves = new ArrayList<>(findMovesAdjacentToLines(game, moves, sequences));
-    Integer player =  game.getNextPlayer();
-    moves.forEach(move -> move.player = player);
     return moves;
   }
 
@@ -77,9 +75,10 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
     }
 
     moves = new ArrayList<>(findWinningMoves(game));
-//    moves = moves.stream().filter(move -> hasNeighbor(game, move)).collect(Collectors.toList());
-    Integer player =  game.getNextPlayer();
-    moves.forEach(move -> move.player = player);
+    if(moves.size() == 0){
+      moves = findEmptyMoves(game);
+      moves = moves.stream().filter(move -> hasNeighbor(game, move)).collect(Collectors.toList());
+    }
     return moves;
   }
 
@@ -99,7 +98,7 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
       final boolean didWin = game.didPlayerWin(curPlayer);
       game.setCellValue(rowIdx, colIdx, null);
       if (didWin) {
-        return new Move(rowIdx, colIdx, curPlayer, null);
+        return move;
       }
 
       // rule 2: if the other player can win, block it immediately
@@ -107,7 +106,7 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
       final boolean didLose = game.didPlayerWin(prevPlayer);
       game.setCellValue(rowIdx, colIdx, null);
       if (didLose) {
-        return new Move(rowIdx, colIdx, prevPlayer, null);
+        return move;
       }
     }
     return null;
