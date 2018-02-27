@@ -23,8 +23,8 @@ public class Main {
 
   public static void main(final String[] args) throws DimensionException, StateException, InterruptedException {
     // Default values
-    int dim = 5;
-    int winLength = 4;
+    int dim = 3;
+    int winLength = 3;
     String[] stateArgs = null;
     long gameId = new Random().nextInt(1000);
     int masterId = 10;
@@ -153,6 +153,7 @@ public class Main {
     Logger.info("Is game over?   {}", isGameOver);
     Game curGame = game;
     int moveIdx = 0;
+    int maxDepth = Integer.MAX_VALUE;
     while (!isGameOver) {
       moveIdx++;
       Logger.info("  Move # {}", moveIdx);
@@ -161,7 +162,8 @@ public class Main {
               "performance...");
       for (int i = 0; i < 3; i++) {
         gameCopy = curGame.getCopy();
-        final AIMoveChooser moveChooser = new ParallelAlphaBetaPruningChooser();
+        final AIMoveChooser moveChooser = new ParallelAlphaBetaPruningChooser
+            (maxDepth);
         moveChooser.setRandomChoice(randomize);
         final long startMs = System.currentTimeMillis();
         final Move move = moveChooser.findNextMove(gameCopy);
@@ -188,10 +190,9 @@ public class Main {
       Const.OPPONENT_PLAYER_CHAR, game.countOtherPlayer(), Const.BLANK_SPACE_CHAR, game.countEmpty());
     boolean isGameOver = game.isGameOver();
     Logger.info("Is game over?   {}", isGameOver);
-    final AIMoveChooser AIMoveChooser1 = new ParallelAlphaBetaPruningChooser();
-    final AIMoveChooser AIMoveChooser2 = new ParallelAlphaBetaPruningChooser();
-    Player master = new Player(10, Const.PLAYER_SYMBOL_MASTER, AIMoveChooser1);
-    Player op = new Player(10, Const.PLAYER_SYMBOL_MASTER, AIMoveChooser1);
+    int maxDepth = Integer.MAX_VALUE;
+    final AIMoveChooser AIMoveChooser1 = new ParallelAlphaBetaPruningChooser(maxDepth);
+    final AIMoveChooser AIMoveChooser2 = new ParallelAlphaBetaPruningChooser(maxDepth);
 
     while (!isGameOver) {
       AIMoveChooser1.setRandomChoice(randomize);

@@ -11,6 +11,10 @@ import java.util.List;
 
 public class ParallelAlphaBetaPruningChooser extends AlphaBetaPruningChooser {
 
+  public ParallelAlphaBetaPruningChooser(int maxLevel) {
+    super(maxLevel);
+  }
+
   @Override
   public Move findNextMove(final Game game) {
     if (game.isGameOver()) {

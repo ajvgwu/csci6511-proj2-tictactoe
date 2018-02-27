@@ -33,6 +33,7 @@ public class MainHelper {
         // set player symbols
         masterSymbol = Const.PLAYER_SYMBOL_MASTER;
         opSymbol = Const.PLAYER_SYMBOL_OPPONENT;
+        int maxDepth = Integer.MAX_VALUE;
 
         // create two players
         switch (mode) {
@@ -40,19 +41,19 @@ public class MainHelper {
                 // pve
                 masterMoveChooser = new StupidMoveChooser();
                 this.master = new Player(masterId, masterSymbol, masterMoveChooser);
-                opMoveChooser = new ParallelAlphaBetaPruningChooser();
+                opMoveChooser = new ParallelAlphaBetaPruningChooser(maxDepth);
                 this.opponent = new Player(opId, opSymbol, opMoveChooser);
                 break;
             case 2:
                 // eve
-                masterMoveChooser = new ParallelAlphaBetaPruningChooser();
+                masterMoveChooser = new ParallelAlphaBetaPruningChooser(maxDepth);
                 this.master = new Player(masterId, masterSymbol, masterMoveChooser);
-                opMoveChooser = new ParallelAlphaBetaPruningChooser();
+                opMoveChooser = new ParallelAlphaBetaPruningChooser(maxDepth);
                 this.opponent = new Player(opId, opSymbol, opMoveChooser);
                 break;
             case 3:
                 // eve online
-                masterMoveChooser = new ParallelAlphaBetaPruningChooser();
+                masterMoveChooser = new ParallelAlphaBetaPruningChooser(maxDepth);
                 this.master = new Player(masterId, masterSymbol, masterMoveChooser);
                 opMoveChooser = new OnlineMoveChooer();
                 this.opponent = new Player(opId, opSymbol, opMoveChooser);

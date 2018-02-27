@@ -70,16 +70,15 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
       }
     }
 
-
-/*    moves = moves.stream().filter(move -> hasNeighbors(game, move))
+    moves = moves.stream().filter(move -> hasNeighbors(game, move))
         .collect(Collectors.toList());
-    ArrayList<ArrayList<Move>> sequences = getLongestLines(game);
-    moves = new ArrayList<>(findMovesAdjacentToWinningLine(game, moves, sequences));*/
+    List<List<Move>> sequences = getWinningLines(game);
+    moves = new ArrayList<>(findMovesAdjacentToWinningLine(game, moves, sequences));
 
     // rule 4: don't consider the move if it is not in a winning lines
-    moves = new ArrayList<>(findWinningMoves(game));
+//    moves = new ArrayList<>(findWinningMoves(game));
     // rule 3: don't consider the move if it is adjacent to none
-    moves = moves.stream().filter(move -> hasNeighbors(game, move)).collect(Collectors.toList());
+//    moves = moves.stream().filter(move -> hasNeighbors(game, move)).collect(Collectors.toList());
     return moves;
   }
 
@@ -88,7 +87,7 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
    */
   private static Set<Move> findWinningMoves(Game game) {
     Set<Move> filterMoves = new HashSet<>();
-    List<List<Move>> sequences = getWinningSequences(game);
+    List<List<Move>> sequences = getWinningLines(game);
     // filter all empty moves
     sequences.forEach(sequence -> filterMoves.addAll(sequence.stream().filter(move -> move.player == null).collect(Collectors.toList())));
     return filterMoves;
@@ -154,7 +153,7 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
    * find winning lines for both players
    * a winning line can be either closest to win length or have two
    */
-  private static List<List<Move>> getWinningSequences(final Game game) {
+  private static List<List<Move>> getWinningLines(final Game game) {
     final int winLen = game.getWinLength();
     final int opId = game.getFirstPlayerId();
     final List<List<Move>> completeLines = new ArrayList<>();
@@ -256,7 +255,7 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
         newLine.add(nextNull.get(0));
       }
 
-      if (i + 2 < lines.size()) {
+/*      if (i + 2 < lines.size()) {
         // another non-empty line exists
         // concatenate it to the previous line
         List<Move> nextNull = lines.get(i + 1);
@@ -271,7 +270,7 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
             newLine.add(next.get(0));
           }
         }
-      }
+      }*/
     }
 
     Map<Integer, List<List<Move>>> groupedByLength = newLines.stream().collect
@@ -360,10 +359,9 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
     return tempLines;
   }
 
-  private static Set<Move> findMovesAdjacentToWinningLine(Game game, List<Move> moves,
-                                                          ArrayList<ArrayList<Move>> lines) {
+  private static Set<Move> findMovesAdjacentToWinningLine(Game game, List<Move> moves, List<List<Move>> lines) {
     Set<Move> filterMoves = new HashSet<>();
-    for (ArrayList<Move> sequence : lines) {
+    for (List<Move> sequence : lines) {
       Move head = null;
       Move tail = null;
       int size = sequence.size();
@@ -382,11 +380,11 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
     return filterMoves;
   }
 
-  private static ArrayList<ArrayList<Move>> getLongestLines(Game game) {
-    ArrayList<ArrayList<Move>> allLines = new ArrayList<>();
+  private static List<List<Move>> getLongestLines(Game game) {
+    List<List<Move>> allLines = new ArrayList<>();
     final Map<String, Move[]> lines = game.getAllLinesOfMove(game.getWinLength());
     for (Move[] line : lines.values()) {
-      ArrayList<Move> newLine = null;
+      List<Move> newLine = null;
       Integer prevPlayer = null;
       for (Move move : line) {
         Integer player = move.player;
@@ -414,14 +412,14 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
       }
     }
 
-    ArrayList<ArrayList<Move>> filteredLines = new ArrayList<>();
+    List<List<Move>> filteredLines = new ArrayList<>();
     int maxOfFirst = 0;
     int maxOfOther = 0;
     int masterId = game.getFirstPlayerId();
     int opId = game.getOtherPlayerId();
 
     // find the max line length for each player
-    for (ArrayList<Move> line : allLines) {
+    for (List<Move> line : allLines) {
       int size = line.size();
       if (size > 0) {
         if (line.get(0).player == masterId) {

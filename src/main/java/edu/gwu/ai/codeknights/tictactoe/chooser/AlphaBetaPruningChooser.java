@@ -10,13 +10,19 @@ import java.util.List;
 
 public abstract class AlphaBetaPruningChooser extends AIMoveChooser {
 
+  private int maxPly;
+
+  AlphaBetaPruningChooser(int maxLevel){
+    this.maxPly = maxLevel;
+  }
+
   protected long alphabetapruning(final Game game, final int player,
-                                  long alpha, long beta, final int level) {
+                                  long alpha, long beta, int level) {
     Long bestScore = null;
     final int curPlayer = game.getNextPlayer();
     long upperBound = game.getDim() * game.getDim();
     // Check for terminal state
-    if (game.isGameOver()) {
+    if (level++ >= maxPly ||  game.isGameOver()) {
       if (game.didPlayerWin(player)) {
         bestScore = upperBound - level;
       } else if (game.didAnyPlayerWin()) {
@@ -46,14 +52,14 @@ public abstract class AlphaBetaPruningChooser extends AIMoveChooser {
         if (player == curPlayer) {
           alpha = upperBound - level - leftLevel;
         } else {
-          beta = upperBound + leftLevel + level;
+          beta = -upperBound + leftLevel + level;
         }
       }
 
       for (final Move move : moves) {
         newGame.setCellValue(move.rowIdx, move.colIdx, curPlayer);
         final long curScore = alphabetapruning(newGame, player,
-            alpha, beta, level + 1);
+            alpha, beta, level);
         if (player == curPlayer) {
           if (curScore > alpha) {
             alpha = curScore;
