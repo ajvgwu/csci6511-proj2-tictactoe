@@ -130,12 +130,6 @@ public class AlphaBetaPruningChooser extends AIMoveChooser {
           }
           newGame.setCellValue(move.rowIdx, move.colIdx, null);
         }
-
-/*        Move move = bestMoves.stream().max(Comparator.comparingLong
-            (Move::getScore)).orElse(null);
-        if(move != null && move.getScore() > 0L){
-          break;
-        }*/
       }
     }
     catch (DimensionException | StateException e) {

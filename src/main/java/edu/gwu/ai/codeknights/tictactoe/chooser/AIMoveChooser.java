@@ -65,6 +65,9 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
     return moves;
   }
 
+  /**
+   * find all the moves on winning lines
+   * */
   static List<Move> yetAnotherMoveFinder(final Game game) {
     List<Move> moves;
     // check instant win move
@@ -74,7 +77,7 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
     }
 
     moves = new ArrayList<>(findWinningMoves(game));
-    moves = moves.stream().filter(move -> hasNeighbor(game, move)).collect(Collectors.toList());
+//    moves = moves.stream().filter(move -> hasNeighbor(game, move)).collect(Collectors.toList());
     Integer player =  game.getNextPlayer();
     moves.forEach(move -> move.player = player);
     return moves;
@@ -131,17 +134,19 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
     final int opId = game.getFirstPlayerId();
     final List<List<Move>> completeLines = new ArrayList<>();
     List<List<Move>> filteredLines = new ArrayList<>();
-    final Map<String, Move[]> lines = game.getAllLinesOfMove(game.getWinLength());
-    for (Move[] line : lines.values()) {
+    // the all lines on the board
+    final Map<String, Move[]> rawLines = game.getAllLinesOfMove(game.getWinLength());
+    // extract all the complete lines from raw lines
+    for (Move[] line : rawLines.values()) {
       completeLines.addAll(extractCompleteLines(Arrays.asList(line)));
     }
 
-    // complete lines are the line longer than or equal to a winning sequence
-    List<List<Move>> sequences = completeLines.stream()
-        .filter(wl -> wl.size() >= game.getWinLength()).collect
-            (Collectors.toList());
+    // filter out lines longer than or equal to win length
+    List<List<Move>> winningCompleteLines = completeLines.stream()
+        .filter(wl -> wl.size() >= game.getWinLength()).collect(Collectors.toList());
     List<List<Move>> winningLines = new ArrayList<>();
-    sequences.forEach(line -> winningLines.addAll(extractWinningLine(line)));
+    // extract the longest winning line
+    winningCompleteLines.forEach(line -> winningLines.addAll(extractWinningLine(line)));
 
     boolean flag = false;
     for (List<Move> line : winningLines) {
@@ -150,7 +155,7 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
       // and the two moves are located at head and tail
       // block it
       if (player == opId && line.size() >= winLen) {
-        if(getNonEmptyCount(line) == winLen - 2){
+        if(getNonEmptyCount(line) >= winLen - 2){
           flag = true;
           filteredLines.add(line);
         }
@@ -165,10 +170,11 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
     Map<Integer, List<List<Move>>> groupedByPlayer = winningLines.stream().collect
         (Collectors.groupingByConcurrent(AIMoveChooser::getPlayerOfSequence));
 
-    // find single-player lines with max length on each player, then put
+    // put lines into groups grouping by line length
+    // find a group with max line length on each player, then put
     // them into filteredLines
-    groupedByPlayer.values().forEach(seqs -> {
-      Map<Integer, List<List<Move>>> groupedByCount = seqs.stream().collect
+    groupedByPlayer.values().forEach(lines -> {
+      Map<Integer, List<List<Move>>> groupedByCount = lines.stream().collect
           (Collectors.groupingByConcurrent(List::size));
       Integer maxSize = groupedByCount.keySet().stream().max(Comparator
           .comparingInt(Integer::intValue)).get();
