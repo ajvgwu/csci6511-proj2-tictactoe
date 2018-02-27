@@ -1,6 +1,7 @@
 package edu.gwu.ai.codeknights.tictactoe.gui.helpers;
 
 import edu.gwu.ai.codeknights.tictactoe.chooser.AbstractMoveChooser;
+import edu.gwu.ai.codeknights.tictactoe.chooser.AlphaBetaPruningChooser;
 import edu.gwu.ai.codeknights.tictactoe.chooser.OnlineMoveChooer;
 import edu.gwu.ai.codeknights.tictactoe.chooser.ParallelAlphaBetaPruningChooser;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
@@ -33,7 +34,7 @@ public class MainHelper {
         // set player symbols
         masterSymbol = Const.PLAYER_SYMBOL_MASTER;
         opSymbol = Const.PLAYER_SYMBOL_OPPONENT;
-        int maxDepth = Integer.MAX_VALUE;
+        int maxDepth = cowLen * rowLen;
 
         // create two players
         switch (mode) {
@@ -41,19 +42,19 @@ public class MainHelper {
                 // pve
                 masterMoveChooser = new StupidMoveChooser();
                 this.master = new Player(masterId, masterSymbol, masterMoveChooser);
-                opMoveChooser = new ParallelAlphaBetaPruningChooser(maxDepth);
+                opMoveChooser = new ParallelAlphaBetaPruningChooser();
                 this.opponent = new Player(opId, opSymbol, opMoveChooser);
                 break;
             case 2:
                 // eve
-                masterMoveChooser = new ParallelAlphaBetaPruningChooser(maxDepth);
+                masterMoveChooser = new ParallelAlphaBetaPruningChooser();
                 this.master = new Player(masterId, masterSymbol, masterMoveChooser);
-                opMoveChooser = new ParallelAlphaBetaPruningChooser(maxDepth);
+                opMoveChooser = new ParallelAlphaBetaPruningChooser();
                 this.opponent = new Player(opId, opSymbol, opMoveChooser);
                 break;
             case 3:
                 // eve online
-                masterMoveChooser = new ParallelAlphaBetaPruningChooser(maxDepth);
+                masterMoveChooser = new ParallelAlphaBetaPruningChooser();
                 this.master = new Player(masterId, masterSymbol, masterMoveChooser);
                 opMoveChooser = new OnlineMoveChooer();
                 this.opponent = new Player(opId, opSymbol, opMoveChooser);

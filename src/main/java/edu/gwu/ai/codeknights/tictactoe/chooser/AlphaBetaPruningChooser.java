@@ -6,23 +6,22 @@ import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.core.exception.StateException;
 import org.pmw.tinylog.Logger;
 
-import java.util.List;
+import java.util.*;
 
-public abstract class AlphaBetaPruningChooser extends AIMoveChooser {
+public class AlphaBetaPruningChooser extends AIMoveChooser {
 
-  private int maxPly;
 
-  AlphaBetaPruningChooser(int maxLevel){
-    this.maxPly = maxLevel;
+  public AlphaBetaPruningChooser(){
   }
 
   protected long alphabetapruning(final Game game, final int player,
-                                  long alpha, long beta, int level) {
+                                  long alpha, long beta, int level, int curMax) {
     Long bestScore = null;
+    Long bestMove = null;
     final int curPlayer = game.getNextPlayer();
     long upperBound = game.getDim() * game.getDim();
     // Check for terminal state
-    if (level++ >= maxPly ||  game.isGameOver()) {
+    if (level++ >= curMax || game.isGameOver()) {
       if (game.didPlayerWin(player)) {
         bestScore = upperBound - level;
       } else if (game.didAnyPlayerWin()) {
@@ -43,23 +42,15 @@ public abstract class AlphaBetaPruningChooser extends AIMoveChooser {
     }
 
     // Find move with the best score
-    List<Move> moves = findPossibleMoves(game);
+    List<Move> moves = yetAnotherMoveFinder( game);
 
     try {
       final Game newGame = game.getCopy();
-      if (moves.size() == 0) {
-        int leftLevel = findEmptyMoves(game).size() / 2;
-        if (player == curPlayer) {
-          alpha = upperBound - level - leftLevel;
-        } else {
-          beta = -upperBound + leftLevel + level;
-        }
-      }
 
       for (final Move move : moves) {
         newGame.setCellValue(move.rowIdx, move.colIdx, curPlayer);
-        final long curScore = alphabetapruning(newGame, player,
-            alpha, beta, level);
+        final long curScore = alphabetapruning(newGame, player, alpha, beta,
+            level, curMax);
         if (player == curPlayer) {
           if (curScore > alpha) {
             alpha = curScore;
@@ -98,6 +89,60 @@ public abstract class AlphaBetaPruningChooser extends AIMoveChooser {
     return bestScore;
   }
 
+//  @Override
+//  public abstract Move findNextMove(final Game game);
+
   @Override
-  public abstract Move findNextMove(final Game game);
+  public Move findNextMove(final Game game) {
+    if (game.isGameOver()) {
+      return null;
+    }
+    final int numFirst = game.countFirstPlayer();
+    final int numOther = game.countOtherPlayer();
+    final int curPlayer = game.getNextPlayer();
+    if (numFirst + numOther == 0) {
+      final int dim = game.getDim();
+      final int center = dim / 2;
+      return new Move(center, center, curPlayer, null);
+    }
+    final List<Move> moves = yetAnotherMoveFinder(game);
+    Long bestScore = null;
+    final Set<Move> bestMoves = new HashSet<>();
+
+    try {
+      final Game newGame = game.getCopy();
+      int maxDepth = newGame.countEmpty();
+      int curMaxLevel = 0;
+      while (curMaxLevel < maxDepth){
+        curMaxLevel++;
+        for (final Move move : moves) {
+          newGame.setCellValue(move.rowIdx, move.colIdx, curPlayer);
+          Long curScore = alphabetapruning(newGame, curPlayer,
+              Long.MIN_VALUE, Long.MAX_VALUE, 0, curMaxLevel);
+          move.setScore(curScore);
+          if (bestScore == null || curScore > bestScore) {
+            bestScore = curScore;
+            bestMoves.clear();
+            bestMoves.add(move);
+          }
+          else if (curScore.equals(bestScore)) {
+            bestMoves.add(move);
+          }
+          newGame.setCellValue(move.rowIdx, move.colIdx, null);
+        }
+
+/*        Move move = bestMoves.stream().max(Comparator.comparingLong
+            (Move::getScore)).orElse(null);
+        if(move != null && move.getScore() > 0L){
+          break;
+        }*/
+      }
+    }
+    catch (DimensionException | StateException e) {
+      Logger.error(e, "could not copy game state");
+    }
+
+    // Return result
+    return selectMove(game, new ArrayList<>(bestMoves));
+  }
 }

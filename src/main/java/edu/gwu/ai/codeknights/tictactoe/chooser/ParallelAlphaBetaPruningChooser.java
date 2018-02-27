@@ -11,8 +11,7 @@ import java.util.List;
 
 public class ParallelAlphaBetaPruningChooser extends AlphaBetaPruningChooser {
 
-  public ParallelAlphaBetaPruningChooser(int maxLevel) {
-    super(maxLevel);
+  public ParallelAlphaBetaPruningChooser() {
   }
 
   @Override
@@ -28,34 +27,40 @@ public class ParallelAlphaBetaPruningChooser extends AlphaBetaPruningChooser {
       final int center = dim / 2;
       return new Move(center, center, null, null);
     }
-    final List<Move> moves = findPossibleMoves(game);
-    final List<AbpThread> threads = new ArrayList<>();
-    for (final Move move : moves) {
-      try {
-        final Game newGame = game.getCopy();
-        final AbpThread t = new AbpThread(curPlayer, move, newGame);
-        threads.add(t);
-        t.start();
-      } catch (DimensionException | StateException e) {
-        Logger.error(e, "could not copy game state");
-      }
-    }
-    Long bestScore = null;
     final List<Move> bestMoves = new ArrayList<>();
-    for (final AbpThread t : threads) {
-      try {
-        t.join();
-        final Move move = t.getMove();
-        final Long score = move.getScore();
-        if (bestScore == null || score > bestScore) {
-          bestScore = score;
-          bestMoves.clear();
-          bestMoves.add(move);
-        } else if (score.equals(bestScore)) {
-          bestMoves.add(move);
+    final List<Move> moves = yetAnotherMoveFinder(game);
+    int maxDepth = game.countEmpty();
+    int curMaxLevel = 0;
+    while (curMaxLevel < maxDepth){
+      curMaxLevel++;
+      final List<AbpThread> threads = new ArrayList<>();
+      for (final Move move : moves) {
+        try {
+          final Game newGame = game.getCopy();
+          final AbpThread t = new AbpThread(curPlayer, move, newGame, curMaxLevel);
+          threads.add(t);
+          t.start();
+        } catch (DimensionException | StateException e) {
+          Logger.error(e, "could not copy game state");
         }
-      } catch (final InterruptedException e) {
-        Logger.error(e, "interrupted while joining thread");
+      }
+
+      Long bestScore = null;
+      for (final AbpThread t : threads) {
+        try {
+          t.join();
+          final Move move = t.getMove();
+          final Long score = move.getScore();
+          if (bestScore == null || score > bestScore) {
+            bestScore = score;
+            bestMoves.clear();
+            bestMoves.add(move);
+          } else if (score.equals(bestScore)) {
+            bestMoves.add(move);
+          }
+        } catch (final InterruptedException e) {
+          Logger.error(e, "interrupted while joining thread");
+        }
       }
     }
 
@@ -68,13 +73,16 @@ public class ParallelAlphaBetaPruningChooser extends AlphaBetaPruningChooser {
     private final int curPlayer;
     private final Move move;
     private final Game newGame;
+    private final int curMaxLevel;
 
     private Long score;
 
-    public AbpThread(final int curPlayer, final Move move, final Game newGame) {
+    public AbpThread(final int curPlayer, final Move move, final Game newGame,
+                     final int curMaxLevel) {
       this.curPlayer = curPlayer;
       this.move = move;
       this.newGame = newGame;
+      this.curMaxLevel = curMaxLevel;
 
       score = 0L;
     }
@@ -83,7 +91,8 @@ public class ParallelAlphaBetaPruningChooser extends AlphaBetaPruningChooser {
     public void run() {
       newGame.setCellValue(move.rowIdx, move.colIdx, curPlayer);
       score = alphabetapruning(newGame, curPlayer, Long.MIN_VALUE,
-          Long.MAX_VALUE, 0);
+          Long.MAX_VALUE, 0, curMaxLevel);
+
       move.setScore(score);
     }
 

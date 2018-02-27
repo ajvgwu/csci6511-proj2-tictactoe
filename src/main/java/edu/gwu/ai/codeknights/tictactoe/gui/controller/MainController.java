@@ -1,5 +1,6 @@
 package edu.gwu.ai.codeknights.tictactoe.gui.controller;
 
+import edu.gwu.ai.codeknights.tictactoe.chooser.ParallelAlphaBetaPruningChooser;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.core.Move;
 import edu.gwu.ai.codeknights.tictactoe.gui.TicTacToe;

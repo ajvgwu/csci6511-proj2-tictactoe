@@ -1,12 +1,12 @@
 package edu.gwu.ai.codeknights.tictactoe;
 
 import edu.gwu.ai.codeknights.tictactoe.chooser.AIMoveChooser;
+import edu.gwu.ai.codeknights.tictactoe.chooser.AlphaBetaPruningChooser;
 import edu.gwu.ai.codeknights.tictactoe.chooser.ParallelAlphaBetaPruningChooser;
 import edu.gwu.ai.codeknights.tictactoe.core.Move;
 import edu.gwu.ai.codeknights.tictactoe.core.exception.DimensionException;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.core.exception.StateException;
-import edu.gwu.ai.codeknights.tictactoe.gui.util.Player;
 import edu.gwu.ai.codeknights.tictactoe.util.Const;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -23,8 +23,8 @@ public class Main {
 
   public static void main(final String[] args) throws DimensionException, StateException, InterruptedException {
     // Default values
-    int dim = 3;
-    int winLength = 3;
+    int dim = 6;
+    int winLength = 4;
     String[] stateArgs = null;
     long gameId = new Random().nextInt(1000);
     int masterId = 10;
@@ -153,7 +153,6 @@ public class Main {
     Logger.info("Is game over?   {}", isGameOver);
     Game curGame = game;
     int moveIdx = 0;
-    int maxDepth = Integer.MAX_VALUE;
     while (!isGameOver) {
       moveIdx++;
       Logger.info("  Move # {}", moveIdx);
@@ -162,8 +161,7 @@ public class Main {
               "performance...");
       for (int i = 0; i < 3; i++) {
         gameCopy = curGame.getCopy();
-        final AIMoveChooser moveChooser = new ParallelAlphaBetaPruningChooser
-            (maxDepth);
+        final AIMoveChooser moveChooser = new ParallelAlphaBetaPruningChooser();
         moveChooser.setRandomChoice(randomize);
         final long startMs = System.currentTimeMillis();
         final Move move = moveChooser.findNextMove(gameCopy);
@@ -190,13 +188,11 @@ public class Main {
       Const.OPPONENT_PLAYER_CHAR, game.countOtherPlayer(), Const.BLANK_SPACE_CHAR, game.countEmpty());
     boolean isGameOver = game.isGameOver();
     Logger.info("Is game over?   {}", isGameOver);
-    int maxDepth = Integer.MAX_VALUE;
-    final AIMoveChooser AIMoveChooser1 = new ParallelAlphaBetaPruningChooser(maxDepth);
-    final AIMoveChooser AIMoveChooser2 = new ParallelAlphaBetaPruningChooser(maxDepth);
-
+    final AIMoveChooser AIMoveChooser1 = new ParallelAlphaBetaPruningChooser();
+    final AIMoveChooser AIMoveChooser2 = new ParallelAlphaBetaPruningChooser();
+    AIMoveChooser1.setRandomChoice(randomize);
+    AIMoveChooser2.setRandomChoice(randomize);
     while (!isGameOver) {
-      AIMoveChooser1.setRandomChoice(randomize);
-      AIMoveChooser2.setRandomChoice(randomize);
       long startMs = System.currentTimeMillis();
       Move bestMove = AIMoveChooser1.findNextMove(game);
       game.setCellValue(bestMove.rowIdx, bestMove.colIdx, game.getNextPlayer());

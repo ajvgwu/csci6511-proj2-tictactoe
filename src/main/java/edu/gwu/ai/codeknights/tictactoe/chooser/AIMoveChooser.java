@@ -28,6 +28,9 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
     return hashScoreMap;
   }
 
+  @Override
+  public abstract Move findNextMove(final Game game);
+
   static List<Move> findEmptyMoves(final Game game) {
     final int dim = game.getDim();
     List<Move> moves = new ArrayList<>();
@@ -37,7 +40,7 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
         final Integer value = game.getCellValue(rowIdx, colIdx);
         if (value == null) {
           // This is a possible move (empty cell)
-          moves.add(new Move(rowIdx, colIdx, null, null));
+          moves.add(new Move(rowIdx, colIdx, game.getNextPlayer(), null));
         }
       }
     }
@@ -45,20 +48,55 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
   }
 
   static List<Move> findPossibleMoves(final Game game) {
-    final int prevPlayer = game.getPrevPlayer();
-    final int curPlayer = game.getNextPlayer();
+    List<Move> moves;
+    // check instant win move
+    Move winMove = getInstantWinMove(game);
+    if (winMove != null) {
+      return Collections.singletonList(winMove);
+    }
+
+    moves = findEmptyMoves(game);
+    moves = moves.stream().filter(move -> hasNeighbor(game, move))
+        .collect(Collectors.toList());
+    List<List<Move>> sequences = getLongestLines(game);
+    moves = new ArrayList<>(findMovesAdjacentToLines(game, moves, sequences));
+    Integer player =  game.getNextPlayer();
+    moves.forEach(move -> move.player = player);
+    return moves;
+  }
+
+  static List<Move> yetAnotherMoveFinder(final Game game) {
+    List<Move> moves;
+    // check instant win move
+    Move winMove = getInstantWinMove(game);
+    if (winMove != null) {
+      return Collections.singletonList(winMove);
+    }
+
+    moves = new ArrayList<>(findWinningMoves(game));
+    moves = moves.stream().filter(move -> hasNeighbor(game, move)).collect(Collectors.toList());
+    Integer player =  game.getNextPlayer();
+    moves.forEach(move -> move.player = player);
+    return moves;
+  }
+
+  /**
+   * find a move that will lead to instant win
+   */
+  private static Move getInstantWinMove(Game game) {
     List<Move> moves;
     moves = findEmptyMoves(game);
+    final int prevPlayer = game.getPrevPlayer();
+    final int curPlayer = game.getNextPlayer();
     for (Move move : moves) {
       int rowIdx = move.rowIdx;
       int colIdx = move.colIdx;
-      final Move tempMove = new Move(rowIdx, colIdx, curPlayer, null);
       // rule 1: if there's a chance for anyone to win, take it immediately
       game.setCellValue(rowIdx, colIdx, curPlayer);
       final boolean didWin = game.didPlayerWin(curPlayer);
       game.setCellValue(rowIdx, colIdx, null);
       if (didWin) {
-        return Collections.singletonList(tempMove);
+        return new Move(rowIdx, colIdx, curPlayer, null);
       }
 
       // rule 2: if the other player can win, block it immediately
@@ -66,92 +104,27 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
       final boolean didLose = game.didPlayerWin(prevPlayer);
       game.setCellValue(rowIdx, colIdx, null);
       if (didLose) {
-        return Collections.singletonList(tempMove);
+        return new Move(rowIdx, colIdx, prevPlayer, null);
       }
     }
-
-    moves = moves.stream().filter(move -> hasNeighbors(game, move))
-        .collect(Collectors.toList());
-    List<List<Move>> sequences = getWinningLines(game);
-    moves = new ArrayList<>(findMovesAdjacentToWinningLine(game, moves, sequences));
-
-    // rule 4: don't consider the move if it is not in a winning lines
-//    moves = new ArrayList<>(findWinningMoves(game));
-    // rule 3: don't consider the move if it is adjacent to none
-//    moves = moves.stream().filter(move -> hasNeighbors(game, move)).collect(Collectors.toList());
-    return moves;
+    return null;
   }
 
   /**
-   * return all moves in winning sequences
+   * find moves that are closest to winning
    */
   private static Set<Move> findWinningMoves(Game game) {
     Set<Move> filterMoves = new HashSet<>();
     List<List<Move>> sequences = getWinningLines(game);
-    // filter all empty moves
-    sequences.forEach(sequence -> filterMoves.addAll(sequence.stream().filter(move -> move.player == null).collect(Collectors.toList())));
+    // extract all empty moves on winning lines
+    sequences.forEach(sequence -> filterMoves.addAll(sequence.stream().filter(move -> move.player == null).collect(Collectors.toSet())));
     return filterMoves;
-  }
-
-  private static boolean isNeighbors(final Game game, final Move first, final
-  Move second) {
-
-    if (first == null || second == null) {
-      return false;
-    }
-
-    int dim = game.getDim();
-
-    boolean flag = false;
-    for (int i = first.colIdx - 1; i < first.colIdx + 2; i++) {
-      for (int j = first.rowIdx - 1; j < first.rowIdx + 2; j++) {
-        // skip non-existent moves
-        if (i < dim && j < dim && i > 0 && j > 0) {
-          if (second.colIdx == i && second.rowIdx == j) {
-            flag = true;
-            break;
-          }
-        }
-      }
-
-      if (flag) {
-        break;
-      }
-    }
-
-    return flag;
-  }
-
-  /**
-   * rule 3
-   * determine if a move has occupied neighbors
-   */
-  private static boolean hasNeighbors(final Game game, final Move move) {
-    int dim = game.getDim();
-    // available signal
-    boolean flag = false;
-    for (int i = move.colIdx - 1; i < move.colIdx + 2; i++) {
-      for (int j = move.rowIdx - 1; j < move.rowIdx + 2; j++) {
-        // skip non-existent moves
-        if (i < dim && j < dim && i > 0 && j > 0) {
-          if (game.getCellValue(j, i) != null) {
-            flag = true;
-            break;
-          }
-        }
-      }
-
-      if (flag) {
-        break;
-      }
-    }
-
-    return flag;
   }
 
   /**
    * find winning lines for both players
-   * a winning line can be either closest to win length or have two
+   * a winning line can be either closest to win length or have size of opponent
+   * moves short to win length by 2
    */
   private static List<List<Move>> getWinningLines(final Game game) {
     final int winLen = game.getWinLength();
@@ -170,21 +143,30 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
     List<List<Move>> winningLines = new ArrayList<>();
     sequences.forEach(line -> winningLines.addAll(extractWinningLine(line)));
 
+    boolean flag = false;
     for (List<Move> line : winningLines) {
       Integer player = getPlayerOfSequence(line);
       // if a opponent sequence is two moves from winning
       // and the two moves are located at head and tail
       // block it
-      if (player == opId && getNonEmptyCount(line) == winLen - 2) {
-        return Collections.singletonList(line);
+      if (player == opId && line.size() >= winLen) {
+        if(getNonEmptyCount(line) == winLen - 2){
+          flag = true;
+          filteredLines.add(line);
+        }
       }
+    }
+
+    if(flag){
+      return filteredLines;
     }
 
     // lines grouped by player
     Map<Integer, List<List<Move>>> groupedByPlayer = winningLines.stream().collect
         (Collectors.groupingByConcurrent(AIMoveChooser::getPlayerOfSequence));
 
-    // find lines with max length, then put them into filterdLines
+    // find single-player lines with max length on each player, then put
+    // them into filteredLines
     groupedByPlayer.values().forEach(seqs -> {
       Map<Integer, List<List<Move>>> groupedByCount = seqs.stream().collect
           (Collectors.groupingByConcurrent(List::size));
@@ -209,7 +191,7 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
   }
 
   /**
-   * get non empty moves count of a line
+   * get count of non-empty moves in a line
    */
   private static int getNonEmptyCount(List<Move> line) {
     int count = 0;
@@ -224,11 +206,18 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
   }
 
   /**
-   * extract the longest lines from a line
+   * extract the longest lines from a single-player line
+   * <p>
+   * a longest line can be the concatenation of at most two non-empty lines, and
+   * there can be only one empty move between them. This line will also have
+   * at most one empty move on each side.
+   * <p>
+   * the input line is a line contains all empty moves and non-empty moves
+   * of same player value
    */
   private static List<List<Move>> extractWinningLine(final List<Move> line) {
 
-    List<List<Move>> lines = extractSequences(line);
+    List<List<Move>> lines = extractSinglePlayerLines(line);
     List<List<Move>> newLines = new ArrayList<>();
     for (int i = 0; i < lines.size(); i++) {
       List<Move> newLine = new ArrayList<>();
@@ -255,7 +244,7 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
         newLine.add(nextNull.get(0));
       }
 
-/*      if (i + 2 < lines.size()) {
+      if (i + 2 < lines.size()) {
         // another non-empty line exists
         // concatenate it to the previous line
         List<Move> nextNull = lines.get(i + 1);
@@ -270,7 +259,7 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
             newLine.add(next.get(0));
           }
         }
-      }*/
+      }
     }
 
     Map<Integer, List<List<Move>>> groupedByLength = newLines.stream().collect
@@ -285,17 +274,22 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
   /**
    * extract all complete lines in a line
    * <p>
-   * complete line means a line including empty moves on both sides
-   * if the line is an empty line, it will not be included in
+   * complete line means a line including all the empty moves on both sides
+   * if the line is an empty line, it will not be returned
+   * <p>
+   * the input lines are extracted from a raw board row, column or diagonal.
+   * <p>
+   * each input line will be separated into single player value lines, and
+   * then built into complete lines
    */
-  private static List<List<Move>> extractCompleteLines(final List<Move> line) {
-    // player of most recent sequence
+  private static List<List<Move>> extractCompleteLines(List<Move> line) {
+    // player value of most recent sequence
     Integer prev = null;
-    // player of most recent valid player
+    // non-null player value of the recent sequence
     Integer prevPlayer = null;
-    List<List<Move>> lines = new ArrayList<>();
+    List<List<Move>> completeLines = new ArrayList<>();
     List<Move> prevLine = new ArrayList<>();
-    List<List<Move>> extractLines = extractSequences(line);
+    List<List<Move>> extractLines = extractSinglePlayerLines(line);
     List<Move> newLine = new ArrayList<>();
     for (int i = 0; i < extractLines.size(); i++) {
       int j = i;
@@ -313,7 +307,7 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
             // create a new line
             newLine = new ArrayList<>();
           }
-          lines.add(newLine);
+          completeLines.add(newLine);
           newLine.addAll(currentLine);
           prevPlayer = newLine.get(0).player;
         }
@@ -324,14 +318,22 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
       i = j - 1;
     }
 
-    return lines;
+    return completeLines;
   }
 
   /**
-   * break the line into lines of same player
+   * break the mixed-player line into lines of single-player lines
+   * <p>
+   * the input line is a line contains non-empty moves of mixed player value
+   * and all non-empty moves, it can be a row, a column or a diagonal in the
+   * board
+   * <p>
+   * it will be separate into lines of single player value, which means this
+   * method will return a list consists of lines, and each line can only have
+   * moves of same player value, the player value can be null, firstPlayerId
+   * or otherPlayerId
    */
-  private static List<List<Move>> extractSequences(final List<Move>
-                                                       line) {
+  private static List<List<Move>> extractSinglePlayerLines(List<Move> line) {
     Integer prev = null;
     List<Move> newLine = null;
     List<List<Move>> tempLines = new ArrayList<>();
@@ -359,7 +361,11 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
     return tempLines;
   }
 
-  private static Set<Move> findMovesAdjacentToWinningLine(Game game, List<Move> moves, List<List<Move>> lines) {
+  /**
+   * find moves that are adjacent to the head or tail of input lines in
+   * input moves
+   */
+  private static Set<Move> findMovesAdjacentToLines(Game game, List<Move> moves, List<List<Move>> lines) {
     Set<Move> filterMoves = new HashSet<>();
     for (List<Move> sequence : lines) {
       Move head = null;
@@ -371,7 +377,7 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
       }
 
       for (Move move : moves) {
-        if (isNeighbors(game, head, move) || isNeighbors(game, tail, move)) {
+        if (isAdjacentMoves(game, head, move) || isAdjacentMoves(game, tail, move)) {
           filterMoves.add(move);
         }
       }
@@ -380,6 +386,10 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
     return filterMoves;
   }
 
+  /**
+   * get longest single player value lines
+   * these lines does not contain empty moves
+   */
   private static List<List<Move>> getLongestLines(Game game) {
     List<List<Move>> allLines = new ArrayList<>();
     final Map<String, Move[]> lines = game.getAllLinesOfMove(game.getWinLength());
@@ -474,6 +484,59 @@ public abstract class AIMoveChooser extends AbstractMoveChooser {
     }
   }
 
-  @Override
-  public abstract Move findNextMove(final Game game);
+  /**
+   * determine if two moves are adjacent to each other
+   */
+  private static boolean isAdjacentMoves(final Game game, Move first, Move second) {
+    if (first == null || second == null) {
+      return false;
+    }
+
+    int dim = game.getDim();
+    boolean isAdjacent = false;
+    for (int i = first.colIdx - 1; i < first.colIdx + 2; i++) {
+      for (int j = first.rowIdx - 1; j < first.rowIdx + 2; j++) {
+        // skip non-existent moves
+        if (i < dim && j < dim && i > 0 && j > 0) {
+          if (second.colIdx == i && second.rowIdx == j) {
+            isAdjacent = true;
+            break;
+          }
+        }
+      }
+
+      if (isAdjacent) {
+        break;
+      }
+    }
+
+    return isAdjacent;
+  }
+
+  /**
+   * determine if a move is adjacent to any non-empty move
+   */
+  private static boolean hasNeighbor(final Game game, Move move) {
+    int dim = game.getDim();
+    // available signal
+    boolean hasNeighbor = false;
+    for (int i = move.colIdx - 1; i < move.colIdx + 2; i++) {
+      for (int j = move.rowIdx - 1; j < move.rowIdx + 2; j++) {
+        // skip non-existent moves
+        if (i < dim && j < dim && i > 0 && j > 0) {
+          if (game.getCellValue(j, i) != null) {
+            hasNeighbor = true;
+            break;
+          }
+        }
+      }
+
+      if (hasNeighbor) {
+        break;
+      }
+    }
+
+    return hasNeighbor;
+  }
+
 }
