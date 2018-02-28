@@ -1,10 +1,14 @@
-package edu.gwu.ai.codeknights.tictactoe.selector;
+package edu.gwu.ai.codeknights.tictactoe.filtering.chooser;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.pmw.tinylog.Logger;
+
+import edu.gwu.ai.codeknights.tictactoe.filtering.core.Board;
+import edu.gwu.ai.codeknights.tictactoe.filtering.core.Cell;
+import edu.gwu.ai.codeknights.tictactoe.filtering.core.TicTacToeGame;
 
 public class RuleBasedChooser extends AbstractCellChooser {
 

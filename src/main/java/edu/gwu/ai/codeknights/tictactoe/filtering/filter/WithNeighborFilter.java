@@ -1,8 +1,11 @@
-package edu.gwu.ai.codeknights.tictactoe.selector;
+package edu.gwu.ai.codeknights.tictactoe.filtering.filter;
 
 import java.util.stream.Stream;
 
-public class WithNeighborSelector extends EmptyCellFilter {
+import edu.gwu.ai.codeknights.tictactoe.filtering.core.Cell;
+import edu.gwu.ai.codeknights.tictactoe.filtering.core.TicTacToeGame;
+
+public class WithNeighborFilter extends EmptyCellFilter {
 
   public static boolean hasPopulatedNeighbor(final int rowIdx, final int colIdx, final TicTacToeGame game) {
     return game.getBoard().getNeighborsOfCell(rowIdx, colIdx).parallelStream().anyMatch(Cell::isPopulated);

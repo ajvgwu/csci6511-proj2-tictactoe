@@ -1,7 +1,8 @@
 package edu.gwu.ai.codeknights.tictactoe;
 
-import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -15,10 +16,11 @@ import org.pmw.tinylog.Logger;
 import edu.gwu.ai.codeknights.tictactoe.core.exception.DimensionException;
 import edu.gwu.ai.codeknights.tictactoe.core.exception.GameException;
 import edu.gwu.ai.codeknights.tictactoe.core.exception.StateException;
-import edu.gwu.ai.codeknights.tictactoe.selector.AbstractCellChooser;
-import edu.gwu.ai.codeknights.tictactoe.selector.AnyCellChooser;
-import edu.gwu.ai.codeknights.tictactoe.selector.Player;
-import edu.gwu.ai.codeknights.tictactoe.selector.TicTacToeGame;
+import edu.gwu.ai.codeknights.tictactoe.filtering.chooser.AbstractCellChooser;
+import edu.gwu.ai.codeknights.tictactoe.filtering.chooser.Chooser;
+import edu.gwu.ai.codeknights.tictactoe.filtering.core.Cell;
+import edu.gwu.ai.codeknights.tictactoe.filtering.core.Player;
+import edu.gwu.ai.codeknights.tictactoe.filtering.core.TicTacToeGame;
 import edu.gwu.ai.codeknights.tictactoe.util.Const;
 
 public class Main {
@@ -37,6 +39,7 @@ public class Main {
     String singlePlayChooser = null;
     String finishGameP1Chooser = null;
     String finishGameP2Chooser = null;
+    String[] compareChoosers = null;
 
     // Command-line options
     final Option helpOpt = Option.builder("h").longOpt("help")
@@ -78,6 +81,10 @@ public class Main {
         "finish playing the game using the given strategies for player1 and player2, respectively (any combination of "
           + String.valueOf(getChooserNames()) + ")")
       .build();
+    final Option compareChoosersOpt = Option.builder().longOpt("compare-choosers")
+      .hasArgs().argName("CHOOSERS...")
+      .desc("compare the given strategies for a single move (any of " + String.valueOf(getChooserNames()) + ")")
+      .build();
 
     final Options options = new Options();
     options.addOption(helpOpt);
@@ -89,6 +96,7 @@ public class Main {
     options.addOption(stateOpt);
     options.addOption(singlePlayOpt);
     options.addOption(finishGameOpt);
+    options.addOption(compareChoosersOpt);
 
     // Parse command-line options
     final CommandLineParser parser = new DefaultParser();
@@ -111,7 +119,9 @@ public class Main {
       if (line.hasOption(singlePlayOpt.getLongOpt()) && line.hasOption(finishGameOpt.getLongOpt())) {
         line = null;
         Logger.error(
-          "cannot choose both of these options: " + singlePlayOpt.getLongOpt() + ", " + finishGameOpt.getLongOpt());
+          "choose only one of the following options: "
+            + singlePlayOpt.getLongOpt() + ", "
+            + finishGameOpt.getLongOpt());
       }
       singlePlayChooser = parseString(line, singlePlayOpt, singlePlayChooser);
       final String[] finishGameChoosers = parseStringArray(line, finishGameOpt, null);
@@ -119,6 +129,16 @@ public class Main {
         finishGameP1Chooser = finishGameChoosers[0];
         finishGameP2Chooser = finishGameChoosers.length > 1 ? finishGameChoosers[1] : null;
       }
+      if ((singlePlayChooser != null || finishGameChoosers != null)
+        && line.hasOption(compareChoosersOpt.getLongOpt())) {
+        line = null;
+        Logger.error(
+          "cannot only one of the following options: "
+            + singlePlayOpt.getLongOpt() + ", "
+            + finishGameOpt.getLongOpt() + ", "
+            + compareChoosersOpt.getLongOpt());
+      }
+      compareChoosers = parseStringArray(line, compareChoosersOpt, null);
     }
     if (line == null || help) {
       // Print usage information
@@ -137,22 +157,64 @@ public class Main {
       if (stateArgs != null) {
         game.populate(stateArgs);
       }
-      final TestScenario scenario = new TestScenario(game);
       if (singlePlayChooser != null) {
+        // Play the next move
         final AbstractCellChooser chooser = getChooserByName(singlePlayChooser);
         player1.setChooser(chooser);
         player2.setChooser(chooser);
-        scenario.singlePlay();
+        new TestScenario(game).singlePlay();
       }
       else if (finishGameP1Chooser != null || finishGameP2Chooser != null) {
+        // Finish the current game
         player1.setChooser(getChooserByName(finishGameP1Chooser));
         player2.setChooser(getChooserByName(finishGameP2Chooser));
-        scenario.finishGame();
+        new TestScenario(game).finishGame();
+      }
+      else if (compareChoosers != null) {
+        // Compare performance for a list of choosers
+        final Map<String, AbstractCellChooser> chooserMap = new LinkedHashMap<>();
+        for (final String name : compareChoosers) {
+          chooserMap.put(name, getChooserByName(name));
+        }
+        final Map<String, TestResult> resultMap = new LinkedHashMap<>();
+        for (final String name : chooserMap.keySet()) {
+          final AbstractCellChooser chooser = chooserMap.get(name);
+          System.out.println("testing chooser '" + name + "' (class=" + chooser.getClass().getSimpleName() + ") ...");
+          player1.setChooser(chooser);
+          player2.setChooser(chooser);
+          try {
+            final TicTacToeGame copy = game.getCopy(game.getGameId(), player1, player2);
+            final Player nextPlayer = copy.getNextPlayer();
+            Integer rowIdx = null;
+            Integer colIdx = null;
+            String playerMark = null;
+            final long startTimeMs = System.currentTimeMillis();
+            final Cell cell = nextPlayer.chooseCell(copy);
+            final long endTimeMs = System.currentTimeMillis();
+            final double elapsedSec = (double) ((endTimeMs - startTimeMs) / 1000.0);
+            if (cell != null) {
+              rowIdx = cell.getRowIdx();
+              colIdx = cell.getColIdx();
+              copy.playInCell(rowIdx, colIdx, nextPlayer);
+              playerMark = String.valueOf(copy.getBoard().getCell(rowIdx, colIdx).getPlayer().getMarker());
+            }
+            resultMap.put(name, new TestResult(rowIdx, colIdx, playerMark, elapsedSec));
+            System.out.println("time elapsed (sec): " + String.valueOf(elapsedSec));
+          }
+          catch (final Exception e) {
+            Logger.error(e, "error while testing chooser: " + name);
+            resultMap.put(name, new TestResult());
+          }
+          System.out.println();
+        }
+        for (final String name : resultMap.keySet()) {
+          final TestResult result = resultMap.get(name);
+          System.out.println(name + ": " + result.toString());
+        }
       }
       else {
-        Logger.debug("neither option " + singlePlayOpt.getLongOpt() + " nor " + finishGameOpt.getLongOpt()
-          + " was provided; will not play any moves");
-        scenario.printCurGameInfo();
+        Logger.debug("no gameplay options were provided; will not play any moves");
+        new TestScenario(game).printCurGameInfo();
       }
     }
   }
@@ -208,21 +270,16 @@ public class Main {
   }
 
   public static List<String> getChooserNames() {
-    // TODO: enumerate chooser names
-    return Arrays.asList(AnyCellChooser.NAME);
+    return Chooser.getNames();
   }
 
   public static AbstractCellChooser getChooserByName(String name) throws IllegalArgumentException {
     name = name != null ? name.trim() : "";
-    switch (name) {
-      case AnyCellChooser.NAME: {
-        return new AnyCellChooser();
-      }
-      // TODO: add strategies
-      default: {
-        throw new IllegalArgumentException("unknown chooser name: " + name);
-      }
+    final Chooser chooser = Chooser.fromName(name);
+    if (chooser != null) {
+      return chooser.createChooser();
     }
+    throw new IllegalArgumentException("unknown chooser name: " + name);
   }
 
   public static class TestScenario {
@@ -238,17 +295,17 @@ public class Main {
     }
 
     public void printCurGameInfo() {
-      Logger.info("current game state:\n{}", game.toString());
+      System.out.println("current game state:\n" + game.toString());
       final boolean isGameOver = game.isGameOver();
       final boolean didAnyWin = game.didAnyWin();
       final boolean didP1Win = game.didPlayer1Win();
       final boolean didP2Win = game.didPlayer2Win();
-      Logger.info("is game over? {}", isGameOver);
+      System.out.println("is game over? " + String.valueOf(isGameOver));
       if (isGameOver) {
-        Logger.info("did any win?  {}", didAnyWin);
+        System.out.println("did any win?  " + String.valueOf(didAnyWin));
         if (didAnyWin) {
-          Logger.info("did P1 win?   {}", didP1Win);
-          Logger.info("did P2 win?   {}", didP2Win);
+          System.out.println("did P1 win?   " + String.valueOf(didP1Win));
+          System.out.println("did P2 win?   " + String.valueOf(didP2Win));
         }
       }
     }
@@ -277,6 +334,38 @@ public class Main {
       catch (final GameException e) {
         Logger.error(e, "could not finish game");
       }
+    }
+  }
+
+  public static class TestResult {
+
+    public final Integer rowIdx;
+    public final Integer colIdx;
+    public final String playerMark;
+    public final Double elapsedSec;
+
+    public TestResult(final Integer rowIdx, final Integer colIdx, final String playerMark, final double elapsedSec) {
+      this.rowIdx = rowIdx;
+      this.colIdx = colIdx;
+      this.playerMark = playerMark;
+      this.elapsedSec = elapsedSec;
+    }
+
+    public TestResult() {
+      rowIdx = null;
+      colIdx = null;
+      playerMark = null;
+      elapsedSec = null;
+    }
+
+    @Override
+    public String toString() {
+      return new StringBuilder()
+        .append("rowIdx=").append(rowIdx).append(", ")
+        .append("colIdx=").append(colIdx).append(", ")
+        .append("playerMark=").append(playerMark).append(", ")
+        .append("elapsedSec=").append(elapsedSec).append(", ")
+        .toString();
     }
   }
 }

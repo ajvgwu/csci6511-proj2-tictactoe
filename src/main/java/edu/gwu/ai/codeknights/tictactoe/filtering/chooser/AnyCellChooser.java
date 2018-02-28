@@ -1,6 +1,9 @@
-package edu.gwu.ai.codeknights.tictactoe.selector;
+package edu.gwu.ai.codeknights.tictactoe.filtering.chooser;
 
 import java.util.stream.Stream;
+
+import edu.gwu.ai.codeknights.tictactoe.filtering.core.Cell;
+import edu.gwu.ai.codeknights.tictactoe.filtering.core.TicTacToeGame;
 
 public class AnyCellChooser extends AbstractCellChooser {
 

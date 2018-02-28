@@ -1,4 +1,6 @@
-package edu.gwu.ai.codeknights.tictactoe.selector;
+package edu.gwu.ai.codeknights.tictactoe.filtering.core;
+
+import edu.gwu.ai.codeknights.tictactoe.filtering.chooser.AbstractCellChooser;
 
 public class Player {
 

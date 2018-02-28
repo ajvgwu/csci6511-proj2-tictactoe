@@ -1,4 +1,4 @@
-package edu.gwu.ai.codeknights.tictactoe.selector;
+package edu.gwu.ai.codeknights.tictactoe.filtering.core;
 
 import java.util.Objects;
 
@@ -155,11 +155,11 @@ public class TicTacToeGame {
     return Objects.equals(player, player2) ? player2 : player1;
   }
 
-  protected void playInCell(final int rowIdx, final int colIdx, final Player player) {
+  public void playInCell(final int rowIdx, final int colIdx, final Player player) {
     board.getCell(rowIdx, colIdx).setPlayer(player);
   }
 
-  protected void playInCell(final Cell cell, final Player player) {
+  public void playInCell(final Cell cell, final Player player) {
     playInCell(cell.getRowIdx(), cell.getColIdx(), player);
   }
 
@@ -187,6 +187,20 @@ public class TicTacToeGame {
 
   public long evaluatePlayer2Utility() {
     return evaluatePlayerUtility(player2);
+  }
+
+  public TicTacToeGame getCopy(final long newGameId, final Player newPlayer1, final Player newPlayer2) {
+    final TicTacToeGame copy = new TicTacToeGame(dim, winLength, newGameId, newPlayer1, newPlayer2);
+    for (final Cell oldCell : board.getAllCells()) {
+      final Cell newCell = copy.getBoard().getCell(oldCell.getRowIdx(), oldCell.getColIdx());
+      if (oldCell.isPopulatedBy(player1)) {
+        newCell.setPlayer(newPlayer1);
+      }
+      else if (oldCell.isPopulatedBy(player2)) {
+        newCell.setPlayer(newPlayer2);
+      }
+    }
+    return copy;
   }
 
   @Override

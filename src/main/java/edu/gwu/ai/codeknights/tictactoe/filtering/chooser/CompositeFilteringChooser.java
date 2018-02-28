@@ -1,8 +1,12 @@
-package edu.gwu.ai.codeknights.tictactoe.selector;
+package edu.gwu.ai.codeknights.tictactoe.filtering.chooser;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
+
+import edu.gwu.ai.codeknights.tictactoe.filtering.core.Cell;
+import edu.gwu.ai.codeknights.tictactoe.filtering.core.TicTacToeGame;
+import edu.gwu.ai.codeknights.tictactoe.filtering.filter.AbstractCellFilter;
 
 public class CompositeFilteringChooser extends AbstractCellChooser {
 

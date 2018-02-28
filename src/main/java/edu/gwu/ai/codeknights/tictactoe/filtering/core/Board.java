@@ -1,4 +1,4 @@
-package edu.gwu.ai.codeknights.tictactoe.selector;
+package edu.gwu.ai.codeknights.tictactoe.filtering.core;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -156,7 +156,7 @@ public class Board {
     findLinesThrough(rowIdx, colIdx, minLength).parallelStream()
       .filter(line -> line.has);
   }
-  
+
   public List<Cell> findLongestOpenendedSublineThrough(final Cell cell, final int minLength) {
     return findLongestOpenendedSublineThrough(cell.getRowIdx(), cell.getColIdx(), minLength);
   }
@@ -180,6 +180,14 @@ public class Board {
     return allCells.parallelStream()
       .mapToInt(cell -> cell.isPopulatedBy(player) ? 1 : 0)
       .sum();
+  }
+
+  public Board getCopy() {
+    final Board copy = new Board(dim);
+    for (final Cell cell : allCells) {
+      copy.getCell(cell.getRowIdx(), cell.getColIdx()).setPlayer(cell.getPlayer());
+    }
+    return copy;
   }
 
   public String toStringAllLines() {

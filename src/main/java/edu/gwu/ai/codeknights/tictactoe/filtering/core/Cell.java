@@ -1,4 +1,4 @@
-package edu.gwu.ai.codeknights.tictactoe.selector;
+package edu.gwu.ai.codeknights.tictactoe.filtering.core;
 
 public class Cell {
 

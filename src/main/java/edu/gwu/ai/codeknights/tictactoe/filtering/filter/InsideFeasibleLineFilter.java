@@ -1,8 +1,11 @@
-package edu.gwu.ai.codeknights.tictactoe.selector;
+package edu.gwu.ai.codeknights.tictactoe.filtering.filter;
 
 import java.util.stream.Stream;
 
 import org.pmw.tinylog.Logger;
+
+import edu.gwu.ai.codeknights.tictactoe.filtering.core.Cell;
+import edu.gwu.ai.codeknights.tictactoe.filtering.core.TicTacToeGame;
 
 public class InsideFeasibleLineFilter extends EmptyCellFilter {
 
