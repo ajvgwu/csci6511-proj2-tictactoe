@@ -1,10 +1,8 @@
 package edu.gwu.ai.codeknights.tictactoe.selector;
 
-import java.util.List;
-
-import edu.gwu.ai.codeknights.tictactoe.core.Game;
+import java.util.stream.Stream;
 
 public interface CellFilter {
 
-  public List<Cell> filterCells(final List<Cell> input, final Game game);
+  public Stream<Cell> filterCells(final Stream<Cell> input, final TicTacToeGame game);
 }

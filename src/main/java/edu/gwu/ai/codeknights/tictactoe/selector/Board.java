@@ -13,6 +13,7 @@ public class Board {
   private final int dim;
 
   private final Cell[][] matrix;
+  private final List<Cell> allCells;
   private final List<List<Cell>> rows;
   private final List<List<Cell>> cols;
   private final List<List<Cell>> diagonals;
@@ -23,9 +24,12 @@ public class Board {
     this.dim = dim;
 
     matrix = new Cell[dim][dim];
+    allCells = new ArrayList<>();
     for (int rowIdx = 0; rowIdx < dim; rowIdx++) {
       for (int colIdx = 0; colIdx < dim; colIdx++) {
-        matrix[rowIdx][colIdx] = new Cell(rowIdx, colIdx);
+        final Cell cell = new Cell(rowIdx, colIdx);
+        matrix[rowIdx][colIdx] = cell;
+        allCells.add(cell);
       }
     }
     rows = new ArrayList<>(dim);
@@ -52,7 +56,7 @@ public class Board {
     linesAtLeastLength = new HashMap<>();
     for (int i = 1; i <= dim; i++) {
       final int length = i;
-      final List<List<Cell>> lines = allLines.stream().filter(line -> line.size() >= length)
+      final List<List<Cell>> lines = allLines.parallelStream().filter(line -> line.size() >= length)
         .collect(Collectors.toList());
       linesAtLeastLength.put(length, lines);
     }
@@ -64,6 +68,10 @@ public class Board {
 
   public Cell getCell(final int rowIdx, final int colIdx) {
     return matrix[rowIdx][colIdx];
+  }
+
+  public List<Cell> getAllCells() {
+    return allCells;
   }
 
   public List<Cell> getRow(final int idx) {

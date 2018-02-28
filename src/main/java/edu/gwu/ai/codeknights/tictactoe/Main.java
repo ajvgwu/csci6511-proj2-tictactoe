@@ -51,6 +51,13 @@ public class Main {
         + "'; empty spaces given by any other character")
       .build();
 
+    // TODO: add options to make the CLI scriptable for playing a game
+    // TODO: e.g., --single-play AlphaBetaPruningChooser
+    // TODO: ... or --finish-game CompositeChooser
+
+    // TODO: implement quick tests for the CellFilter / CellSelector & PlayChooser functionality
+    // TODO: e.g., for board 'X O X O X O . . .', what does a given filter/chooser do ???
+
     final Options options = new Options();
     options.addOption(helpOpt);
     options.addOption(dimOpt);
@@ -146,7 +153,17 @@ public class Main {
       game.populate(stateArgs);
     }
     Logger.info("initial game state:\n{}", game.toString());
-    Logger.info("is game over? {}", game.isGameOver());
-    Logger.info("did any win?  {}", game.didAnyWin());
+    final boolean isGameOver = game.isGameOver();
+    final boolean didAnyWin = game.didAnyWin();
+    final boolean didP1Win = game.didPlayerWin(player1);
+    final boolean didP2Win = game.didPlayerWin(player2);
+    Logger.info("is game over? {}", isGameOver);
+    if (isGameOver) {
+      Logger.info("did any win?  {}", didAnyWin);
+      if (didAnyWin) {
+        Logger.info("did P1 win?   {}", didP1Win);
+        Logger.info("did P2 win?   {}", didP2Win);
+      }
+    }
   }
 }

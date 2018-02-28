@@ -91,7 +91,22 @@ public class TicTacToeGame {
 
   public boolean isGameOver() {
     return didAnyWin()
-      || board.getRows().stream().parallel().allMatch(row -> row.stream().allMatch(cell -> !cell.isEmpty()));
+      || board.getRows().parallelStream().allMatch(row -> row.stream().allMatch(cell -> !cell.isEmpty()));
+  }
+
+  public Player getNextPlayer() {
+    int p1Count = 0;
+    int p2Count = 0;
+    for (final Cell cell : board.getAllCells()) {
+      final Player cellPlayer = cell.getPlayer();
+      if (player1.equals(cellPlayer)) {
+        p1Count++;
+      }
+      else if (player2.equals(cellPlayer)) {
+        p2Count++;
+      }
+    }
+    return p1Count <= p2Count ? player1 : player2;
   }
 
   @Override
