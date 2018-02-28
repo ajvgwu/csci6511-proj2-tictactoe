@@ -25,16 +25,14 @@ public class Board {
 
     matrix = new Cell[dim][dim];
     allCells = new ArrayList<>();
+    rows = new ArrayList<>(dim);
     for (int rowIdx = 0; rowIdx < dim; rowIdx++) {
       for (int colIdx = 0; colIdx < dim; colIdx++) {
         final Cell cell = new Cell(rowIdx, colIdx);
         matrix[rowIdx][colIdx] = cell;
         allCells.add(cell);
       }
-    }
-    rows = new ArrayList<>(dim);
-    for (final Cell[] row : matrix) {
-      rows.add(Arrays.asList(row));
+      rows.add(Arrays.asList(matrix[rowIdx]));
     }
     cols = new ArrayList<>(dim);
     for (int colIdx = 0; colIdx < dim; colIdx++) {
@@ -70,6 +68,39 @@ public class Board {
     return matrix[rowIdx][colIdx];
   }
 
+  public List<Cell> getNeighborsOfCell(final int rowIdx, final int colIdx) {
+    final List<Cell> cells = new ArrayList<>();
+    if (rowIdx > 0 && colIdx > 0) {
+      cells.add(matrix[rowIdx - 1][colIdx - 1]);
+    }
+    if (rowIdx > 0) {
+      cells.add(matrix[rowIdx - 1][colIdx]);
+    }
+    if (rowIdx > 0 && colIdx + 1 < dim) {
+      cells.add(matrix[rowIdx - 1][colIdx + 1]);
+    }
+    if (colIdx > 0) {
+      cells.add(matrix[rowIdx][colIdx - 1]);
+    }
+    if (colIdx + 1 < dim) {
+      cells.add(matrix[rowIdx][colIdx + 1]);
+    }
+    if (rowIdx + 1 < dim && colIdx > 0) {
+      cells.add(matrix[rowIdx + 1][colIdx - 1]);
+    }
+    if (rowIdx + 1 < dim) {
+      cells.add(matrix[rowIdx + 1][colIdx]);
+    }
+    if (rowIdx + 1 < dim && colIdx + 1 < dim) {
+      cells.add(matrix[rowIdx + 1][colIdx + 1]);
+    }
+    return Collections.unmodifiableList(cells);
+  }
+
+  public List<Cell> getNeighborsOfCell(final Cell cell) {
+    return getNeighborsOfCell(cell.getRowIdx(), cell.getColIdx());
+  }
+
   public List<Cell> getAllCells() {
     return allCells;
   }
@@ -101,6 +132,14 @@ public class Board {
   public List<List<Cell>> getLinesAtLeastLength(final int length) {
     final List<List<Cell>> lines = linesAtLeastLength.get(length);
     return lines != null ? Collections.unmodifiableList(lines) : Collections.emptyList();
+  }
+
+  public int getNumEmpty() {
+    return allCells.parallelStream().mapToInt(cell -> cell.isEmpty() ? 1 : 0).sum();
+  }
+
+  public boolean isFull() {
+    return allCells.parallelStream().noneMatch(Cell::isEmpty);
   }
 
   public String toStringAllLines() {

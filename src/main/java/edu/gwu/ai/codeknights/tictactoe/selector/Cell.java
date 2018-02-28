@@ -28,6 +28,10 @@ public class Cell {
     return isEmpty;
   }
 
+  public boolean isPopulated() {
+    return !isEmpty;
+  }
+
   public Player getPlayer() {
     return player;
   }

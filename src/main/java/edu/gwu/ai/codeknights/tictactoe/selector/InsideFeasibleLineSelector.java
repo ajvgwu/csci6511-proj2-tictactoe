@@ -2,7 +2,7 @@ package edu.gwu.ai.codeknights.tictactoe.selector;
 
 import java.util.stream.Stream;
 
-public class InFeasibleLineSelector implements CellSelector, CellFilter {
+public class InsideFeasibleLineSelector implements CellSelector, CellFilter {
 
   @Override
   public Stream<Cell> selectCells(final TicTacToeGame game) {

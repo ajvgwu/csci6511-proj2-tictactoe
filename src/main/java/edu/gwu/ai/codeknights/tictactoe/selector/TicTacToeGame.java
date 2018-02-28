@@ -71,7 +71,7 @@ public class TicTacToeGame {
   }
 
   public boolean didPlayerWin(final Player player) {
-    return board.getAllLines().parallelStream().anyMatch(line -> {
+    return board.getLinesAtLeastLength(winLength).parallelStream().anyMatch(line -> {
       int numMatch = 0;
       for (int idx = 0; idx < line.size(); idx++) {
         if (Objects.equals(player, line.get(idx).getPlayer())) {
@@ -90,8 +90,7 @@ public class TicTacToeGame {
   }
 
   public boolean isGameOver() {
-    return didAnyWin()
-      || board.getRows().parallelStream().allMatch(row -> row.stream().allMatch(cell -> !cell.isEmpty()));
+    return didAnyWin() || board.isFull();
   }
 
   public Player getNextPlayer() {
