@@ -28,10 +28,6 @@ public class Cell {
     return isEmpty;
   }
 
-  public boolean isPopulated() {
-    return !isEmpty;
-  }
-
   public Player getPlayer() {
     return player;
   }
@@ -39,6 +35,14 @@ public class Cell {
   public void setPlayer(final Player player) {
     isEmpty = player == null;
     this.player = player;
+  }
+
+  public boolean isPopulated() {
+    return player != null;
+  }
+
+  public boolean isPopulatedBy(final Player player) {
+    return this.player != null && this.player.equals(player);
   }
 
   @Override

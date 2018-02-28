@@ -1,6 +1,5 @@
 package edu.gwu.ai.codeknights.tictactoe.selector;
 
-import java.text.MessageFormat;
 import java.util.Objects;
 
 public class TicTacToeGame {
@@ -70,6 +69,40 @@ public class TicTacToeGame {
     }
   }
 
+  public boolean checkValidGameState(final boolean throwExceptionIfInvalid) throws InvalidBoardException {
+    if (player1 == null || player2 == null) {
+      if (throwExceptionIfInvalid) {
+        throw new InvalidBoardException("player1 and player2 must be non-null");
+      }
+      return false;
+    }
+    if (player1.getId() == player2.getId() || player1.getMarker() == player2.getMarker()) {
+      if (throwExceptionIfInvalid) {
+        throw new InvalidBoardException("player1 and player2 must have different IDs and markers");
+      }
+      return false;
+    }
+    final int numP1 = board.countPlayer(player1);
+    final int numP2 = board.countPlayer(player2);
+    if (numP1 < numP2 || numP1 - numP2 > 1) {
+      if (throwExceptionIfInvalid) {
+        throw new InvalidBoardException("player1 may have 0 or 1 moves more than player2");
+      }
+      return false;
+    }
+    return true;
+  }
+
+  public boolean isValidGameState() {
+    try {
+      return checkValidGameState(false);
+    }
+    catch (final InvalidBoardException e) {
+      // Should not happen
+      return false;
+    }
+  }
+
   public boolean didPlayerWin(final Player player) {
     return board.getLinesAtLeastLength(winLength).parallelStream().anyMatch(line -> {
       int numMatch = 0;
@@ -110,8 +143,8 @@ public class TicTacToeGame {
 
   @Override
   public String toString() {
-    return new StringBuilder().append(MessageFormat
-      .format("dim={0}, winLength={1}, gameId={2}, player1={3}, player2={4}", dim, winLength, gameId, player1, player2))
-      .append("\n").append(board).toString();
+    return new StringBuilder().append("dim=").append(dim).append(", winLength=").append(winLength).append(", gameId=")
+      .append(gameId).append(", player1=").append(player1).append(", player2=").append(player2)
+      .append(", isValidGameState=").append(isValidGameState()).append("\n").append(board).toString();
   }
 }

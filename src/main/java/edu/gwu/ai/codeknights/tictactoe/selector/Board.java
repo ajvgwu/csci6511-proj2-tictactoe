@@ -134,12 +134,16 @@ public class Board {
     return lines != null ? Collections.unmodifiableList(lines) : Collections.emptyList();
   }
 
-  public int getNumEmpty() {
+  public boolean isFull() {
+    return allCells.parallelStream().noneMatch(Cell::isEmpty);
+  }
+
+  public int countEmpty() {
     return allCells.parallelStream().mapToInt(cell -> cell.isEmpty() ? 1 : 0).sum();
   }
 
-  public boolean isFull() {
-    return allCells.parallelStream().noneMatch(Cell::isEmpty);
+  public int countPlayer(final Player player) {
+    return allCells.parallelStream().mapToInt(cell -> cell.isPopulatedBy(player) ? 1 : 0).sum();
   }
 
   public String toStringAllLines() {
