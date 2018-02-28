@@ -37,19 +37,18 @@ public class Main {
       .desc("board dimension (default is " + String.valueOf(dim) + ")").build();
     final Option winLengthOpt = Option.builder("l").longOpt("win-length").hasArg().argName("LEN")
       .desc("length of sequence required to win (default is " + String.valueOf(winLength) + ")").build();
-    final Option gameIdOpt = Option.builder().longOpt("game-id").hasArg().argName("ID").desc("identifier for game")
-      .build();
+    final Option gameIdOpt = Option.builder().longOpt("game-id").hasArg().argName("ID")
+      .desc("identifier for game (default is random)").build();
     final Option player1IdOpt = Option.builder().longOpt("player1-id").hasArg().argName("ID")
-      .desc("identifier for player 1").build();
+      .desc("identifier for player 1 (default is " + String.valueOf(player1Id) + ")").build();
     final Option player2IdOpt = Option.builder().longOpt("player2-id").hasArg().argName("ID")
-      .desc("identifier for player 2").build();
+      .desc("identifier for player 2 (default is " + String.valueOf(player2Id) + ")").build();
     final Option randomizeOpt = Option.builder("r").longOpt("randomize")
       .desc("when multiple moves are scored equally, randomly choose from among them").build();
     final Option stateOpt = Option.builder("s").longOpt("state").hasArgs().argName("CELLS")
       .desc("initial state of board (default is an empty board); moves of the first player given by '"
-        + String.valueOf(player1Id) + "' or '" + String.valueOf(player1Marker)
-        + "'; moves of the second player given by '" + String.valueOf(player2Id) + "' or '"
-        + String.valueOf(player2Marker) + "'; empty spaces given by any other character")
+        + String.valueOf(player1Marker) + "'; moves of the second player given by '" + String.valueOf(player2Marker)
+        + "'; empty spaces given by any other character")
       .build();
 
     final Options options = new Options();
