@@ -4,12 +4,14 @@ public class Player {
 
   private final int id;
   private final char marker;
-  private final PlayChooser chooser;
 
-  public Player(final int id, final char marker, final PlayChooser chooser) {
+  private PlayChooser chooser;
+
+  public Player(final int id, final char marker) {
     this.id = id;
     this.marker = marker;
-    this.chooser = chooser;
+
+    chooser = null;
   }
 
   public int getId() {
@@ -22,5 +24,9 @@ public class Player {
 
   public PlayChooser getChooser() {
     return chooser;
+  }
+
+  public void setChooser(final PlayChooser chooser) {
+    this.chooser = chooser;
   }
 }

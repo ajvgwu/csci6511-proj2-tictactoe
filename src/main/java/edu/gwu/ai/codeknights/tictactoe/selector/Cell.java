@@ -1,15 +1,19 @@
 package edu.gwu.ai.codeknights.tictactoe.selector;
 
-import edu.gwu.ai.codeknights.tictactoe.core.Game;
-
 public class Cell {
 
   private final int rowIdx;
   private final int colIdx;
 
+  private boolean isEmpty;
+  private final Player player;
+
   public Cell(final int rowIdx, final int colIdx) {
     this.rowIdx = rowIdx;
     this.colIdx = colIdx;
+
+    isEmpty = true;
+    player = null;
   }
 
   public int getRowIdx() {
@@ -20,7 +24,21 @@ public class Cell {
     return colIdx;
   }
 
-  public Integer getCellValue(final Game game) {
-    return game.getCellValue(rowIdx, colIdx);
+  public boolean isEmpty() {
+    return isEmpty;
+  }
+
+  public Player getPlayer() {
+    return player;
+  }
+
+  public void setPlayer(final Player player) {
+    isEmpty = player == null;
+  }
+
+  @Override
+  public String toString() {
+    final char value = player != null ? player.getMarker() : '-';
+    return String.valueOf(value);
   }
 }
