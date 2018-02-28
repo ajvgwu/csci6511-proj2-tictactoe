@@ -12,10 +12,10 @@ public class EmptyCellSelector implements CellSelector, CellFilter {
   public List<Cell> selectCells(final Game game) {
     final List<Cell> cells = new ArrayList<>();
     final int dim = game.getDim();
-    for (int i = 0; i < dim; i++) {
-      for (int j = 0; j < dim; j++) {
-        if (game.getCellValue(i, j) == null) {
-          cells.add(new Cell(i, j));
+    for (int rowIdx = 0; rowIdx < dim; rowIdx++) {
+      for (int colIdx = 0; colIdx < dim; colIdx++) {
+        if (game.getCellValue(rowIdx, colIdx) == null) {
+          cells.add(new Cell(rowIdx, colIdx));
         }
       }
     }

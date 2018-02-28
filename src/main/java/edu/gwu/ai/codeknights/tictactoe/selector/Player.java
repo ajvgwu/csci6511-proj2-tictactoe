@@ -29,4 +29,9 @@ public class Player {
   public void setChooser(final PlayChooser chooser) {
     this.chooser = chooser;
   }
+
+  @Override
+  public String toString() {
+    return String.valueOf(marker) + "(id=" + String.valueOf(id) + ")";
+  }
 }

@@ -1,13 +1,7 @@
 package edu.gwu.ai.codeknights.tictactoe;
 
-import edu.gwu.ai.codeknights.tictactoe.chooser.AIMoveChooser;
-import edu.gwu.ai.codeknights.tictactoe.chooser.AlphaBetaPruningChooser;
-import edu.gwu.ai.codeknights.tictactoe.chooser.ParallelAlphaBetaPruningChooser;
-import edu.gwu.ai.codeknights.tictactoe.core.Move;
-import edu.gwu.ai.codeknights.tictactoe.core.exception.DimensionException;
-import edu.gwu.ai.codeknights.tictactoe.core.Game;
-import edu.gwu.ai.codeknights.tictactoe.core.exception.StateException;
-import edu.gwu.ai.codeknights.tictactoe.util.Const;
+import java.util.Random;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -17,18 +11,25 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.pmw.tinylog.Logger;
 
-import java.util.Random;
+import edu.gwu.ai.codeknights.tictactoe.core.exception.DimensionException;
+import edu.gwu.ai.codeknights.tictactoe.core.exception.StateException;
+import edu.gwu.ai.codeknights.tictactoe.selector.Player;
+import edu.gwu.ai.codeknights.tictactoe.selector.TicTacToeGame;
+import edu.gwu.ai.codeknights.tictactoe.util.Const;
 
 public class Main {
 
   public static void main(final String[] args) throws DimensionException, StateException, InterruptedException {
     // Default values
-    int dim = 6;
-    int winLength = 4;
-    String[] stateArgs = null;
+    int dim = 3;
+    int winLength = 3;
     long gameId = new Random().nextInt(1000);
-    int masterId = 10;
-    int opId = 20;
+    int player1Id = 1;
+    final char player1Marker = Const.MASTER_PLAYER_CHAR;
+    int player2Id = 2;
+    final char player2Marker = Const.OPPONENT_PLAYER_CHAR;
+    boolean randomize = false;
+    String[] stateArgs = null;
 
     // Command-line options
     final Option helpOpt = Option.builder("h").longOpt("help").desc("print this usage information").build();
@@ -36,24 +37,30 @@ public class Main {
       .desc("board dimension (default is " + String.valueOf(dim) + ")").build();
     final Option winLengthOpt = Option.builder("l").longOpt("win-length").hasArg().argName("LEN")
       .desc("length of sequence required to win (default is " + String.valueOf(winLength) + ")").build();
-    final Option stateOpt = Option.builder("s").longOpt("state").hasArgs().argName("CELLS")
-      .desc("initial state of board (default is an empty board); moves of the first player given by '"
-        + String.valueOf(Const.MASTER_PLAYER_CHAR) + "' or '" + String.valueOf(masterId)
-        + "'; moves of the other player given by '" + String.valueOf(Const.OPPONENT_PLAYER_CHAR) + "' or '"
-        + String.valueOf(opId) + "'; empty spaces given by '" + String.valueOf(Const.BLANK_SPACE_CHAR)
-        + "'")
+    final Option gameIdOpt = Option.builder().longOpt("game-id").hasArg().argName("ID").desc("identifier for game")
       .build();
+    final Option player1IdOpt = Option.builder().longOpt("player1-id").hasArg().argName("ID")
+      .desc("identifier for player 1").build();
+    final Option player2IdOpt = Option.builder().longOpt("player2-id").hasArg().argName("ID")
+      .desc("identifier for player 2").build();
     final Option randomizeOpt = Option.builder("r").longOpt("randomize")
       .desc("when multiple moves are scored equally, randomly choose from among them").build();
-    final Option testOpt = Option.builder("t").longOpt("test").desc("run performance test").build();
+    final Option stateOpt = Option.builder("s").longOpt("state").hasArgs().argName("CELLS")
+      .desc("initial state of board (default is an empty board); moves of the first player given by '"
+        + String.valueOf(player1Id) + "' or '" + String.valueOf(player1Marker)
+        + "'; moves of the second player given by '" + String.valueOf(player2Id) + "' or '"
+        + String.valueOf(player2Marker) + "'; empty spaces given by any other character")
+      .build();
 
     final Options options = new Options();
     options.addOption(helpOpt);
     options.addOption(dimOpt);
     options.addOption(winLengthOpt);
-    options.addOption(stateOpt);
+    options.addOption(gameIdOpt);
+    options.addOption(player1IdOpt);
+    options.addOption(player2IdOpt);
     options.addOption(randomizeOpt);
-    options.addOption(testOpt);
+    options.addOption(stateOpt);
 
     // Parse command-line options
     final CommandLineParser parser = new DefaultParser();
@@ -84,6 +91,34 @@ public class Main {
           Logger.error(e, "could not parse winLength: " + winLengthVal);
         }
       }
+      if (line.hasOption(gameIdOpt.getLongOpt())) {
+        final String gameIdVal = line.getOptionValue(gameIdOpt.getLongOpt());
+        try {
+          gameId = Long.parseLong(gameIdVal);
+        }
+        catch (final NumberFormatException e) {
+          Logger.error(e, "could not parse gameId: " + gameIdVal);
+        }
+      }
+      if (line.hasOption(player1IdOpt.getLongOpt())) {
+        final String player1IdVal = line.getOptionValue(player1IdOpt.getLongOpt());
+        try {
+          player1Id = Integer.parseInt(player1IdVal);
+        }
+        catch (final NumberFormatException e) {
+          Logger.error(e, "could not parse player1Id: " + player1IdVal);
+        }
+      }
+      if (line.hasOption(player2IdOpt.getLongOpt())) {
+        final String player2IdVal = line.getOptionValue(player2IdOpt.getLongOpt());
+        try {
+          player2Id = Integer.parseInt(player2IdVal);
+        }
+        catch (final NumberFormatException e) {
+          Logger.error(e, "could not parse player2Id: " + player2IdVal);
+        }
+      }
+      randomize = line.hasOption(randomizeOpt.getLongOpt());
       if (line.hasOption(stateOpt.getLongOpt())) {
         stateArgs = line.getOptionValues(stateOpt.getLongOpt());
       }
@@ -98,127 +133,21 @@ public class Main {
     }
     else {
       // Create the game
-      final Integer[][] board = new Integer[dim][dim];
-      if (stateArgs != null) {
-        for (int i = 0; i < dim; i++) {
-          int idx = i * dim;
-          if (idx >= stateArgs.length) {
-            break;
-          }
-          for (int j = 0; j < dim; j++) {
-            idx = i * dim + j;
-            if (idx >= stateArgs.length) {
-              break;
-            }
-            final String curArg = stateArgs[idx].trim();
-            try {
-              board[i][j] = Integer.parseInt(curArg);
-            }
-            catch (final NumberFormatException e) {
-              if (curArg.equalsIgnoreCase(String.valueOf(Const.MASTER_PLAYER_CHAR))) {
-                board[i][j] = masterId;
-              }
-              else if (curArg.equalsIgnoreCase(String.valueOf(Const.OPPONENT_PLAYER_CHAR))) {
-                board[i][j] = opId;
-              }
-              else {
-                board[i][j] = null;
-              }
-            }
-          }
-        }
-      }
-      final Game game = new Game(gameId, dim, winLength, board, masterId, opId);
-      final boolean randomize = line.hasOption(randomizeOpt.getLongOpt());
-
-      if (line.hasOption(testOpt.getLongOpt())) {
-        // Run performance test
-        runPerformanceTest(game, randomize);
-      }
-      else {
-        // Play a complete game, starting from the current state
-        playGame(game, randomize);
-      }
+      playGame(dim, winLength, gameId, player1Id, player1Marker, player2Id, player2Marker, randomize, stateArgs);
     }
   }
 
-  public static void runPerformanceTest(final Game game, final boolean randomize)
-    throws DimensionException, StateException, InterruptedException {
-    Logger.info("dim={}, winLength={}, hash={}", game.getDim(), game.getWinLength(), game.getBoardHash());
-    Logger.info("All lines on board:\n{}\n", game.toStringAllLines(" * "));
-    Logger.info("Game board state:\n{}\n", game.toString());
-    Logger.info("# spaces:       {}={}, {}={}, {}={}", Const.MASTER_PLAYER_CHAR, game.countFirstPlayer(),
-      Const.OPPONENT_PLAYER_CHAR, game.countOtherPlayer(), Const.BLANK_SPACE_CHAR, game.countEmpty());
-    boolean isGameOver = game.isGameOver();
-    Logger.info("Is game over?   {}", isGameOver);
-    Game curGame = game;
-    int moveIdx = 0;
-    while (!isGameOver) {
-      moveIdx++;
-      Logger.info("  Move # {}", moveIdx);
-      Game gameCopy = null;
-      Logger.info("    - Testing parallel alpha-beta pruning algorithm " +
-              "performance...");
-      for (int i = 0; i < 3; i++) {
-        gameCopy = curGame.getCopy();
-        final AIMoveChooser moveChooser = new ParallelAlphaBetaPruningChooser();
-        moveChooser.setRandomChoice(randomize);
-        final long startMs = System.currentTimeMillis();
-        final Move move = moveChooser.findNextMove(gameCopy);
-        final long endMs = System.currentTimeMillis();
-        final double timeSec = (double) (endMs - startMs) / 1000.0;
-        Logger.info("      * Found move in {} sec: {}", timeSec, move.toString());
-        gameCopy.setCellValue(move.rowIdx, move.colIdx, game.getNextPlayer());
-      }
-      curGame = gameCopy;
-      isGameOver = curGame.isGameOver();
-      Logger.info("Is game over?   {}", isGameOver);
+  public static void playGame(final int dim, final int winLength, final long gameId, final int player1Id,
+    final char player1Marker, final int player2Id, final char player2Marker, final boolean randomize,
+    final String[] stateArgs) {
+    final Player player1 = new Player(player1Id, player1Marker);
+    final Player player2 = new Player(player2Id, player2Marker);
+    final TicTacToeGame game = new TicTacToeGame(dim, winLength, gameId, player1, player2);
+    if (stateArgs != null) {
+      game.populate(stateArgs);
     }
-    Logger.info("Did anyone win? {}", curGame.didAnyPlayerWin());
-    Logger.info("Who won?        {}={}, {}={}", Const.MASTER_PLAYER_CHAR, curGame.didFirstPlayerWin(),
-      Const.OPPONENT_PLAYER_CHAR, curGame.didOtherPlayerWin());
-  }
-
-  public static void playGame(final Game game, final boolean randomize)
-    throws DimensionException, StateException, InterruptedException {
-    Logger.info("dim={}, winLength={}, hash={}", game.getDim(), game.getWinLength(), game.getBoardHash());
-    Logger.info("All lines on board:\n{}\n", game.toStringAllLines(" * "));
-    Logger.info("Game board state:\n{}\n", game.toString());
-    Logger.info("# spaces:       {}={}, {}={}, {}={}", Const.MASTER_PLAYER_CHAR, game.countFirstPlayer(),
-      Const.OPPONENT_PLAYER_CHAR, game.countOtherPlayer(), Const.BLANK_SPACE_CHAR, game.countEmpty());
-    boolean isGameOver = game.isGameOver();
-    Logger.info("Is game over?   {}", isGameOver);
-    final AIMoveChooser AIMoveChooser1 = new ParallelAlphaBetaPruningChooser();
-    final AIMoveChooser AIMoveChooser2 = new ParallelAlphaBetaPruningChooser();
-    AIMoveChooser1.setRandomChoice(randomize);
-    AIMoveChooser2.setRandomChoice(randomize);
-    while (!isGameOver) {
-      long startMs = System.currentTimeMillis();
-      Move bestMove = AIMoveChooser1.findNextMove(game);
-      game.setCellValue(bestMove.rowIdx, bestMove.colIdx, game.getNextPlayer());
-      long endMs = System.currentTimeMillis();
-      double timeSec = (double) (endMs - startMs) / 1000.0;
-      Logger.info("Found best move in {} sec: {}\n{}\n", timeSec, bestMove.toString(), game.toString());
-      isGameOver = game.isGameOver();
-      Logger.info("Is game over?   {}", isGameOver);
-      if(isGameOver){
-        break;
-      }
-
-      startMs = System.currentTimeMillis();
-      bestMove = AIMoveChooser1.findNextMove(game);
-      game.setCellValue(bestMove.rowIdx, bestMove.colIdx, game.getNextPlayer());
-      endMs = System.currentTimeMillis();
-      timeSec = (double) (endMs - startMs) / 1000.0;
-      Logger.info("Found best move in {} sec: {}\n{}\n", timeSec, bestMove.toString(), game.toString());
-      isGameOver = game.isGameOver();
-      Logger.info("Is game over?   {}", isGameOver);
-      if(isGameOver){
-        break;
-      }
-    }
-    Logger.info("Did anyone win? {}", game.didAnyPlayerWin());
-    Logger.info("Who won?        {}={}, {}={}", Const.MASTER_PLAYER_CHAR, game.didFirstPlayerWin(),
-      Const.OPPONENT_PLAYER_CHAR, game.didOtherPlayerWin());
+    Logger.info("initial game state:\n{}", game.toString());
+    Logger.info("is game over? {}", game.isGameOver());
+    Logger.info("did any win?  {}", game.didAnyWin());
   }
 }

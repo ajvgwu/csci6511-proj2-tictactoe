@@ -14,8 +14,8 @@ public class InFeasibleLineSelector implements CellSelector, CellFilter {
     final int nextPlayer = game.getNextPlayer();
     // game.getAllLineCells();
     // TODO: need an iterable board (or game?) that knows about cells
-    for (int i = 0; i < dim; i++) {
-      for (int j = 0; j < dim; j++) {
+    for (int rowIdx = 0; rowIdx < dim; rowIdx++) {
+      for (int colIdx = 0; colIdx < dim; colIdx++) {
         // TODO: finish
       }
     }

@@ -6,7 +6,7 @@ public class Cell {
   private final int colIdx;
 
   private boolean isEmpty;
-  private final Player player;
+  private Player player;
 
   public Cell(final int rowIdx, final int colIdx) {
     this.rowIdx = rowIdx;
@@ -34,6 +34,7 @@ public class Cell {
 
   public void setPlayer(final Player player) {
     isEmpty = player == null;
+    this.player = player;
   }
 
   @Override

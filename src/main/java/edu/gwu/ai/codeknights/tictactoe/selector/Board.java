@@ -23,6 +23,11 @@ public class Board {
     this.dim = dim;
 
     matrix = new Cell[dim][dim];
+    for (int rowIdx = 0; rowIdx < dim; rowIdx++) {
+      for (int colIdx = 0; colIdx < dim; colIdx++) {
+        matrix[rowIdx][colIdx] = new Cell(rowIdx, colIdx);
+      }
+    }
     rows = new ArrayList<>(dim);
     for (final Cell[] row : matrix) {
       rows.add(Arrays.asList(row));
@@ -115,12 +120,12 @@ public class Board {
   @Override
   public String toString() {
     final StringBuilder bldr = new StringBuilder();
-    for (int i = 0; i < dim; i++) {
+    for (int rowIdx = 0; rowIdx < dim; rowIdx++) {
       if (bldr.length() > 0) {
         bldr.append("\n");
       }
-      for (int j = 0; j < dim; j++) {
-        bldr.append(" ").append(getCell(i, j)).append(" ");
+      for (int colIdx = 0; colIdx < dim; colIdx++) {
+        bldr.append(" ").append(getCell(rowIdx, colIdx)).append(" ");
       }
     }
     return bldr.toString();
