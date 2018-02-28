@@ -155,25 +155,24 @@ public class TicTacToeGame {
     return Objects.equals(player, player2) ? player2 : player1;
   }
 
-  public void playMove(final Cell cell, final Player player) {
-    board.getCell(cell.getRowIdx(), cell.getColIdx()).setPlayer(player);
+  protected void playInCell(final int rowIdx, final int colIdx, final Player player) {
+    board.getCell(rowIdx, colIdx).setPlayer(player);
   }
 
-  public void playMove(final Play play) {
-    playMove(play.getCell(), play.getPlayer());
+  protected void playInCell(final Cell cell, final Player player) {
+    playInCell(cell.getRowIdx(), cell.getColIdx(), player);
   }
 
-  public Play getNextMove() {
-    final Player player = getNextPlayer();
-    return player.getChooser().choosePlay(this);
-  }
-
-  public void tryPlayNextMove() throws GameException {
-    final Play move = getNextMove();
-    if (move == null) {
-      throw new GameException("no move found for player: " + String.valueOf(getNextPlayer()));
+  public void tryPlayNextCell() throws GameException {
+    final Player nextPlayer = getNextPlayer();
+    Cell cell = nextPlayer.chooseCell(this);
+    if (cell == null) {
+      cell = board.getEmptyCells().parallelStream().findFirst().orElse(null);
     }
-    playMove(move);
+    if (cell == null) {
+      throw new GameException("no empty cell available player: " + String.valueOf(nextPlayer));
+    }
+    playInCell(cell, nextPlayer);
   }
 
   public long evaluatePlayerUtility(final Player player) {

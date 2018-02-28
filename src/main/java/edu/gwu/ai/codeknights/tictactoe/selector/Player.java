@@ -5,7 +5,7 @@ public class Player {
   private final int id;
   private final char marker;
 
-  private PlayChooser chooser;
+  private AbstractCellChooser chooser;
 
   public Player(final int id, final char marker) {
     this.id = id;
@@ -22,12 +22,16 @@ public class Player {
     return marker;
   }
 
-  public PlayChooser getChooser() {
+  public AbstractCellChooser getChooser() {
     return chooser;
   }
 
-  public void setChooser(final PlayChooser chooser) {
+  public void setChooser(final AbstractCellChooser chooser) {
     this.chooser = chooser;
+  }
+
+  public Cell chooseCell(final TicTacToeGame game) {
+    return chooser != null ? chooser.chooseCell(game) : null;
   }
 
   @Override

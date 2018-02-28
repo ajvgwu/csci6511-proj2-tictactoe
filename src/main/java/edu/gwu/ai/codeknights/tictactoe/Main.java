@@ -15,10 +15,9 @@ import org.pmw.tinylog.Logger;
 import edu.gwu.ai.codeknights.tictactoe.core.exception.DimensionException;
 import edu.gwu.ai.codeknights.tictactoe.core.exception.GameException;
 import edu.gwu.ai.codeknights.tictactoe.core.exception.StateException;
-import edu.gwu.ai.codeknights.tictactoe.selector.PlayChooser;
+import edu.gwu.ai.codeknights.tictactoe.selector.AbstractCellChooser;
+import edu.gwu.ai.codeknights.tictactoe.selector.AnyCellChooser;
 import edu.gwu.ai.codeknights.tictactoe.selector.Player;
-import edu.gwu.ai.codeknights.tictactoe.selector.RandomChooser;
-import edu.gwu.ai.codeknights.tictactoe.selector.RuleBasedChooser;
 import edu.gwu.ai.codeknights.tictactoe.selector.TicTacToeGame;
 import edu.gwu.ai.codeknights.tictactoe.util.Const;
 
@@ -29,44 +28,56 @@ public class Main {
     boolean help = false;
     int dim = 3;
     int winLength = 3;
-    long gameId = 100;
+    long gameId = 1001;
     int player1Id = 1;
     final char player1Marker = Const.MASTER_PLAYER_CHAR;
     int player2Id = 2;
     final char player2Marker = Const.OPPONENT_PLAYER_CHAR;
     String[] stateArgs = null;
-    String singlePlayStrategy = null;
-    String finishGameP1Strategy = null;
-    String finishGameP2Strategy = null;
+    String singlePlayChooser = null;
+    String finishGameP1Chooser = null;
+    String finishGameP2Chooser = null;
 
     // Command-line options
-    final Option helpOpt = Option.builder("h").longOpt("help").desc("print this usage information").build();
-    final Option dimOpt = Option.builder("d").longOpt("dim").hasArg().argName("DIM")
-      .desc("board dimension (default is " + String.valueOf(dim) + ")").build();
-    final Option winLengthOpt = Option.builder("l").longOpt("win-length").hasArg().argName("LEN")
-      .desc("length of sequence required to win (default is " + String.valueOf(winLength) + ")").build();
-    final Option gameIdOpt = Option.builder().longOpt("game-id").hasArg().argName("ID")
-      .desc("identifier for game (default is " + String.valueOf(gameId) + ")").build();
-    final Option player1IdOpt = Option.builder().longOpt("player1-id").hasArg().argName("ID")
-      .desc("identifier for player 1 (default is " + String.valueOf(player1Id) + ")").build();
-    final Option player2IdOpt = Option.builder().longOpt("player2-id").hasArg().argName("ID")
-      .desc("identifier for player 2 (default is " + String.valueOf(player2Id) + ")").build();
-    final Option stateOpt = Option.builder("s").longOpt("state").hasArgs().argName("CELLS")
+    final Option helpOpt = Option.builder("h").longOpt("help")
+      .desc("print this usage information")
+      .build();
+    final Option dimOpt = Option.builder("d").longOpt("dim")
+      .hasArg().argName("DIM")
+      .desc("board dimension (default is " + String.valueOf(dim) + ")")
+      .build();
+    final Option winLengthOpt = Option.builder("l").longOpt("win-length")
+      .hasArg().argName("LEN")
+      .desc("length of sequence required to win (default is " + String.valueOf(winLength) + ")")
+      .build();
+    final Option gameIdOpt = Option.builder().longOpt("game-id")
+      .hasArg().argName("ID")
+      .desc("identifier for game (default is " + String.valueOf(gameId) + ")")
+      .build();
+    final Option player1IdOpt = Option.builder().longOpt("player1-id")
+      .hasArg().argName("ID")
+      .desc("identifier for player 1 (default is " + String.valueOf(player1Id) + ")")
+      .build();
+    final Option player2IdOpt = Option.builder().longOpt("player2-id")
+      .hasArg().argName("ID")
+      .desc("identifier for player 2 (default is " + String.valueOf(player2Id) + ")")
+      .build();
+    final Option stateOpt = Option.builder("s").longOpt("state")
+      .hasArgs().argName("CELLS")
       .desc("initial state of board (default is an empty board); moves of the first player given by \""
         + String.valueOf(player1Marker) + "\"; moves of the second player given by \"" + String.valueOf(player2Marker)
         + "\"; empty spaces given by any other string")
       .build();
-    final Option singlePlayOpt = Option.builder().longOpt("single-play").hasArg().argName("STRATEGY")
-      .desc("choose the next play using the given strategy (one of " + String.valueOf(getPlayChooserNames()) + ")")
+    final Option singlePlayOpt = Option.builder().longOpt("single-play")
+      .hasArg().argName("CHOOSER")
+      .desc("choose the next play using the given strategy (one of " + String.valueOf(getChooserNames()) + ")")
       .build();
-    final Option finishGameOpt = Option.builder().longOpt("finish-game").numberOfArgs(2).argName("P1-P2-STRATEGIES")
+    final Option finishGameOpt = Option.builder().longOpt("finish-game")
+      .numberOfArgs(2).argName("P1-CHOOSER P2-CHOOSER")
       .desc(
         "finish playing the game using the given strategies for player1 and player2, respectively (any combination of "
-          + String.valueOf(getPlayChooserNames()) + ")")
+          + String.valueOf(getChooserNames()) + ")")
       .build();
-
-    // TODO: implement quick tests for the CellFilter / CellSelector & PlayChooser functionality
-    // TODO: e.g., for board 'X O X O X O . . .', what does a given filter/chooser do ???
 
     final Options options = new Options();
     options.addOption(helpOpt);
@@ -102,11 +113,11 @@ public class Main {
         Logger.error(
           "cannot choose both of these options: " + singlePlayOpt.getLongOpt() + ", " + finishGameOpt.getLongOpt());
       }
-      singlePlayStrategy = parseString(line, singlePlayOpt, singlePlayStrategy);
-      final String[] finishGameStrategies = parseStringArray(line, finishGameOpt, null);
-      if (finishGameStrategies != null && finishGameStrategies.length > 0) {
-        finishGameP1Strategy = finishGameStrategies[0];
-        finishGameP2Strategy = finishGameStrategies.length > 1 ? finishGameStrategies[1] : null;
+      singlePlayChooser = parseString(line, singlePlayOpt, singlePlayChooser);
+      final String[] finishGameChoosers = parseStringArray(line, finishGameOpt, null);
+      if (finishGameChoosers != null && finishGameChoosers.length > 0) {
+        finishGameP1Chooser = finishGameChoosers[0];
+        finishGameP2Chooser = finishGameChoosers.length > 1 ? finishGameChoosers[1] : null;
       }
     }
     if (line == null || help) {
@@ -127,15 +138,15 @@ public class Main {
         game.populate(stateArgs);
       }
       final TestScenario scenario = new TestScenario(game);
-      if (singlePlayStrategy != null) {
-        final PlayChooser chooser = getPlayChooserByName(singlePlayStrategy);
+      if (singlePlayChooser != null) {
+        final AbstractCellChooser chooser = getChooserByName(singlePlayChooser);
         player1.setChooser(chooser);
         player2.setChooser(chooser);
         scenario.singlePlay();
       }
-      else if (finishGameP1Strategy != null || finishGameP2Strategy != null) {
-        player1.setChooser(getPlayChooserByName(finishGameP1Strategy));
-        player2.setChooser(getPlayChooserByName(finishGameP2Strategy));
+      else if (finishGameP1Chooser != null || finishGameP2Chooser != null) {
+        player1.setChooser(getChooserByName(finishGameP1Chooser));
+        player2.setChooser(getChooserByName(finishGameP2Chooser));
         scenario.finishGame();
       }
       else {
@@ -196,20 +207,18 @@ public class Main {
     return defaultVal;
   }
 
-  public static List<String> getPlayChooserNames() {
-    return Arrays.asList(RuleBasedChooser.NAME, RandomChooser.NAME);
+  public static List<String> getChooserNames() {
+    // TODO: enumerate chooser names
+    return Arrays.asList(AnyCellChooser.NAME);
   }
 
-  public static PlayChooser getPlayChooserByName(String name) throws IllegalArgumentException {
+  public static AbstractCellChooser getChooserByName(String name) throws IllegalArgumentException {
     name = name != null ? name.trim() : "";
     switch (name) {
-      case RuleBasedChooser.NAME: {
-        return new RuleBasedChooser();
+      case AnyCellChooser.NAME: {
+        return new AnyCellChooser();
       }
-      case RandomChooser.NAME: {
-        return new RandomChooser();
-      }
-      // TODO: add more PlayChoosers
+      // TODO: add strategies
       default: {
         throw new IllegalArgumentException("unknown chooser name: " + name);
       }
@@ -248,7 +257,7 @@ public class Main {
       printCurGameInfo();
       if (!game.isGameOver()) {
         try {
-          game.tryPlayNextMove();
+          game.tryPlayNextCell();
           printCurGameInfo();
         }
         catch (final GameException e) {
@@ -261,7 +270,7 @@ public class Main {
       printCurGameInfo();
       try {
         while (!game.isGameOver()) {
-          game.tryPlayNextMove();
+          game.tryPlayNextCell();
           printCurGameInfo();
         }
       }

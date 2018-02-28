@@ -106,6 +106,11 @@ public class Board {
     return Collections.unmodifiableList(allCells);
   }
 
+  public List<Cell> getEmptyCells() {
+    final List<Cell> emptyCells = allCells.parallelStream().filter(Cell::isEmpty).collect(Collectors.toList());
+    return Collections.unmodifiableList(emptyCells);
+  }
+
   public List<Cell> getRow(final int idx) {
     return Collections.unmodifiableList(rows.get(idx));
   }
