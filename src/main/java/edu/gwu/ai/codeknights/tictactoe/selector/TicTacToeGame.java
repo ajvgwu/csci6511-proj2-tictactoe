@@ -2,6 +2,11 @@ package edu.gwu.ai.codeknights.tictactoe.selector;
 
 import java.util.Objects;
 
+import org.pmw.tinylog.Logger;
+
+import edu.gwu.ai.codeknights.tictactoe.core.exception.GameException;
+import edu.gwu.ai.codeknights.tictactoe.core.exception.StateException;
+
 public class TicTacToeGame {
 
   private final int dim;
@@ -69,16 +74,16 @@ public class TicTacToeGame {
     }
   }
 
-  public boolean checkValidGameState(final boolean throwExceptionIfInvalid) throws InvalidBoardException {
+  public boolean checkValidGameState(final boolean throwExceptionIfInvalid) throws StateException {
     if (player1 == null || player2 == null) {
       if (throwExceptionIfInvalid) {
-        throw new InvalidBoardException("player1 and player2 must be non-null");
+        throw new StateException("player1 and player2 must be non-null");
       }
       return false;
     }
     if (player1.getId() == player2.getId() || player1.getMarker() == player2.getMarker()) {
       if (throwExceptionIfInvalid) {
-        throw new InvalidBoardException("player1 and player2 must have different IDs and markers");
+        throw new StateException("player1 and player2 must have different IDs and markers");
       }
       return false;
     }
@@ -86,7 +91,7 @@ public class TicTacToeGame {
     final int numP2 = board.countPlayer(player2);
     if (numP1 < numP2 || numP1 - numP2 > 1) {
       if (throwExceptionIfInvalid) {
-        throw new InvalidBoardException("player1 may have 0 or 1 moves more than player2");
+        throw new StateException("player1 may have 0 or 1 moves more than player2");
       }
       return false;
     }
@@ -97,7 +102,7 @@ public class TicTacToeGame {
     try {
       return checkValidGameState(false);
     }
-    catch (final InvalidBoardException e) {
+    catch (final StateException e) {
       // Should not happen
       return false;
     }
@@ -118,27 +123,71 @@ public class TicTacToeGame {
     });
   }
 
+  public boolean didPlayer1Win() {
+    return didPlayerWin(player1);
+  }
+
+  public boolean didPlayer2Win() {
+    return didPlayerWin(player2);
+  }
+
   public boolean didAnyWin() {
     return didPlayerWin(player1) || didPlayerWin(player2);
   }
 
+  public boolean isEarlyDraw() {
+    // TODO: implement
+    Logger.debug("implement TicTacToeGame.isEarlyDraw()");
+    return false;
+  }
+
   public boolean isGameOver() {
-    return didAnyWin() || board.isFull();
+    return didAnyWin() || board.isFull() || isEarlyDraw();
   }
 
   public Player getNextPlayer() {
-    int p1Count = 0;
-    int p2Count = 0;
-    for (final Cell cell : board.getAllCells()) {
-      final Player cellPlayer = cell.getPlayer();
-      if (player1.equals(cellPlayer)) {
-        p1Count++;
-      }
-      else if (player2.equals(cellPlayer)) {
-        p2Count++;
-      }
-    }
+    final int p1Count = board.countPlayer(player1);
+    final int p2Count = board.countPlayer(player2);
     return p1Count <= p2Count ? player1 : player2;
+  }
+
+  public Player getOtherPlayer(final Player player) {
+    return Objects.equals(player, player2) ? player2 : player1;
+  }
+
+  public void playMove(final Cell cell, final Player player) {
+    board.getCell(cell.getRowIdx(), cell.getColIdx()).setPlayer(player);
+  }
+
+  public void playMove(final Play play) {
+    playMove(play.getCell(), play.getPlayer());
+  }
+
+  public Play getNextMove() {
+    final Player player = getNextPlayer();
+    return player.getChooser().choosePlay(this);
+  }
+
+  public void tryPlayNextMove() throws GameException {
+    final Play move = getNextMove();
+    if (move == null) {
+      throw new GameException("no move found for player: " + String.valueOf(getNextPlayer()));
+    }
+    playMove(move);
+  }
+
+  public long evaluatePlayerUtility(final Player player) {
+    // TODO: implement
+    Logger.debug("TODO: improve TicTacToeGame.evaluatePlayerUtility()");
+    return didPlayerWin(player) ? 1000L : didAnyWin() ? -1000L : 0L;
+  }
+
+  public long evaluatePlayer1Utility() {
+    return evaluatePlayerUtility(player1);
+  }
+
+  public long evaluatePlayer2Utility() {
+    return evaluatePlayerUtility(player2);
   }
 
   @Override

@@ -54,7 +54,8 @@ public class Board {
     linesAtLeastLength = new HashMap<>();
     for (int i = 1; i <= dim; i++) {
       final int length = i;
-      final List<List<Cell>> lines = allLines.parallelStream().filter(line -> line.size() >= length)
+      final List<List<Cell>> lines = allLines.parallelStream()
+        .filter(line -> line.size() >= length)
         .collect(Collectors.toList());
       linesAtLeastLength.put(length, lines);
     }
@@ -102,7 +103,7 @@ public class Board {
   }
 
   public List<Cell> getAllCells() {
-    return allCells;
+    return Collections.unmodifiableList(allCells);
   }
 
   public List<Cell> getRow(final int idx) {
@@ -134,16 +135,46 @@ public class Board {
     return lines != null ? Collections.unmodifiableList(lines) : Collections.emptyList();
   }
 
+  public List<List<Cell>> findLinesThrough(final int rowIdx, final int colIdx, final int minLength) {
+    return getLinesAtLeastLength(minLength).parallelStream()
+      .filter(line -> line.parallelStream().anyMatch(cell -> cell.getRowIdx() == rowIdx && cell.getColIdx() == colIdx))
+      .collect(Collectors.toList());
+  }
+
+  public List<List<Cell>> findLinesThrough(final Cell cell, final int minLength) {
+    return findLinesThrough(cell.getRowIdx(), cell.getColIdx(), minLength);
+  }
+
+  // TODO: finish implementing these helper functions, with an extra parameter for the player marker that should match inside the line
+  /*
+  public List<Cell> findLongestOpenendedSublineThrough(final int rowIdx, final int colIdx, final int minLength) {
+    findLinesThrough(rowIdx, colIdx, minLength).parallelStream()
+      .filter(line -> line.has);
+  }
+  
+  public List<Cell> findLongestOpenendedSublineThrough(final Cell cell, final int minLength) {
+    return findLongestOpenendedSublineThrough(cell.getRowIdx(), cell.getColIdx(), minLength);
+  }
+  */
+
+  public boolean isEmpty() {
+    return allCells.parallelStream().allMatch(Cell::isEmpty);
+  }
+
   public boolean isFull() {
     return allCells.parallelStream().noneMatch(Cell::isEmpty);
   }
 
   public int countEmpty() {
-    return allCells.parallelStream().mapToInt(cell -> cell.isEmpty() ? 1 : 0).sum();
+    return allCells.parallelStream()
+      .mapToInt(cell -> cell.isEmpty() ? 1 : 0)
+      .sum();
   }
 
   public int countPlayer(final Player player) {
-    return allCells.parallelStream().mapToInt(cell -> cell.isPopulatedBy(player) ? 1 : 0).sum();
+    return allCells.parallelStream()
+      .mapToInt(cell -> cell.isPopulatedBy(player) ? 1 : 0)
+      .sum();
   }
 
   public String toStringAllLines() {
