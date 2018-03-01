@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.pmw.tinylog.Logger;
-
 import edu.gwu.ai.codeknights.tictactoe.filtering.core.Board;
 import edu.gwu.ai.codeknights.tictactoe.filtering.core.Cell;
 import edu.gwu.ai.codeknights.tictactoe.filtering.core.Player;
@@ -71,17 +69,9 @@ public class RuleBasedChooser extends AbstractCellChooser {
       }
     }
 
-    // Rule 4: create a winnable fork (win in two ways)
-    // TODO
+    // TODO: any other rules ???
 
-    // Rule 5: prevent opponent fork
-    // TODO
-
-    // Rule 6: maximize win potential
-    // TODO
-
-    // TODO: finish
-    Logger.debug("TODO: finish RuleBasedChooser.choosePlay()");
+    // No choice made
     return null;
   }
 
