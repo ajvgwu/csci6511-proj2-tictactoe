@@ -23,10 +23,16 @@ public class RuleBasedChooser extends AbstractCellChooser {
     // Rule 1: first move goes near the center
     if (board.isEmpty()) {
       final int center = (int) (dim / 2);
-      final Cell centerCell = cells.parallelStream()
-        .filter(cell -> Math.abs(cell.getRowIdx() - center) <= 1 && Math.abs(cell.getColIdx() - center) <= 1)
+      Cell centerCell = cells.parallelStream()
+        .filter(cell -> Math.abs(cell.getRowIdx() - center) < 1 && Math.abs(cell.getColIdx() - center) < 1)
         .findAny()
         .orElse(null);
+      if (centerCell == null) {
+        centerCell = cells.parallelStream()
+          .filter(cell -> Math.abs(cell.getRowIdx() - center) <= 1 && Math.abs(cell.getColIdx() - center) <= 1)
+          .findAny()
+          .orElse(null);
+      }
       if (centerCell != null) {
         return centerCell;
       }
