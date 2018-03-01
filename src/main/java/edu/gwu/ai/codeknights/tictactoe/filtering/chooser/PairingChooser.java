@@ -14,13 +14,16 @@ public class PairingChooser extends AbstractCellChooser {
       return null;
     }
     final Player opponent = game.getOtherPlayer(game.getNextPlayer());
-    return input.filter(cell -> {
-      final Cell pair = getPairedCell(cell, game);
-      if (pair != null && pair.isPopulatedBy(opponent)) {
-        return true;
-      }
-      return false;
-    }).findFirst().orElse(null);
+    return input
+      .filter(cell -> {
+        final Cell pair = getPairedCell(cell, game);
+        if (pair != null && pair.isPopulatedBy(opponent)) {
+          return true;
+        }
+        return false;
+      })
+      .findAny()
+      .orElse(null);
   }
 
   public static Cell getPairedCell(final Cell cell, final TicTacToeGame game) {

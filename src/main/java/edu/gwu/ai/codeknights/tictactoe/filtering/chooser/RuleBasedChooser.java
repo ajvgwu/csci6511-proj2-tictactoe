@@ -8,6 +8,7 @@ import org.pmw.tinylog.Logger;
 
 import edu.gwu.ai.codeknights.tictactoe.filtering.core.Board;
 import edu.gwu.ai.codeknights.tictactoe.filtering.core.Cell;
+import edu.gwu.ai.codeknights.tictactoe.filtering.core.Player;
 import edu.gwu.ai.codeknights.tictactoe.filtering.core.TicTacToeGame;
 
 public class RuleBasedChooser extends AbstractCellChooser {
@@ -16,8 +17,8 @@ public class RuleBasedChooser extends AbstractCellChooser {
   public Cell chooseCell(final Stream<Cell> input, final TicTacToeGame game) {
     final List<Cell> cells = input.collect(Collectors.toList());
     final int dim = game.getDim();
-    final int winLength = game.getWinLength();
-    // final Player player = game.getNextPlayer(); // TODO: should need nextPlayer for most rule-based decisions
+    // final int winLength = game.getWinLength(); // TODO: do we need this for any rules ???
+    final Player player = game.getNextPlayer();
     final Board board = game.getBoard();
 
     // Rule 1: first move goes near the center
@@ -39,20 +40,26 @@ public class RuleBasedChooser extends AbstractCellChooser {
     }
 
     // Rule 2: win if immediately possible
-    final List<Cell> inputCells = input.collect(Collectors.toList());
-    for (final Cell inputCell : inputCells) {
-      final List<List<Cell>> lines = game.getBoard().findLinesThrough(inputCell, game.getWinLength());
-      lines.parallelStream()
-        .filter(line -> {
+    for (final Cell cell : cells) {
+
+      // Find all lines through this cell
+      final List<List<Cell>> lines = game.getBoard().findLinesThrough(cell, game.getWinLength());
+
+      // Find those lines where the player would win by playing on this cell
+      final boolean isWinningMove = lines.parallelStream()
+        .anyMatch(line -> {
+          if (cell.isEmpty()) {
+            cell.setPlayer(player);
+            final boolean didWin = game.didPlayerWinOnLine(player, line);
+            cell.setPlayer(null);
+            return didWin;
+          }
           return false;
-        })
-        .findFirst().orElse(null);
+        });
+      if (isWinningMove) {
+        return cell;
+      }
     }
-    board.getLinesAtLeastLength(winLength).parallelStream()
-      .filter(line -> true)
-      .findFirst()
-      .orElse(null);
-    // TODO: finish this one with a correct implementation
 
     // Rule 3: block opponent wins at both ends of lines
     // TODO

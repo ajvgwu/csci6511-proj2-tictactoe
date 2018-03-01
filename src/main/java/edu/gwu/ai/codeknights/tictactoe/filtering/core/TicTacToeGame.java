@@ -111,7 +111,7 @@ public class TicTacToeGame {
     }
   }
 
-  private boolean didPlayerWinOnLine(final Player player, final List<Cell> line) {
+  public boolean didPlayerWinOnLine(final Player player, final List<Cell> line) {
     int numConsecutive = 0;
     for (int idx = 0; idx < line.size(); idx++) {
       if (line.get(idx).isPopulatedBy(player)) {
@@ -176,7 +176,9 @@ public class TicTacToeGame {
     final Player nextPlayer = getNextPlayer();
     Cell cell = nextPlayer.chooseCell(this);
     if (cell == null) {
-      cell = board.getEmptyCells().parallelStream().findFirst().orElse(null);
+      cell = board.getEmptyCells().parallelStream()
+        .findAny()
+        .orElse(null);
     }
     if (cell == null) {
       throw new GameException("no empty cell available player: " + String.valueOf(nextPlayer));
