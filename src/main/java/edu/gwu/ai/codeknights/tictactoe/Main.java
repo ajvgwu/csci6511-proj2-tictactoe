@@ -69,11 +69,11 @@ public class Main {
       .build();
     final Option player1IdOpt = Option.builder().longOpt("player1-id")
       .hasArg().argName("ID")
-      .desc("identifier for player 1 (default is " + String.valueOf(player1Id) + ")")
+      .desc("identifier for player1 (default is " + String.valueOf(player1Id) + ")")
       .build();
     final Option player2IdOpt = Option.builder().longOpt("player2-id")
       .hasArg().argName("ID")
-      .desc("identifier for player 2 (default is " + String.valueOf(player2Id) + ")")
+      .desc("identifier for player2 (default is " + String.valueOf(player2Id) + ")")
       .build();
     final Option stateOpt = Option.builder("s").longOpt("state")
       .hasArgs().argName("CELLS")
