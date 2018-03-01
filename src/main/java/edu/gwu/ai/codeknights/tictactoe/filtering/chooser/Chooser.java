@@ -14,18 +14,18 @@ public enum Chooser {
       return new AnyCellChooser();
     }
   },
-  RANDOM_CELL("RandomCell") {
-
-    @Override
-    public AbstractCellChooser createChooser() {
-      return new RandomCellChooser();
-    }
-  },
   RULE_BASED("RuleBased") {
 
     @Override
     public AbstractCellChooser createChooser() {
       return new RuleBasedChooser();
+    }
+  },
+  PAIRING("Pairing") {
+
+    @Override
+    public AbstractCellChooser createChooser() {
+      return new PairingChooser();
     }
   };
 

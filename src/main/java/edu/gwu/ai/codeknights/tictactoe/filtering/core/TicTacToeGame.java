@@ -152,7 +152,7 @@ public class TicTacToeGame {
   }
 
   public Player getOtherPlayer(final Player player) {
-    return Objects.equals(player, player2) ? player2 : player1;
+    return Objects.equals(player, player2) ? player1 : player2;
   }
 
   public void playInCell(final int rowIdx, final int colIdx, final Player player) {
