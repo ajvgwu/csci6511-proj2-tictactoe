@@ -31,6 +31,8 @@ public class ParallelAlphaBetaPruningChooser extends AlphaBetaPruningChooser {
     final List<Move> moves = yetAnotherMoveFinder(game);
     int maxDepth = game.countEmpty();
     int curMaxLevel = 1;
+    Long bestScore = null;
+
     while (curMaxLevel < maxDepth){
       curMaxLevel++;
       final List<AbpThread> threads = new ArrayList<>();
@@ -45,7 +47,6 @@ public class ParallelAlphaBetaPruningChooser extends AlphaBetaPruningChooser {
         }
       }
 
-      Long bestScore = null;
       for (final AbpThread t : threads) {
         try {
           t.join();

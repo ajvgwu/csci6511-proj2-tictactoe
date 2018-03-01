@@ -17,7 +17,6 @@ public class AlphaBetaPruningChooser extends AIMoveChooser {
   protected long alphabetapruning(final Game game, final int player,
                                   long alpha, long beta, int level, int curMax) {
     Long bestScore = null;
-    Long bestMove = null;
     final int curPlayer = game.getNextPlayer();
     long upperBound = game.getDim() * game.getDim();
     // Check for terminal state
@@ -42,7 +41,7 @@ public class AlphaBetaPruningChooser extends AIMoveChooser {
     }
 
     // Find move with the best score
-    List<Move> moves = yetAnotherMoveFinder( game);
+    List<Move> moves = yetAnotherMoveFinder(game);
 
     try {
       final Game newGame = game.getCopy();
