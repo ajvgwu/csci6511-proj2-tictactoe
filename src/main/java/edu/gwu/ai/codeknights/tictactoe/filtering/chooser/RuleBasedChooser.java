@@ -20,8 +20,9 @@ public class RuleBasedChooser extends AbstractCellChooser {
     // Rule 1: first move goes near the center
     final Board board = game.getBoard();
     final int dim = game.getDim();
+    final int center = (int) (dim / 2);
     if (board.isEmpty()) {
-      final Cell centerCell = findCenterCell(cells, dim);
+      final Cell centerCell = findCellNear(cells, center, center, Math.max(2, (int) (dim / 4)));
       if (centerCell != null) {
         return centerCell;
       }
@@ -43,7 +44,32 @@ public class RuleBasedChooser extends AbstractCellChooser {
     }
 
     // Rule 3b: block opponent early if he can win in 2 moves
-    // TODO
+    for (int i = 0; i < cells.size(); i++) {
+      final Cell firstCell = cells.get(i);
+      if (firstCell.isEmpty()
+        && board.getNeighborsOfCell(firstCell).stream().anyMatch(cell -> cell.isPopulatedBy(opponent))) {
+        for (int j = 1; j < cells.size(); j++) {
+          if (j != i) {
+            final Cell secondCell = cells.get(j);
+            if (secondCell.isEmpty()
+              && board.getNeighborsOfCell(secondCell).stream().anyMatch(cell -> cell.isPopulatedBy(opponent))) {
+              firstCell.setPlayer(opponent);
+              secondCell.setPlayer(opponent);
+              final boolean didLose = game.didPlayerWin(opponent);
+              firstCell.setPlayer(null);
+              secondCell.setPlayer(null);
+              if (didLose) {
+                final int distFromCenter1 = Math.abs(firstCell.getRowIdx() - center)
+                  + Math.abs(firstCell.getColIdx() - center);
+                final int distFromCenter2 = Math.abs(secondCell.getRowIdx() - center)
+                  + Math.abs(secondCell.getColIdx() - center);
+                return distFromCenter2 < distFromCenter1 ? secondCell : firstCell;
+              }
+            }
+          }
+        }
+      }
+    }
 
     // Rule 4: create a winnable fork (win in two ways)
     // TODO
@@ -59,34 +85,31 @@ public class RuleBasedChooser extends AbstractCellChooser {
     return null;
   }
 
-  public static Cell findCenterCell(final List<Cell> cells, final int dim) {
-    final int center = (int) (dim / 2);
-    Cell centerCell = cells.parallelStream()
-      .filter(cell -> Math.abs(cell.getRowIdx() - center) < 1 && Math.abs(cell.getColIdx() - center) < 1)
-      .findAny()
-      .orElse(null);
-    if (centerCell == null) {
-      centerCell = cells.parallelStream()
-        .filter(cell -> Math.abs(cell.getRowIdx() - center) <= 1 && Math.abs(cell.getColIdx() - center) <= 1)
+  public static Cell findCellNear(final List<Cell> cells, final int rowIdx, final int colIdx, final int maxRadius) {
+    for (int i = 0; i < maxRadius; i++) {
+      final int curRadius = i;
+      final Cell closeCell = cells.stream()
+        .filter(
+          cell -> Math.abs(cell.getRowIdx() - rowIdx) <= curRadius && Math.abs(cell.getColIdx() - colIdx) <= curRadius)
         .findAny()
         .orElse(null);
-    }
-    if (centerCell != null) {
-      return centerCell;
+      if (closeCell != null) {
+        return closeCell;
+      }
     }
     return null;
   }
 
   public static Cell findWinningCell(final TicTacToeGame game, final List<Cell> cells, final int winLength,
     final Player player) {
-    return cells.parallelStream()
+    return cells.stream()
       .filter(cell -> {
 
         // Find all lines through this cell
         final List<List<Cell>> lines = game.getBoard().findLinesThrough(cell, winLength);
 
         // Find those lines where the player would win by playing on this cell
-        return lines.parallelStream()
+        return lines.stream()
           .anyMatch(line -> {
             if (cell.isEmpty()) {
               cell.setPlayer(player);

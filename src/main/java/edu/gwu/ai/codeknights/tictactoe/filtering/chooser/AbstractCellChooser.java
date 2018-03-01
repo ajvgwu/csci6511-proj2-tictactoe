@@ -20,6 +20,6 @@ public abstract class AbstractCellChooser {
    * @return the chosen "best" cell
    */
   public final Cell chooseCell(final TicTacToeGame game) {
-    return chooseCell(game.getBoard().getEmptyCells().parallelStream(), game);
+    return chooseCell(game.getBoard().getEmptyCells().stream(), game);
   }
 }

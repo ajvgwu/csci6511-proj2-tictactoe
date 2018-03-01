@@ -54,7 +54,7 @@ public class Board {
     linesAtLeastLength = new HashMap<>();
     for (int i = 1; i <= dim; i++) {
       final int length = i;
-      final List<List<Cell>> lines = allLines.parallelStream()
+      final List<List<Cell>> lines = allLines.stream()
         .filter(line -> line.size() >= length)
         .collect(Collectors.toList());
       linesAtLeastLength.put(length, lines);
@@ -107,7 +107,7 @@ public class Board {
   }
 
   public List<Cell> getEmptyCells() {
-    final List<Cell> emptyCells = allCells.parallelStream().filter(Cell::isEmpty).collect(Collectors.toList());
+    final List<Cell> emptyCells = allCells.stream().filter(Cell::isEmpty).collect(Collectors.toList());
     return Collections.unmodifiableList(emptyCells);
   }
 
@@ -141,8 +141,8 @@ public class Board {
   }
 
   public List<List<Cell>> findLinesThrough(final int rowIdx, final int colIdx, final int minLength) {
-    return getLinesAtLeastLength(minLength).parallelStream()
-      .filter(line -> line.parallelStream().anyMatch(cell -> cell.getRowIdx() == rowIdx && cell.getColIdx() == colIdx))
+    return getLinesAtLeastLength(minLength).stream()
+      .filter(line -> line.stream().anyMatch(cell -> cell.getRowIdx() == rowIdx && cell.getColIdx() == colIdx))
       .collect(Collectors.toList());
   }
 
@@ -151,21 +151,21 @@ public class Board {
   }
 
   public boolean isEmpty() {
-    return allCells.parallelStream().allMatch(Cell::isEmpty);
+    return allCells.stream().allMatch(Cell::isEmpty);
   }
 
   public boolean isFull() {
-    return allCells.parallelStream().noneMatch(Cell::isEmpty);
+    return allCells.stream().noneMatch(Cell::isEmpty);
   }
 
   public int countEmpty() {
-    return allCells.parallelStream()
+    return allCells.stream()
       .mapToInt(cell -> cell.isEmpty() ? 1 : 0)
       .sum();
   }
 
   public int countPlayer(final Player player) {
-    return allCells.parallelStream()
+    return allCells.stream()
       .mapToInt(cell -> cell.isPopulatedBy(player) ? 1 : 0)
       .sum();
   }

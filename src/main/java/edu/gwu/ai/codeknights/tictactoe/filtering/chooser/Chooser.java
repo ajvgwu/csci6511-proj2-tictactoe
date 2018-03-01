@@ -55,7 +55,7 @@ public enum Chooser {
   }
 
   public static Chooser fromName(final String name) {
-    return EnumSet.allOf(Chooser.class).parallelStream()
+    return EnumSet.allOf(Chooser.class).stream()
       .filter(chooser -> Objects.equals(name, chooser.getName()))
       .findAny()
       .orElse(null);

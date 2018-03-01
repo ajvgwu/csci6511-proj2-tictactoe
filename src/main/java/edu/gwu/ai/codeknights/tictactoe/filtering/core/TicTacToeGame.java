@@ -128,7 +128,7 @@ public class TicTacToeGame {
   }
 
   public boolean didPlayerWin(final Player player) {
-    return board.getLinesAtLeastLength(winLength).parallelStream()
+    return board.getLinesAtLeastLength(winLength).stream()
       .anyMatch(line -> didPlayerWinOnLine(player, line));
   }
 
@@ -276,12 +276,12 @@ public class TicTacToeGame {
         score -= 2 * dim * dim * dim;
       }
       final List<Cell> longestSeq = getLongestOpenSublineForPlayer(line, player);
-      score += longestSeq.parallelStream()
+      score += longestSeq.stream()
         .filter(cell -> cell.isPopulatedBy(player))
         .mapToInt(cell -> 1)
         .sum();
       final List<Cell> longestOppSeq = getLongestOpenSublineForPlayer(line, opponent);
-      score -= longestOppSeq.parallelStream()
+      score -= longestOppSeq.stream()
         .filter(cell -> cell.isPopulatedBy(opponent))
         .mapToInt(cell -> 1)
         .sum();

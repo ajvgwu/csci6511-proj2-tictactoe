@@ -48,7 +48,7 @@ public enum Filter {
   }
 
   public static Filter fromName(final String name) {
-    return EnumSet.allOf(Filter.class).parallelStream()
+    return EnumSet.allOf(Filter.class).stream()
       .filter(filter -> Objects.equals(name, filter.getName()))
       .findAny()
       .orElse(null);

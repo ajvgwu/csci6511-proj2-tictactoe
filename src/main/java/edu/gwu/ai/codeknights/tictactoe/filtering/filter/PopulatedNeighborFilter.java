@@ -13,7 +13,7 @@ public class PopulatedNeighborFilter extends EmptyCellFilter {
   }
 
   public static boolean hasPopulatedNeighbor(final int rowIdx, final int colIdx, final TicTacToeGame game) {
-    return game.getBoard().getNeighborsOfCell(rowIdx, colIdx).parallelStream().anyMatch(Cell::isPopulated);
+    return game.getBoard().getNeighborsOfCell(rowIdx, colIdx).stream().anyMatch(Cell::isPopulated);
   }
 
   public static boolean hasPopulatedNeighbor(final Cell cell, final TicTacToeGame game) {

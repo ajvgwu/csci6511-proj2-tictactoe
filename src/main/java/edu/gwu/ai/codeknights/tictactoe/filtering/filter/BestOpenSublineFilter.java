@@ -34,7 +34,7 @@ public class BestOpenSublineFilter extends EmptyCellFilter {
         candidates.addAll(maxSubline);
       }
     }
-    return super.filterCells(inputCells.parallelStream(), game)
+    return super.filterCells(inputCells.stream(), game)
       .filter(cell -> candidates.contains(cell));
   }
 }

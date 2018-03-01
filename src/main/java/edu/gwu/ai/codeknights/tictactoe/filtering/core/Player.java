@@ -51,7 +51,7 @@ public class Player {
       choice = fallbackChooser.chooseCell(game);
     }
     if (choice == null) {
-      choice = game.getBoard().getEmptyCells().parallelStream()
+      choice = game.getBoard().getEmptyCells().stream()
         .findAny()
         .orElse(null);
     }

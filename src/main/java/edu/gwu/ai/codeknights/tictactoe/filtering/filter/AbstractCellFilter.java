@@ -20,6 +20,6 @@ public abstract class AbstractCellFilter {
    * @return the selected stream of cells
    */
   public final Stream<Cell> filterCells(final TicTacToeGame game) {
-    return filterCells(game.getBoard().getEmptyCells().parallelStream(), game);
+    return filterCells(game.getBoard().getEmptyCells().stream(), game);
   }
 }
