@@ -3,6 +3,7 @@ package edu.gwu.ai.codeknights.tictactoe;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -21,6 +22,8 @@ import edu.gwu.ai.codeknights.tictactoe.filtering.chooser.Chooser;
 import edu.gwu.ai.codeknights.tictactoe.filtering.core.Cell;
 import edu.gwu.ai.codeknights.tictactoe.filtering.core.Player;
 import edu.gwu.ai.codeknights.tictactoe.filtering.core.TicTacToeGame;
+import edu.gwu.ai.codeknights.tictactoe.filtering.filter.AbstractCellFilter;
+import edu.gwu.ai.codeknights.tictactoe.filtering.filter.Filter;
 import edu.gwu.ai.codeknights.tictactoe.gui.TicTacToe;
 import edu.gwu.ai.codeknights.tictactoe.util.Const;
 
@@ -42,6 +45,7 @@ public class Main {
     String finishGameP1Chooser = null;
     String finishGameP2Chooser = null;
     String[] compareChoosers = null;
+    String testFilter = null;
 
     // Command-line options
     final Option helpOpt = Option.builder("h").longOpt("help")
@@ -90,9 +94,14 @@ public class Main {
       .hasArgs().argName("CHOOSERS...")
       .desc("compare the given strategies for a single move (any of " + String.valueOf(getChooserNames()) + ")")
       .build();
+    final Option testFilterOpt = Option.builder().longOpt("test-filter")
+      .hasArg().argName("FILTER")
+      .desc("test the given filter (any one of " + String.valueOf(getFilterNames()) + ")")
+      .build();
 
     final Options options = new Options();
     options.addOption(helpOpt);
+    options.addOption(guiOpt);
     options.addOption(dimOpt);
     options.addOption(winLengthOpt);
     options.addOption(gameIdOpt);
@@ -102,7 +111,7 @@ public class Main {
     options.addOption(singlePlayOpt);
     options.addOption(finishGameOpt);
     options.addOption(compareChoosersOpt);
-    options.addOption(guiOpt);
+    options.addOption(testFilterOpt);
 
     // Parse command-line options
     final CommandLineParser parser = new DefaultParser();
@@ -146,6 +155,17 @@ public class Main {
             + compareChoosersOpt.getLongOpt());
       }
       compareChoosers = parseStringArray(line, compareChoosersOpt, null);
+      if ((singlePlayChooser != null || finishGameChoosers != null || compareChoosers != null)
+        && line.hasOption(testFilterOpt.getLongOpt())) {
+        line = null;
+        Logger.error(
+          "cannot only one of the following options: "
+            + singlePlayOpt.getLongOpt() + ", "
+            + finishGameOpt.getLongOpt() + ", "
+            + compareChoosersOpt.getLongOpt() + ", "
+            + testFilterOpt.getLongOpt());
+      }
+      testFilter = parseString(line, testFilterOpt, null);
     }
     if (line == null || help) {
       // Print usage information
@@ -180,6 +200,22 @@ public class Main {
         player1.setChooser(getChooserByName(finishGameP1Chooser));
         player2.setChooser(getChooserByName(finishGameP2Chooser));
         new TestScenario(game).finishGame();
+      }
+      else if (testFilter != null) {
+        // Test the given filter
+        final TestScenario scenario = new TestScenario(game);
+        Logger.info("initial state:");
+        scenario.printCurGameInfo();
+        final AbstractCellFilter filter = getFilterByName(testFilter);
+        final List<Cell> cells = filter.filterCells(game).collect(Collectors.toList());
+        for (final Cell cell : game.getBoard().getAllCells()) {
+          cell.setPlayer(player1);
+        }
+        for (final Cell cell : cells) {
+          cell.setPlayer(null);
+        }
+        Logger.info("filtered cells are empty:");
+        scenario.printCurGameInfo();
       }
       else if (compareChoosers != null) {
         // Compare performance for a list of choosers
@@ -278,6 +314,19 @@ public class Main {
       return valArray;
     }
     return defaultVal;
+  }
+
+  public static List<String> getFilterNames() {
+    return Filter.getNames();
+  }
+
+  public static AbstractCellFilter getFilterByName(String name) throws IllegalArgumentException {
+    name = name != null ? name.trim() : "";
+    final Filter filter = Filter.fromName(name);
+    if (filter != null) {
+      return filter.createFilter();
+    }
+    throw new IllegalArgumentException("unknown filter name: " + name);
   }
 
   public static List<String> getChooserNames() {
