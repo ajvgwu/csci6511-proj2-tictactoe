@@ -10,7 +10,7 @@ import edu.gwu.ai.codeknights.tictactoe.filtering.core.Cell;
 import edu.gwu.ai.codeknights.tictactoe.filtering.core.Player;
 import edu.gwu.ai.codeknights.tictactoe.filtering.core.TicTacToeGame;
 
-public class InsideFeasibleLineFilter extends EmptyCellFilter {
+public class BestOpenSublineFilter extends EmptyCellFilter {
 
   @Override
   public Stream<Cell> filterCells(final Stream<Cell> input, final TicTacToeGame game) {

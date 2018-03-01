@@ -14,18 +14,18 @@ public enum Filter {
       return new EmptyCellFilter();
     }
   },
-  INSIDE_FEASIBLE_LINE("InsideFeasibleLine") {
+  BEST_OPEN_SUBLINE("BestOpenSubline") {
 
     @Override
     public AbstractCellFilter createFilter() {
-      return new InsideFeasibleLineFilter();
+      return new BestOpenSublineFilter();
     }
   },
-  WITH_NEIGHBOR("WithNeighbor") {
+  POPULATED_NEIGHBOR("PopulatedNeighbor") {
 
     @Override
     public AbstractCellFilter createFilter() {
-      return new WithNeighborFilter();
+      return new PopulatedNeighborFilter();
     }
   };
 

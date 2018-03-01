@@ -1,5 +1,7 @@
 package edu.gwu.ai.codeknights.tictactoe.filtering.core;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -182,39 +184,60 @@ public class TicTacToeGame {
     playInCell(cell, nextPlayer);
   }
 
+  /**
+   * TODO: currently, this is worst case an O(N^2) operation... can it be improved ???
+   *
+   * For the given line of cells, find the longest continuous subsequence of cells that are either empty or populated
+   * by the player, as long as at least one cell in that subsequence is empty. If multiple subsequences have the same
+   * length, choose the one with the most cells already populated by the player.
+   * @param line the line to search
+   * @param player the player
+   * @return the longest subsequence, or {@code null} if no satisfiable subsequence was found
+   */
   public List<Cell> getLongestOpenSublineForPlayer(final List<Cell> line, final Player player) {
-    Integer longestStartIdx = null;
-    Integer longestEndIdx = null;
-    Integer curStartIdx = null;
-    Integer curEndIdx = null;
-    for (int idx = 0; idx < line.size(); idx++) {
-      final Cell cell = line.get(idx);
-      if (cell.isEmpty() || cell.isPopulatedBy(player)) {
-        if (curStartIdx == null) {
-          curStartIdx = idx;
+    if (line.stream().noneMatch(cell -> cell.isPopulatedBy(player) || cell.isEmpty())) {
+      return Collections.emptyList();
+    }
+    int longestLen = 0;
+    final List<List<Cell>> candidateSublines = new ArrayList<>();
+    for (int startIdx = 0; startIdx < line.size(); startIdx++) {
+      for (int endIdx = startIdx + 1; endIdx <= line.size(); endIdx++) {
+        final List<Cell> curSubline = line.subList(startIdx, endIdx);
+        if (curSubline.size() >= longestLen && curSubline.stream().anyMatch(cell -> cell.isPopulatedBy(player))) {
+          boolean hasAtLeastOneEmpty = false;
+          boolean isAllPlayerOrEmpty = true;
+          for (final Cell cell : curSubline) {
+            if (cell.isEmpty()) {
+              hasAtLeastOneEmpty = true;
+            }
+            else if (!cell.isPopulatedBy(player)) {
+              isAllPlayerOrEmpty = false;
+              break;
+            }
+          }
+          if (hasAtLeastOneEmpty && isAllPlayerOrEmpty) {
+            final int curLen = curSubline.size();
+            if (curLen >= longestLen) {
+              if (curLen > longestLen) {
+                candidateSublines.clear();
+              }
+              longestLen = curLen;
+              candidateSublines.add(curSubline);
+            }
+          }
         }
-        curEndIdx = idx;
-      }
-      else {
-        int curLen = 0;
-        if (curStartIdx != null && curEndIdx != null) {
-          curLen = curEndIdx - curStartIdx;
-        }
-        int longestLen = 0;
-        if (longestStartIdx != null && longestEndIdx != null) {
-          longestLen = longestEndIdx - longestStartIdx;
-        }
-        if (curLen > longestLen) {
-          longestStartIdx = curStartIdx;
-          longestEndIdx = curEndIdx;
-        }
-        curStartIdx = null;
-        curEndIdx = null;
       }
     }
-    final int startIdx = longestStartIdx != null ? longestStartIdx : 0;
-    final int endIdx = Math.max(startIdx, longestEndIdx != null ? longestEndIdx : 0);
-    return line.subList(startIdx, endIdx);
+    int mostPopulated = 0;
+    List<Cell> bestLine = Collections.emptyList();
+    for (final List<Cell> subline : candidateSublines) {
+      final int numPopulated = subline.stream().mapToInt(cell -> cell.isPopulatedBy(player) ? 1 : 0).sum();
+      if (numPopulated > mostPopulated) {
+        mostPopulated = numPopulated;
+        bestLine = subline;
+      }
+    }
+    return bestLine;
   }
 
   public long evaluatePlayerUtility(final Player player) {
