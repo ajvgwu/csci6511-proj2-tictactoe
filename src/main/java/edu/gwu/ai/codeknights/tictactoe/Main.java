@@ -91,7 +91,7 @@ public class Main {
           + String.valueOf(getChooserNames()) + ")")
       .build();
     final Option compareChoosersOpt = Option.builder().longOpt("compare-choosers")
-      .hasArgs().argName("CHOOSERS...")
+      .hasArgs().argName("CHOOSER [CHOOSER...]")
       .desc("compare the given strategies for a single move (any of " + String.valueOf(getChooserNames()) + ")")
       .build();
     final Option testFilterOpt = Option.builder().longOpt("test-filter")
@@ -149,7 +149,7 @@ public class Main {
         && line.hasOption(compareChoosersOpt.getLongOpt())) {
         line = null;
         Logger.error(
-          "cannot only one of the following options: "
+          "choose only one of the following options: "
             + singlePlayOpt.getLongOpt() + ", "
             + finishGameOpt.getLongOpt() + ", "
             + compareChoosersOpt.getLongOpt());
@@ -159,7 +159,7 @@ public class Main {
         && line.hasOption(testFilterOpt.getLongOpt())) {
         line = null;
         Logger.error(
-          "cannot only one of the following options: "
+          "choose only one of the following options: "
             + singlePlayOpt.getLongOpt() + ", "
             + finishGameOpt.getLongOpt() + ", "
             + compareChoosersOpt.getLongOpt() + ", "
@@ -204,17 +204,22 @@ public class Main {
       else if (testFilter != null) {
         // Test the given filter
         final TestScenario scenario = new TestScenario(game);
-        Logger.info("initial state:");
+        System.out.println("### Initial state ###");
         scenario.printCurGameInfo();
         final AbstractCellFilter filter = getFilterByName(testFilter);
-        final List<Cell> cells = filter.filterCells(game).collect(Collectors.toList());
+        final List<Cell> candidates = filter.filterCells(game).collect(Collectors.toList());
+        final Player blankMarker = new Player(0, ' ');
+        final Player candidateMarker = new Player(0, '?');
         for (final Cell cell : game.getBoard().getAllCells()) {
-          cell.setPlayer(player1);
+          if (cell.isEmpty()) {
+            cell.setPlayer(blankMarker);
+          }
         }
-        for (final Cell cell : cells) {
-          cell.setPlayer(null);
+        for (final Cell cell : candidates) {
+          cell.setPlayer(candidateMarker);
         }
-        Logger.info("filtered cells are empty:");
+        System.out.println();
+        System.out.println("### Showing candidates as '" + String.valueOf(candidateMarker.getMarker()) + "' ###");
         scenario.printCurGameInfo();
       }
       else if (compareChoosers != null) {
