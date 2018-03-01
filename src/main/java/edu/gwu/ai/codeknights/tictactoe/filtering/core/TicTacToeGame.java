@@ -144,14 +144,8 @@ public class TicTacToeGame {
     return didPlayerWin(player1) || didPlayerWin(player2);
   }
 
-  public boolean isEarlyDraw() {
-    // TODO: implement
-    Logger.debug("implement TicTacToeGame.isEarlyDraw()");
-    return false;
-  }
-
   public boolean isGameOver() {
-    return didAnyWin() || board.isFull() || isEarlyDraw();
+    return didAnyWin() || board.isFull();
   }
 
   public Player getNextPlayer() {
@@ -176,14 +170,43 @@ public class TicTacToeGame {
     final Player nextPlayer = getNextPlayer();
     Cell cell = nextPlayer.chooseCell(this);
     if (cell == null) {
-      cell = board.getEmptyCells().parallelStream()
+      cell = board.getEmptyCells().stream()
         .findAny()
         .orElse(null);
     }
-    if (cell == null) {
-      throw new GameException("no empty cell available player: " + String.valueOf(nextPlayer));
+    if (cell != null) {
+      playInCell(cell, nextPlayer);
     }
-    playInCell(cell, nextPlayer);
+    else {
+      throw new GameException("no empty cell available for player: " + String.valueOf(nextPlayer));
+    }
+  }
+
+  /**
+   * Tries to parse the given {@code coords} string and return the corresponding {@code Cell} from the board.
+   * The expected format is "rowIdx,colIdx" (zero-based). For example, "0,0" is the top-left cell.
+   * @param coords the coordinate of the cell in format "rowIdx,colIdx"
+   * @return the {@code Cell} at the given coord if the string is valid and it is within bounds, otherwise {@code null}
+   */
+  public Cell tryGetCellFromCoord(final String coords) {
+    if (coords != null) {
+      final String[] parts = coords.split(",", 2);
+      if (parts != null && parts.length >= 2) {
+        final String rowVal = parts[0];
+        final String colVal = parts[1];
+        try {
+          final int rowIdx = Integer.parseInt(rowVal.trim());
+          final int colIdx = Integer.parseInt(colVal.trim());
+          if (rowIdx < dim && colIdx < dim) {
+            return board.getCell(rowIdx, colIdx);
+          }
+        }
+        catch (final NumberFormatException e) {
+          Logger.error(e, "could not parse cell coordinates (expected format \"rowIdx,colIdx\"): " + coords);
+        }
+      }
+    }
+    return null;
   }
 
   /**

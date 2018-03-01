@@ -8,12 +8,14 @@ public class Player {
   private final char marker;
 
   private AbstractCellChooser chooser;
+  private AbstractCellChooser fallbackChooser;
 
   public Player(final int id, final char marker) {
     this.id = id;
     this.marker = marker;
 
     chooser = null;
+    fallbackChooser = null;
   }
 
   public int getId() {
@@ -32,8 +34,28 @@ public class Player {
     this.chooser = chooser;
   }
 
+  public AbstractCellChooser getFallbackChooser() {
+    return fallbackChooser;
+  }
+
+  public void setFallbackChooser(final AbstractCellChooser fallbackChooser) {
+    this.fallbackChooser = fallbackChooser;
+  }
+
   public Cell chooseCell(final TicTacToeGame game) {
-    return chooser != null ? chooser.chooseCell(game) : null;
+    Cell choice = null;
+    if (chooser != null) {
+      choice = chooser.chooseCell(game);
+    }
+    if (choice == null && fallbackChooser != null) {
+      choice = fallbackChooser.chooseCell(game);
+    }
+    if (choice == null) {
+      choice = game.getBoard().getEmptyCells().parallelStream()
+        .findAny()
+        .orElse(null);
+    }
+    return choice;
   }
 
   @Override
