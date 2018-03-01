@@ -41,6 +41,7 @@ public class Main {
     int player2Id = 2;
     final char player2Marker = Const.OPPONENT_PLAYER_CHAR;
     String[] stateArgs = null;
+    String fallbackChooser = Chooser.MAX_UTILITY.getName();
     String singlePlayChooser = null;
     String finishGameP1Chooser = null;
     String finishGameP2Chooser = null;
@@ -80,6 +81,11 @@ public class Main {
         + String.valueOf(player1Marker) + "\"; moves of the second player given by \"" + String.valueOf(player2Marker)
         + "\"; empty spaces given by any other string")
       .build();
+    final Option fallbackChooserOpt = Option.builder().longOpt("fallback-chooser")
+      .hasArg().argName("CHOOSER")
+      .desc("strategy used by every player to select a cell when their primary strategy does not return a result"
+        + " (default is \"" + fallbackChooser + "\")")
+      .build();
     final Option singlePlayOpt = Option.builder().longOpt("single-play")
       .hasArg().argName("CHOOSER")
       .desc("choose the next play using the given strategy (one of " + String.valueOf(getChooserNames()) + ")")
@@ -108,6 +114,7 @@ public class Main {
     options.addOption(player1IdOpt);
     options.addOption(player2IdOpt);
     options.addOption(stateOpt);
+    options.addOption(fallbackChooserOpt);
     options.addOption(singlePlayOpt);
     options.addOption(finishGameOpt);
     options.addOption(compareChoosersOpt);
@@ -132,6 +139,7 @@ public class Main {
       player1Id = parseInt(line, player1IdOpt, player1Id);
       player2Id = parseInt(line, player2IdOpt, player2Id);
       stateArgs = parseStringArray(line, stateOpt, stateArgs);
+      fallbackChooser = parseString(line, fallbackChooserOpt, fallbackChooser);
       if (line.hasOption(singlePlayOpt.getLongOpt()) && line.hasOption(finishGameOpt.getLongOpt())) {
         line = null;
         Logger.error(
@@ -187,6 +195,10 @@ public class Main {
       final TicTacToeGame game = new TicTacToeGame(dim, winLength, gameId, player1, player2);
       if (stateArgs != null) {
         game.populate(stateArgs);
+      }
+      if (fallbackChooser != null) {
+        player1.setFallbackChooser(getChooserByName(fallbackChooser));
+        player2.setFallbackChooser(getChooserByName(fallbackChooser));
       }
       if (singlePlayChooser != null) {
         // Play the next move
