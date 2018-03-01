@@ -297,6 +297,10 @@ public class TicTacToeGame {
     return evaluatePlayerUtility(player2);
   }
 
+  public String getBoardHash() {
+    return board.getHash();
+  }
+
   public TicTacToeGame getCopy(final long newGameId, final Player newPlayer1, final Player newPlayer2) {
     final TicTacToeGame copy = new TicTacToeGame(dim, winLength, newGameId, newPlayer1, newPlayer2);
     for (final Cell oldCell : board.getAllCells()) {
@@ -309,6 +313,10 @@ public class TicTacToeGame {
       }
     }
     return copy;
+  }
+
+  public TicTacToeGame getCopy() {
+    return getCopy(gameId, player1, player2);
   }
 
   @Override

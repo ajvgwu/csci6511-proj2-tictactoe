@@ -34,6 +34,20 @@ public enum Chooser {
     public AbstractCellChooser createChooser() {
       return new MaxUtilityChooser();
     }
+  },
+  ALPHA_BETA_PRUNING("AlphaBetaPruning") {
+
+    @Override
+    public AbstractCellChooser createChooser() {
+      return new AlphaBetaPruningChooser();
+    }
+  },
+  BEST_OPTION("BestOption") {
+
+    @Override
+    public AbstractCellChooser createChooser() {
+      return new BestOptionChooser();
+    }
   };
 
   private final String name;

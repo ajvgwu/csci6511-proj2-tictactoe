@@ -170,6 +170,17 @@ public class Board {
       .sum();
   }
 
+  public String getHash() {
+    final StringBuilder bldr = new StringBuilder();
+    for (int rowIdx = 0; rowIdx < dim; rowIdx++) {
+      for (int colIdx = 0; colIdx < dim; colIdx++) {
+        final Player mark = matrix[rowIdx][colIdx].getPlayer();
+        bldr.append(mark != null ? mark.getMarker() : ".");
+      }
+    }
+    return bldr.toString();
+  }
+
   public Board getCopy() {
     final Board copy = new Board(dim);
     for (final Cell cell : allCells) {

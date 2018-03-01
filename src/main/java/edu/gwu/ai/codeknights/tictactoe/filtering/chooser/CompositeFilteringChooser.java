@@ -1,6 +1,6 @@
 package edu.gwu.ai.codeknights.tictactoe.filtering.chooser;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -10,13 +10,14 @@ import edu.gwu.ai.codeknights.tictactoe.filtering.filter.AbstractCellFilter;
 
 public class CompositeFilteringChooser extends AbstractCellChooser {
 
-  public static final AbstractCellChooser DEFAULT_CHOOSER = new AnyCellChooser();
+  public static final AbstractCellChooser DEFAULT_CHOOSER = new MaxUtilityChooser();
 
   private final List<AbstractCellFilter> filters;
   private final AbstractCellChooser chooser;
 
   public CompositeFilteringChooser(final List<AbstractCellFilter> filters, final AbstractCellChooser chooser) {
-    this.filters = filters != null ? filters : Collections.emptyList();
+    this.filters = new ArrayList<>();
+    this.filters.addAll(filters);
     this.chooser = chooser != null ? chooser : DEFAULT_CHOOSER;
   }
 
