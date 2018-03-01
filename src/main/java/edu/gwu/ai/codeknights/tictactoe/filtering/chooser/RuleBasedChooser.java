@@ -25,13 +25,23 @@ public class RuleBasedChooser extends AbstractCellChooser {
       final int center = (int) (dim / 2);
       final Cell centerCell = cells.parallelStream()
         .filter(cell -> Math.abs(cell.getRowIdx() - center) <= 1 && Math.abs(cell.getColIdx() - center) <= 1)
-        .findAny().orElse(null);
+        .findAny()
+        .orElse(null);
       if (centerCell != null) {
         return centerCell;
       }
     }
 
     // Rule 2: win if immediately possible
+    final List<Cell> inputCells = input.collect(Collectors.toList());
+    for (final Cell inputCell : inputCells) {
+      final List<List<Cell>> lines = game.getBoard().findLinesThrough(inputCell, game.getWinLength());
+      lines.parallelStream()
+        .filter(line -> {
+          return false;
+        })
+        .findFirst().orElse(null);
+    }
     board.getLinesAtLeastLength(winLength).parallelStream()
       .filter(line -> true)
       .findFirst()

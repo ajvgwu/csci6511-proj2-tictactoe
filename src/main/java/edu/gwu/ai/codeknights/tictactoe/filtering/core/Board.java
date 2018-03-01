@@ -150,18 +150,6 @@ public class Board {
     return findLinesThrough(cell.getRowIdx(), cell.getColIdx(), minLength);
   }
 
-  // TODO: finish implementing these helper functions, with an extra parameter for the player marker that should match inside the line
-  /*
-  public List<Cell> findLongestOpenendedSublineThrough(final int rowIdx, final int colIdx, final int minLength) {
-    findLinesThrough(rowIdx, colIdx, minLength).parallelStream()
-      .filter(line -> line.has);
-  }
-
-  public List<Cell> findLongestOpenendedSublineThrough(final Cell cell, final int minLength) {
-    return findLongestOpenendedSublineThrough(cell.getRowIdx(), cell.getColIdx(), minLength);
-  }
-  */
-
   public boolean isEmpty() {
     return allCells.parallelStream().allMatch(Cell::isEmpty);
   }

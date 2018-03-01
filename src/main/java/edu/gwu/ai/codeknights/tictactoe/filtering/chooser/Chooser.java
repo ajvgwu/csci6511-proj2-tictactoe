@@ -27,6 +27,13 @@ public enum Chooser {
     public AbstractCellChooser createChooser() {
       return new PairingChooser();
     }
+  },
+  MAX_UTILITY("MaxUtility") {
+
+    @Override
+    public AbstractCellChooser createChooser() {
+      return new MaxUtilityChooser();
+    }
   };
 
   private final String name;

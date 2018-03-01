@@ -182,10 +182,63 @@ public class TicTacToeGame {
     playInCell(cell, nextPlayer);
   }
 
+  public List<Cell> getLongestOpenSublineForPlayer(final List<Cell> line, final Player player) {
+    Integer longestStartIdx = null;
+    Integer longestEndIdx = null;
+    Integer curStartIdx = null;
+    Integer curEndIdx = null;
+    for (int idx = 0; idx < line.size(); idx++) {
+      final Cell cell = line.get(idx);
+      if (cell.isEmpty() || cell.isPopulatedBy(player)) {
+        if (curStartIdx == null) {
+          curStartIdx = idx;
+        }
+        curEndIdx = idx;
+      }
+      else {
+        int curLen = 0;
+        if (curStartIdx != null && curEndIdx != null) {
+          curLen = curEndIdx - curStartIdx;
+        }
+        int longestLen = 0;
+        if (longestStartIdx != null && longestEndIdx != null) {
+          longestLen = longestEndIdx - longestStartIdx;
+        }
+        if (curLen > longestLen) {
+          longestStartIdx = curStartIdx;
+          longestEndIdx = curEndIdx;
+        }
+        curStartIdx = null;
+        curEndIdx = null;
+      }
+    }
+    final int startIdx = longestStartIdx != null ? longestStartIdx : 0;
+    final int endIdx = Math.max(startIdx, longestEndIdx != null ? longestEndIdx : 0);
+    return line.subList(startIdx, endIdx);
+  }
+
   public long evaluatePlayerUtility(final Player player) {
-    // TODO: implement
-    Logger.debug("TODO: improve TicTacToeGame.evaluatePlayerUtility()");
-    return didPlayerWin(player) ? 1000L : didAnyWin() ? -1000L : 0L;
+    long score = 0L;
+    final Player opponent = getOtherPlayer(player);
+    for (final List<Cell> line : board.getLinesAtLeastLength(winLength)) {
+      if (didPlayerWinOnLine(player, line)) {
+        score += 2 * dim * dim * dim;
+      }
+      else if (didPlayerWinOnLine(opponent, line)) {
+        score -= 2 * dim * dim * dim;
+      }
+      final List<Cell> longestSeq = getLongestOpenSublineForPlayer(line, player);
+      score += longestSeq.parallelStream()
+        .filter(cell -> cell.isPopulatedBy(player))
+        .mapToInt(cell -> 1)
+        .sum();
+      final List<Cell> longestOppSeq = getLongestOpenSublineForPlayer(line, opponent);
+      score -= longestOppSeq.parallelStream()
+        .filter(cell -> cell.isPopulatedBy(opponent))
+        .mapToInt(cell -> 1)
+        .sum();
+    }
+    return score;
   }
 
   public long evaluatePlayer1Utility() {
@@ -212,8 +265,15 @@ public class TicTacToeGame {
 
   @Override
   public String toString() {
-    return new StringBuilder().append("dim=").append(dim).append(", winLength=").append(winLength).append(", gameId=")
-      .append(gameId).append(", player1=").append(player1).append(", player2=").append(player2)
-      .append(", isValidGameState=").append(isValidGameState()).append("\n").append(board).toString();
+    return new StringBuilder()
+      .append("dim=").append(dim)
+      .append(", winLength=").append(winLength)
+      .append(", gameId=").append(gameId)
+      .append(", player1=").append(player1).append("(utility=").append(evaluatePlayer1Utility()).append(")")
+      .append(", player2=").append(player2).append("(utility=").append(evaluatePlayer2Utility()).append(")")
+      .append(", isValidGameState=").append(isValidGameState())
+      .append("\n")
+      .append(board)
+      .toString();
   }
 }
