@@ -1,7 +1,5 @@
 package edu.gwu.ai.codeknights.tictactoe.filtering.chooser;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import edu.gwu.ai.codeknights.tictactoe.filtering.core.Cell;
@@ -15,18 +13,14 @@ public class PairingChooser extends AbstractCellChooser {
     if (game.getDim() < 9) {
       return null;
     }
-
-    final List<Cell> inputCells = input.collect(Collectors.toList());
     final Player opponent = game.getOtherPlayer(game.getNextPlayer());
-    for (final Cell cell : inputCells) {
+    return input.filter(cell -> {
       final Cell pair = getPairedCell(cell, game);
       if (pair != null && pair.isPopulatedBy(opponent)) {
-        return cell;
+        return true;
       }
-    }
-    return null;
-
-    // return input.filter(cell -> hasOpponentInPairedCell(cell, game)).findFirst().orElse(null);
+      return false;
+    }).findFirst().orElse(null);
   }
 
   public static Cell getPairedCell(final Cell cell, final TicTacToeGame game) {

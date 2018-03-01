@@ -1,5 +1,6 @@
 package edu.gwu.ai.codeknights.tictactoe.filtering.core;
 
+import java.util.List;
 import java.util.Objects;
 
 import org.pmw.tinylog.Logger;
@@ -108,19 +109,25 @@ public class TicTacToeGame {
     }
   }
 
-  public boolean didPlayerWin(final Player player) {
-    return board.getLinesAtLeastLength(winLength).parallelStream().anyMatch(line -> {
-      int numMatch = 0;
-      for (int idx = 0; idx < line.size(); idx++) {
-        if (Objects.equals(player, line.get(idx).getPlayer())) {
-          numMatch++;
-        }
-        if (numMatch >= winLength) {
-          break;
+  private boolean didPlayerWinOnLine(final Player player, final List<Cell> line) {
+    int numConsecutive = 0;
+    for (int idx = 0; idx < line.size(); idx++) {
+      if (line.get(idx).isPopulatedBy(player)) {
+        numConsecutive++;
+        if (numConsecutive >= winLength) {
+          return true;
         }
       }
-      return numMatch >= winLength;
-    });
+      else {
+        numConsecutive = 0;
+      }
+    }
+    return false;
+  }
+
+  public boolean didPlayerWin(final Player player) {
+    return board.getLinesAtLeastLength(winLength).parallelStream()
+      .anyMatch(line -> didPlayerWinOnLine(player, line));
   }
 
   public boolean didPlayer1Win() {
