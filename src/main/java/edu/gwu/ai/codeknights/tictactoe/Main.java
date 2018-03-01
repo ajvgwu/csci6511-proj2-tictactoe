@@ -21,6 +21,7 @@ import edu.gwu.ai.codeknights.tictactoe.filtering.chooser.Chooser;
 import edu.gwu.ai.codeknights.tictactoe.filtering.core.Cell;
 import edu.gwu.ai.codeknights.tictactoe.filtering.core.Player;
 import edu.gwu.ai.codeknights.tictactoe.filtering.core.TicTacToeGame;
+import edu.gwu.ai.codeknights.tictactoe.gui.TicTacToe;
 import edu.gwu.ai.codeknights.tictactoe.util.Const;
 
 public class Main {
@@ -28,6 +29,7 @@ public class Main {
   public static void main(final String[] args) throws DimensionException, StateException, InterruptedException {
     // Default values
     boolean help = false;
+    boolean gui = false;
     int dim = 3;
     int winLength = 3;
     long gameId = 1001;
@@ -44,6 +46,9 @@ public class Main {
     // Command-line options
     final Option helpOpt = Option.builder("h").longOpt("help")
       .desc("print this usage information")
+      .build();
+    final Option guiOpt = Option.builder().longOpt("gui")
+      .desc("launch in GUI mode")
       .build();
     final Option dimOpt = Option.builder("d").longOpt("dim")
       .hasArg().argName("DIM")
@@ -97,6 +102,7 @@ public class Main {
     options.addOption(singlePlayOpt);
     options.addOption(finishGameOpt);
     options.addOption(compareChoosersOpt);
+    options.addOption(guiOpt);
 
     // Parse command-line options
     final CommandLineParser parser = new DefaultParser();
@@ -110,6 +116,7 @@ public class Main {
     }
     if (line != null) {
       help = parseBoolean(line, helpOpt);
+      gui = parseBoolean(line, guiOpt);
       dim = parseInt(line, dimOpt, dim);
       winLength = parseInt(line, winLengthOpt, winLength);
       gameId = parseLong(line, gameIdOpt, gameId);
@@ -148,6 +155,10 @@ public class Main {
         // Parse error, so non-zero exit code
         System.exit(1);
       }
+    }
+    else if (gui) {
+      // Launch GUI
+      TicTacToe.main(args);
     }
     else {
       // Create the game
@@ -220,7 +231,7 @@ public class Main {
   }
 
   public static boolean parseBoolean(final CommandLine line, final Option opt) {
-    return line.hasOption(opt.getOpt());
+    return line.hasOption(opt.getLongOpt());
   }
 
   public static int parseInt(final CommandLine line, final Option opt, final int defaultVal) {
