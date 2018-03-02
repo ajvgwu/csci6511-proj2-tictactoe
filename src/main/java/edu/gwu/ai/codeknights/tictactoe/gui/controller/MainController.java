@@ -93,18 +93,20 @@ public class MainController {
    * @param masterId id of local primary player
    * @param opId     id of opponent player
    */
-  public void setup(long gameId, int dim, int winLen, GameMode mode, int masterId, int opId) {
+  public void setup(long gameId, final int dim, final int winLen, final GameMode mode, int masterId, int opId) {
     if (GameMode.EVE_ONLINE.equals(mode)) {
       if (gameId == 0) {
         // TODO: create a game on the server, fetch the gameId
         Logger.error("TODO: create a game on the server, fetch the gameId");
-//                API.getApiService().post();
-//                API.getApiService().getMoves(String.valueOf(gameId), Integer.MAX_VALUE);
-      } else {
+        //                API.getApiService().post();
+        //                API.getApiService().getMoves(String.valueOf(gameId), Integer.MAX_VALUE);
+      }
+      else {
         // TODO: hook on a existing game
         Logger.error("TODO: hook on a existing game");
       }
-    } else {
+    }
+    else {
       // generate all ids for non-EvE-online games
       gameId = new Random().nextInt(10000);
       masterId = 10;
@@ -133,15 +135,15 @@ public class MainController {
   /**
    * build a grid pane based on label matrix
    */
-  private void buildBoard(int rowLen, int colLen) {
+  private void buildBoard(final int rowLen, final int colLen) {
     // add matrix to main panel
-    GridPane boardGrid = new GridPane();
+    final GridPane boardGrid = new GridPane();
     boardGrid.setAlignment(Pos.CENTER);
     boardGrid.setVgap(20);
     boardGrid.setHgap(20);
     GridPane.setHalignment(boardGrid, HPos.CENTER);
     GridPane.setValignment(boardGrid, VPos.CENTER);
-    Label[][] matrix = getLabelMatrix(rowLen, colLen);
+    final Label[][] matrix = getLabelMatrix(rowLen, colLen);
     for (int i = 0; i < rowLen; i++) {
       for (int j = 0; j < colLen; j++) {
         boardGrid.add(matrix[i][j], j, i);
@@ -153,7 +155,7 @@ public class MainController {
   /**
    * return a label matrix of the size as board
    */
-  private Label[][] getLabelMatrix(int rowLen, int colLen) {
+  private Label[][] getLabelMatrix(final int rowLen, final int colLen) {
 
     if (matrix != null) {
       return matrix;
@@ -167,23 +169,23 @@ public class MainController {
       protected boolean computeValue() {
         final Player master = helper.getMaster();
         final Player curPlayer = helper.getNextPlayer();
-        return (curPlayer.getChooser() instanceof StupidMoveChooser) && !game.isGameOver();
+        return curPlayer.getChooser() instanceof StupidMoveChooser && !game.isGameOver();
       }
     };
 
     for (int i = 0; i < rowLen; i++) {
       for (int j = 0; j < colLen; j++) {
-        String blank = String.valueOf(Const.BLANK_SPACE_CHAR);
-        StringProperty property = new SimpleStringProperty(blank);
-        Label label = new Label();
+        final String blank = String.valueOf(Const.BLANK_SPACE_CHAR);
+        final StringProperty property = new SimpleStringProperty(blank);
+        final Label label = new Label();
         matrix[i][j] = label;
         boardProperties[i][j] = property;
         label.setOnMouseClicked(event -> {
           // on mouse clicked
           // only works in PvE
           if (blank.equals(label.getText()) && isClickable.get()) {
-            int row = (int) label.getProperties().get("row");
-            int col = (int) label.getProperties().get("col");
+            final int row = (int) label.getProperties().get("row");
+            final int col = (int) label.getProperties().get("col");
             pve(row, col);
           }
         });
@@ -199,14 +201,15 @@ public class MainController {
     return matrix;
   }
 
-  private void pve(int row, int col) {
+  private void pve(final int row, final int col) {
     // master play
-    game.playInCell(row, col, game.getNextPlayer());
-    helper.history.set("[" + String.valueOf(helper.getMaster().getMarker())
-        + "][" + (row + 1) + ", " + (col + 1) + "]\n" + helper.history.get());
-    boardProperties[row][col].set(String.valueOf(helper.getMaster().getMarker()));
+    final Player nextPlayer = game.getNextPlayer();
+    game.playInCell(row, col, nextPlayer);
+    helper.history.set("[" + String.valueOf(nextPlayer.getMarker())
+      + "][" + row + ", " + col + "]\n" + helper.history.get());
+    boardProperties[row][col].set(String.valueOf(nextPlayer.getMarker()));
     mState.setText(game.getBoardStatus());
-    boolean isGameOver = game.isGameOver();
+    final boolean isGameOver = game.isGameOver();
     if (!isGameOver) {
       // ai opponent make a move
       makeMove();
@@ -214,21 +217,21 @@ public class MainController {
   }
 
   @FXML
-  void nextHandler(ActionEvent event) {
+  void nextHandler(final ActionEvent event) {
     makeMove();
   }
 
   private void makeMove() {
-    Player player = helper.getNextPlayer();
-    long startMs = System.currentTimeMillis();
-    Cell cell = player.chooseCell(game);
+    final Player player = helper.getNextPlayer();
+    final long startMs = System.currentTimeMillis();
+    final Cell cell = player.chooseCell(game);
     game.playInCell(cell, player);
-    long endMs = System.currentTimeMillis();
+    final long endMs = System.currentTimeMillis();
     boardProperties[cell.getRowIdx()][cell.getColIdx()].set(String.valueOf(player.getMarker()));
     helper.history.set(String.format("[%s][%d, %d]-AI-%dms\n%s",
       String.valueOf(player.getMarker()),
-      cell.getRowIdx() + 1,
-      cell.getColIdx() + 1,
+      cell.getRowIdx(),
+      cell.getColIdx(),
       endMs - startMs,
       helper.history.get()));
     mState.setText(game.getBoardStatus());
