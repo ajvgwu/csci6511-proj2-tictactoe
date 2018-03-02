@@ -264,6 +264,8 @@ public class Main {
               playerUtility = copy.evaluatePlayerUtility(nextPlayer);
               playerMark = String.valueOf(copy.getBoard().getCell(rowIdx, colIdx).getPlayer().getMarker());
             }
+            System.out.println("updated board:");
+            System.out.println(String.valueOf(copy));
             resultMap.put(name, new TestResult(rowIdx, colIdx, playerMark, playerUtility, elapsedSec));
             System.out.println("time elapsed (sec): " + String.valueOf(elapsedSec));
           }
@@ -406,7 +408,11 @@ public class Main {
       printCurGameInfo();
       try {
         while (!game.isGameOver()) {
+          final long startTimeMs = System.currentTimeMillis();
           game.tryPlayNextCell();
+          final long endTimeMs = System.currentTimeMillis();
+          final double elapsedSec = (double) ((endTimeMs - startTimeMs) / 1000.0);
+          System.out.println("time elapsed: " + String.valueOf(elapsedSec));
           printCurGameInfo();
         }
       }
