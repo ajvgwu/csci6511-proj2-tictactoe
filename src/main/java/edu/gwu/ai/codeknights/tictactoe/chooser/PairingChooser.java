@@ -142,7 +142,7 @@ public class PairingChooser extends AbstractCellChooser {
   }
 
   public static Cell tryFindPair(final Game game, final List<Cell> cells) {
-    if (game.getDim() < 8 || game.getWinLength() < 8) {
+    if (game.getDim() < 9 || game.getWinLength() < 9) {
       return null;
     }
     final Player curPlayer = game.getNextPlayer();

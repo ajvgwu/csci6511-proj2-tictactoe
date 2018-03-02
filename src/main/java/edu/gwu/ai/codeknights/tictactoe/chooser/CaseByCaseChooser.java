@@ -4,63 +4,45 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import edu.gwu.ai.codeknights.tictactoe.core.Board;
 import edu.gwu.ai.codeknights.tictactoe.core.Cell;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
-import edu.gwu.ai.codeknights.tictactoe.core.Player;
 import edu.gwu.ai.codeknights.tictactoe.filter.PopulatedNeighborFilter;
 
 public class CaseByCaseChooser extends AbstractCellChooser {
 
   private final PopulatedNeighborFilter neighborFilter;
+
+  private final PairingChooser pairingChooser;
+  private final RuleBasedChooser ruleBasedChooser;
   private final AlphaBetaPruningChooser abpChooser;
 
   public CaseByCaseChooser() {
     neighborFilter = new PopulatedNeighborFilter();
+
+    pairingChooser = new PairingChooser();
+    ruleBasedChooser = new RuleBasedChooser();
     abpChooser = new AlphaBetaPruningChooser();
   }
 
   @Override
   public Cell chooseCell(final Stream<Cell> input, final Game game) {
     final List<Cell> cells = input.collect(Collectors.toList());
-    final Player player = game.getNextPlayer();
 
-    // Empty board, play near center
-    final Board board = game.getBoard();
-    final int dim = game.getDim();
-    if (board.isEmpty()) {
-      final int center = (int) (dim / 2);
-      final Cell cell = RuleBasedChooser.findCellNear(cells, center, center, Math.max(2, (int) (dim / 4)));
-      if (cell != null) {
-        return cell;
-      }
+    // Try pairing strategy
+    Cell choice = pairingChooser.chooseCell(cells.stream(), game);
+    if (choice != null) {
+      return choice;
     }
 
-    // Try to win
-    final int winLength = game.getWinLength();
-    final Cell winningCell = RuleBasedChooser.findWinningCell(game, cells, winLength, player);
-    if (winningCell != null) {
-      return winningCell;
+    // Try rule-based strategy
+    choice = ruleBasedChooser.chooseCell(cells.stream(), game);
+    if (choice != null) {
+      return choice;
     }
 
-    // Try not to lose
-    final Player opponent = game.getOtherPlayer(player);
-    Cell noLossCell = RuleBasedChooser.findWinningCell(game, cells, winLength, opponent);
-    if (noLossCell == null) {
-      noLossCell = RuleBasedChooser.findLossInTwo(game, cells, winLength, player);
-    }
-    if (noLossCell != null) {
-      return noLossCell;
-    }
-
-    // Try a pairing strategy
-    final Cell pairCell = PairingChooser.tryFindPair(game, cells);
-    if (pairCell != null) {
-      return pairCell;
-    }
-
-    // Play smartly
-    abpChooser.setMaxDepth(dim);
-    return abpChooser.chooseCell(neighborFilter.filterCells(cells.stream(), game), game);
+    // Otherwise, play smartly
+    abpChooser.setMaxDepth(game.getDim());
+    choice = abpChooser.chooseCell(neighborFilter.filterCells(cells.stream(), game), game);
+    return choice;
   }
 }

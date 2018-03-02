@@ -65,12 +65,11 @@ public class Cell {
     }
     final Cell other = (Cell) o;
     return rowIdx == other.rowIdx &&
-      colIdx == other.colIdx &&
-      Objects.equals(player, other.player);
+      colIdx == other.colIdx;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(rowIdx, colIdx, player);
+    return Objects.hash(rowIdx, colIdx);
   }
 }
