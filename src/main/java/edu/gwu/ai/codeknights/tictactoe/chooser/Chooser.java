@@ -81,11 +81,25 @@ public enum Chooser {
       return new BestOptionChooser();
     }
   },
-  CASE_BY_CASE("CaseByCase") {
+  CASE_BY_CASE_ABP_ALL_EMPTY("CaseByCaseAbpAllEmpty") {
 
     @Override
     public AbstractCellChooser createChooser() {
-      return new CaseByCaseChooser();
+      return new CaseByCaseChooser(new EmptyCellFilter());
+    }
+  },
+  CASE_BY_CASE_ABP_NEIGHBOR("CaseByCaseAbpNeighbor") {
+
+    @Override
+    public AbstractCellChooser createChooser() {
+      return new CaseByCaseChooser(new PopulatedNeighborFilter());
+    }
+  },
+  CASE_BY_CASE_ABP_BEST_SUBLINE("CaseByCaseAbpBestSubline") {
+
+    @Override
+    public AbstractCellChooser createChooser() {
+      return new CaseByCaseChooser(new BestOpenSublineFilter());
     }
   };
 
