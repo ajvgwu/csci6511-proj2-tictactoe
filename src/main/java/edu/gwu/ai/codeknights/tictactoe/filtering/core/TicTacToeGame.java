@@ -169,7 +169,11 @@ public class TicTacToeGame {
   public void tryPlayNextCell() throws GameException {
     final Player nextPlayer = getNextPlayer();
     Cell cell = nextPlayer.chooseCell(this);
-    if (cell == null) {
+    if (cell != null) {
+      Logger.debug("player {} chose cell at ({},{})", nextPlayer, cell.getRowIdx(), cell.getColIdx());
+    }
+    else {
+      Logger.debug("player {} did not choose a cell, trying to find empty cell", nextPlayer);
       cell = board.getEmptyCells().stream()
         .findAny()
         .orElse(null);

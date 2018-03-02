@@ -240,6 +240,8 @@ public class Main {
         for (final String name : compareChoosers) {
           chooserMap.put(name, getChooserByName(name));
         }
+        System.out.println(
+          "will test " + String.valueOf(chooserMap.size()) + " choosers on this board:\n" + String.valueOf(game));
         final Map<String, TestResult> resultMap = new LinkedHashMap<>();
         for (final String name : chooserMap.keySet()) {
           final AbstractCellChooser chooser = chooserMap.get(name);
@@ -252,6 +254,7 @@ public class Main {
             Integer rowIdx = null;
             Integer colIdx = null;
             String playerMark = null;
+            Long playerUtility = null;
             final long startTimeMs = System.currentTimeMillis();
             final Cell cell = nextPlayer.chooseCell(copy);
             final long endTimeMs = System.currentTimeMillis();
@@ -260,9 +263,10 @@ public class Main {
               rowIdx = cell.getRowIdx();
               colIdx = cell.getColIdx();
               copy.playInCell(rowIdx, colIdx, nextPlayer);
+              playerUtility = copy.evaluatePlayerUtility(nextPlayer);
               playerMark = String.valueOf(copy.getBoard().getCell(rowIdx, colIdx).getPlayer().getMarker());
             }
-            resultMap.put(name, new TestResult(rowIdx, colIdx, playerMark, elapsedSec));
+            resultMap.put(name, new TestResult(rowIdx, colIdx, playerMark, playerUtility, elapsedSec));
             System.out.println("time elapsed (sec): " + String.valueOf(elapsedSec));
           }
           catch (final Exception e) {
@@ -419,12 +423,15 @@ public class Main {
     public final Integer rowIdx;
     public final Integer colIdx;
     public final String playerMark;
+    public final Long playerUtility;
     public final Double elapsedSec;
 
-    public TestResult(final Integer rowIdx, final Integer colIdx, final String playerMark, final double elapsedSec) {
+    public TestResult(final Integer rowIdx, final Integer colIdx, final String playerMark, final Long playerUtility,
+      final double elapsedSec) {
       this.rowIdx = rowIdx;
       this.colIdx = colIdx;
       this.playerMark = playerMark;
+      this.playerUtility = playerUtility;
       this.elapsedSec = elapsedSec;
     }
 
@@ -432,6 +439,7 @@ public class Main {
       rowIdx = null;
       colIdx = null;
       playerMark = null;
+      playerUtility = null;
       elapsedSec = null;
     }
 
@@ -441,7 +449,8 @@ public class Main {
         .append("rowIdx=").append(rowIdx).append(", ")
         .append("colIdx=").append(colIdx).append(", ")
         .append("playerMark=").append(playerMark).append(", ")
-        .append("elapsedSec=").append(elapsedSec).append(", ")
+        .append("playerUtility=").append(playerUtility).append(", ")
+        .append("elapsedSec=").append(elapsedSec)
         .toString();
     }
   }

@@ -1,7 +1,10 @@
 package edu.gwu.ai.codeknights.tictactoe.filtering.chooser;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import edu.gwu.ai.codeknights.tictactoe.filtering.core.Board;
 import edu.gwu.ai.codeknights.tictactoe.filtering.core.Cell;
 import edu.gwu.ai.codeknights.tictactoe.filtering.core.Player;
 import edu.gwu.ai.codeknights.tictactoe.filtering.core.TicTacToeGame;
@@ -10,20 +13,8 @@ public class PairingChooser extends AbstractCellChooser {
 
   @Override
   public Cell chooseCell(final Stream<Cell> input, final TicTacToeGame game) {
-    if (game.getDim() < 9) {
-      return null;
-    }
-    final Player opponent = game.getOtherPlayer(game.getNextPlayer());
-    return input
-      .filter(cell -> {
-        final Cell pair = getPairedCell(cell, game);
-        if (pair != null && pair.isPopulatedBy(opponent)) {
-          return true;
-        }
-        return false;
-      })
-      .findAny()
-      .orElse(null);
+    final List<Cell> cells = input.collect(Collectors.toList());
+    return tryFindPair(game, cells);
   }
 
   public static Cell getPairedCell(final Cell cell, final TicTacToeGame game) {
@@ -145,6 +136,25 @@ public class PairingChooser extends AbstractCellChooser {
       final int dim = game.getDim();
       if (pairRowIdx >= 0 && pairRowIdx < dim && pairColIdx >= 0 && pairColIdx < dim) {
         return game.getBoard().getCell(pairRowIdx, pairColIdx);
+      }
+    }
+    return null;
+  }
+
+  public static Cell tryFindPair(final TicTacToeGame game, final List<Cell> cells) {
+    if (game.getDim() < 9) {
+      return null;
+    }
+    final Board board = game.getBoard();
+    final Player player = game.getNextPlayer();
+    final Player opponent = game.getOtherPlayer(player);
+    if (board.countPlayer(player) >= board.countPlayer(opponent)) {
+      return null;
+    }
+    for (final Cell cell : cells) {
+      final Cell pair = getPairedCell(cell, game);
+      if (pair != null && pair.isPopulatedBy(opponent)) {
+        return cell;
       }
     }
     return null;

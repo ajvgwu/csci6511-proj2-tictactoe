@@ -2,6 +2,7 @@ package edu.gwu.ai.codeknights.tictactoe.filtering.chooser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import edu.gwu.ai.codeknights.tictactoe.filtering.core.Cell;
@@ -31,10 +32,13 @@ public class CompositeFilteringChooser extends AbstractCellChooser {
 
   @Override
   public Cell chooseCell(final Stream<Cell> input, final TicTacToeGame game) {
-    Stream<Cell> reducedInput = input;
+    List<Cell> reducedCells = input.collect(Collectors.toList());
     for (final AbstractCellFilter filter : filters) {
-      reducedInput = filter.filterCells(reducedInput, game);
+      final List<Cell> newCells = filter.filterCells(reducedCells.stream(), game).collect(Collectors.toList());
+      if (newCells.size() > 0) {
+        reducedCells = newCells;
+      }
     }
-    return chooser.chooseCell(reducedInput, game);
+    return chooser.chooseCell(reducedCells.stream(), game);
   }
 }
