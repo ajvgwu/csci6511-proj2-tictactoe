@@ -1,4 +1,8 @@
-package edu.gwu.ai.codeknights.tictactoe.filtering.core;
+package edu.gwu.ai.codeknights.tictactoe.core;
+
+import java.util.Objects;
+
+import edu.gwu.ai.codeknights.tictactoe.util.Const;
 
 public class Cell {
 
@@ -47,7 +51,26 @@ public class Cell {
 
   @Override
   public String toString() {
-    final char value = player != null ? player.getMarker() : '-';
+    final char value = player != null ? player.getMarker() : Const.BLANK_SPACE_CHAR;
     return String.valueOf(value);
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || !getClass().equals(o.getClass())) {
+      return false;
+    }
+    final Cell other = (Cell) o;
+    return rowIdx == other.rowIdx &&
+      colIdx == other.colIdx &&
+      Objects.equals(player, other.player);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(rowIdx, colIdx, player);
   }
 }

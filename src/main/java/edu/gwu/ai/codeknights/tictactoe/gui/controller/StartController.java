@@ -1,5 +1,7 @@
 package edu.gwu.ai.codeknights.tictactoe.gui.controller;
 
+import java.io.IOException;
+
 import edu.gwu.ai.codeknights.tictactoe.gui.TicTacToe;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.FXMLLoadResult;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.FXMLUtil;
@@ -11,8 +13,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-
-import java.io.IOException;
 
 /**
  * @author zhiyuan
@@ -87,7 +87,7 @@ public class StartController {
             }
             stErr.setText("");
         } catch (NumberFormatException ex) {
-            stErr.setText("dimension must be larger than win length");
+            stErr.setText("dimension must be equal to or larger than win length");
             return false;
         }
         return true;
@@ -98,7 +98,7 @@ public class StartController {
         Integer dim = Integer.parseInt(stDim.getText());
         Integer winLen = Integer.parseInt(stWinLen.getText());
 
-        int mode = getMode();
+        GameMode mode = getMode();
 
         Stage primaryStage = TicTacToe.getPrimaryStage();
         try {
@@ -111,7 +111,7 @@ public class StartController {
             primaryStage.setScene(new Scene(result.getNode()));
             primaryStage.setResizable(true);
             MainController controller = (MainController) result.getController();
-            controller.setup(mode, teamId, gameId, dim, dim, winLen, opponentId);
+            controller.setup(gameId, dim, winLen, mode, teamId, opponentId);
             stStart.setDisable(true);
         } catch (IOException e) {
             e.printStackTrace();
@@ -120,17 +120,17 @@ public class StartController {
         }
     }
 
-    private int getMode(){
+    private GameMode getMode(){
         if(stPVE.isDisabled()){
             // PVE
-            return 1;
+            return GameMode.PVE;
         }else{
             if (stEVE.isDisabled()){
                 // EVE
-                return 2;
+                return GameMode.EVE;
             }else{
                 // EVE Online
-                return 3;
+                return GameMode.EVE_ONLINE;
             }
         }
     }

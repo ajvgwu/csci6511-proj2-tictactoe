@@ -1,4 +1,4 @@
-package edu.gwu.ai.codeknights.tictactoe.filtering.core;
+package edu.gwu.ai.codeknights.tictactoe.core;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -1,18 +1,18 @@
-package edu.gwu.ai.codeknights.tictactoe.filtering.chooser;
+package edu.gwu.ai.codeknights.tictactoe.chooser;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import edu.gwu.ai.codeknights.tictactoe.filtering.core.Board;
-import edu.gwu.ai.codeknights.tictactoe.filtering.core.Cell;
-import edu.gwu.ai.codeknights.tictactoe.filtering.core.Player;
-import edu.gwu.ai.codeknights.tictactoe.filtering.core.TicTacToeGame;
+import edu.gwu.ai.codeknights.tictactoe.core.Board;
+import edu.gwu.ai.codeknights.tictactoe.core.Cell;
+import edu.gwu.ai.codeknights.tictactoe.core.Game;
+import edu.gwu.ai.codeknights.tictactoe.core.Player;
 
 public class RuleBasedChooser extends AbstractCellChooser {
 
   @Override
-  public Cell chooseCell(final Stream<Cell> input, final TicTacToeGame game) {
+  public Cell chooseCell(final Stream<Cell> input, final Game game) {
     final List<Cell> cells = input.collect(Collectors.toList());
 
     // Rule 1: first move goes near the center
@@ -68,7 +68,7 @@ public class RuleBasedChooser extends AbstractCellChooser {
     return null;
   }
 
-  public static Cell findWinningCell(final TicTacToeGame game, final List<Cell> cells, final int winLength,
+  public static Cell findWinningCell(final Game game, final List<Cell> cells, final int winLength,
     final Player player) {
     return cells.stream()
       .filter(cell -> {
@@ -92,7 +92,7 @@ public class RuleBasedChooser extends AbstractCellChooser {
       .orElse(null);
   }
 
-  public static Cell findLossInTwo(final TicTacToeGame game, final List<Cell> cells, final int winLength,
+  public static Cell findLossInTwo(final Game game, final List<Cell> cells, final int winLength,
     final Player player) {
     final Board board = game.getBoard();
     final int dim = game.getDim();

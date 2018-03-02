@@ -1,9 +1,9 @@
-package edu.gwu.ai.codeknights.tictactoe.filtering.chooser;
+package edu.gwu.ai.codeknights.tictactoe.chooser;
 
 import java.util.stream.Stream;
 
-import edu.gwu.ai.codeknights.tictactoe.filtering.core.Cell;
-import edu.gwu.ai.codeknights.tictactoe.filtering.core.TicTacToeGame;
+import edu.gwu.ai.codeknights.tictactoe.core.Cell;
+import edu.gwu.ai.codeknights.tictactoe.core.Game;
 
 public abstract class AbstractCellChooser {
 
@@ -12,14 +12,14 @@ public abstract class AbstractCellChooser {
    * @param input a stream of cells
    * @return the chosen "best" cell
    */
-  public abstract Cell chooseCell(final Stream<Cell> input, final TicTacToeGame game);
+  public abstract Cell chooseCell(final Stream<Cell> input, final Game game);
 
   /**
    * From a game state, choose the "best" cell for the current player, according to some criteria or heuristic
    * @param game a game state
    * @return the chosen "best" cell
    */
-  public final Cell chooseCell(final TicTacToeGame game) {
+  public final Cell chooseCell(final Game game) {
     return chooseCell(game.getBoard().getEmptyCells().stream(), game);
   }
 }

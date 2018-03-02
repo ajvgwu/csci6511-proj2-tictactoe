@@ -1,6 +1,8 @@
-package edu.gwu.ai.codeknights.tictactoe.filtering.core;
+package edu.gwu.ai.codeknights.tictactoe.core;
 
-import edu.gwu.ai.codeknights.tictactoe.filtering.chooser.AbstractCellChooser;
+import java.util.Objects;
+
+import edu.gwu.ai.codeknights.tictactoe.chooser.AbstractCellChooser;
 
 public class Player {
 
@@ -42,7 +44,7 @@ public class Player {
     this.fallbackChooser = fallbackChooser;
   }
 
-  public Cell chooseCell(final TicTacToeGame game) {
+  public Cell chooseCell(final Game game) {
     Cell choice = null;
     if (chooser != null) {
       choice = chooser.chooseCell(game);
@@ -61,5 +63,22 @@ public class Player {
   @Override
   public String toString() {
     return String.valueOf(marker) + "(id=" + String.valueOf(id) + ")";
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || !getClass().equals(o.getClass())) {
+      return false;
+    }
+    final Player other = (Player) o;
+    return id == other.id && marker == other.marker;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, marker);
   }
 }

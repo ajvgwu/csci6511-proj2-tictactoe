@@ -14,22 +14,20 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.pmw.tinylog.Logger;
 
-import edu.gwu.ai.codeknights.tictactoe.core.exception.DimensionException;
+import edu.gwu.ai.codeknights.tictactoe.chooser.AbstractCellChooser;
+import edu.gwu.ai.codeknights.tictactoe.chooser.Chooser;
+import edu.gwu.ai.codeknights.tictactoe.core.Cell;
+import edu.gwu.ai.codeknights.tictactoe.core.Game;
+import edu.gwu.ai.codeknights.tictactoe.core.Player;
 import edu.gwu.ai.codeknights.tictactoe.core.exception.GameException;
-import edu.gwu.ai.codeknights.tictactoe.core.exception.StateException;
-import edu.gwu.ai.codeknights.tictactoe.filtering.chooser.AbstractCellChooser;
-import edu.gwu.ai.codeknights.tictactoe.filtering.chooser.Chooser;
-import edu.gwu.ai.codeknights.tictactoe.filtering.core.Cell;
-import edu.gwu.ai.codeknights.tictactoe.filtering.core.Player;
-import edu.gwu.ai.codeknights.tictactoe.filtering.core.TicTacToeGame;
-import edu.gwu.ai.codeknights.tictactoe.filtering.filter.AbstractCellFilter;
-import edu.gwu.ai.codeknights.tictactoe.filtering.filter.Filter;
+import edu.gwu.ai.codeknights.tictactoe.filter.AbstractCellFilter;
+import edu.gwu.ai.codeknights.tictactoe.filter.Filter;
 import edu.gwu.ai.codeknights.tictactoe.gui.TicTacToe;
 import edu.gwu.ai.codeknights.tictactoe.util.Const;
 
 public class Main {
 
-  public static void main(final String[] args) throws DimensionException, StateException, InterruptedException {
+  public static void main(final String[] args) {
     // Default values
     boolean help = false;
     boolean gui = false;
@@ -192,7 +190,7 @@ public class Main {
       // Create the game
       final Player player1 = new Player(player1Id, player1Marker);
       final Player player2 = new Player(player2Id, player2Marker);
-      final TicTacToeGame game = new TicTacToeGame(dim, winLength, gameId, player1, player2);
+      final Game game = new Game(dim, winLength, gameId, player1, player2);
       if (stateArgs != null) {
         game.populate(stateArgs);
       }
@@ -249,7 +247,7 @@ public class Main {
           player1.setChooser(chooser);
           player2.setChooser(chooser);
           try {
-            final TicTacToeGame copy = game.getCopy(game.getGameId(), player1, player2);
+            final Game copy = game.getCopy(game.getGameId(), player1, player2);
             final Player nextPlayer = copy.getNextPlayer();
             Integer rowIdx = null;
             Integer colIdx = null;
@@ -365,13 +363,13 @@ public class Main {
 
   public static class TestScenario {
 
-    private final TicTacToeGame game;
+    private final Game game;
 
-    public TestScenario(final TicTacToeGame game) {
+    public TestScenario(final Game game) {
       this.game = game;
     }
 
-    public TicTacToeGame getGame() {
+    public Game getGame() {
       return game;
     }
 

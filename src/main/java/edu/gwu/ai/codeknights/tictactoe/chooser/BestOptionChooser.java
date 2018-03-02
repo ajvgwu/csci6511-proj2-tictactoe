@@ -1,9 +1,9 @@
-package edu.gwu.ai.codeknights.tictactoe.filtering.chooser;
+package edu.gwu.ai.codeknights.tictactoe.chooser;
 
 import java.util.Arrays;
 
-import edu.gwu.ai.codeknights.tictactoe.filtering.filter.BestOpenSublineFilter;
-import edu.gwu.ai.codeknights.tictactoe.filtering.filter.PopulatedNeighborFilter;
+import edu.gwu.ai.codeknights.tictactoe.filter.BestOpenSublineFilter;
+import edu.gwu.ai.codeknights.tictactoe.filter.PopulatedNeighborFilter;
 
 public class BestOptionChooser extends CompositeFilteringChooser {
 

@@ -1,13 +1,13 @@
-package edu.gwu.ai.codeknights.tictactoe.filtering.chooser;
+package edu.gwu.ai.codeknights.tictactoe.chooser;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import edu.gwu.ai.codeknights.tictactoe.filtering.core.Cell;
-import edu.gwu.ai.codeknights.tictactoe.filtering.core.TicTacToeGame;
-import edu.gwu.ai.codeknights.tictactoe.filtering.filter.AbstractCellFilter;
+import edu.gwu.ai.codeknights.tictactoe.core.Cell;
+import edu.gwu.ai.codeknights.tictactoe.core.Game;
+import edu.gwu.ai.codeknights.tictactoe.filter.AbstractCellFilter;
 
 public class CompositeFilteringChooser extends AbstractCellChooser {
 
@@ -31,7 +31,7 @@ public class CompositeFilteringChooser extends AbstractCellChooser {
   }
 
   @Override
-  public Cell chooseCell(final Stream<Cell> input, final TicTacToeGame game) {
+  public Cell chooseCell(final Stream<Cell> input, final Game game) {
     List<Cell> reducedCells = input.collect(Collectors.toList());
     for (final AbstractCellFilter filter : filters) {
       final List<Cell> newCells = filter.filterCells(reducedCells.stream(), game).collect(Collectors.toList());

@@ -1,142 +1,152 @@
 package edu.gwu.ai.codeknights.tictactoe.chooser;
 
-import edu.gwu.ai.codeknights.tictactoe.core.Move;
-import edu.gwu.ai.codeknights.tictactoe.core.exception.DimensionException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import edu.gwu.ai.codeknights.tictactoe.core.Cell;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
-import edu.gwu.ai.codeknights.tictactoe.core.exception.StateException;
-import org.pmw.tinylog.Logger;
+import edu.gwu.ai.codeknights.tictactoe.core.Player;
+import edu.gwu.ai.codeknights.tictactoe.filter.AbstractCellFilter;
+import edu.gwu.ai.codeknights.tictactoe.filter.BestOpenSublineFilter;
 
-import java.util.*;
+public class AlphaBetaPruningChooser extends AbstractCellChooser {
 
-public class AlphaBetaPruningChooser extends AIMoveChooser {
+  public static final AbstractCellFilter DEFAULT_FILTER = new BestOpenSublineFilter();
+  public static final boolean DEFAULT_RANDOM_SHUFFLE = true;
 
+  private final AbstractCellFilter filter;
+  private boolean randomShuffle;
+  private Integer maxDepth;
 
-  public AlphaBetaPruningChooser(){
+  private final Map<String, Long> scoreMap;
+
+  public AlphaBetaPruningChooser(final AbstractCellFilter filter, final boolean randomShuffle, final Integer maxDepth) {
+    this.filter = filter != null ? filter : DEFAULT_FILTER;
+    this.randomShuffle = randomShuffle;
+    this.maxDepth = maxDepth;
+
+    scoreMap = new HashMap<>();
   }
 
-  protected long alphabetapruning(final Game game, final int player,
-                                  long alpha, long beta, int level, int curMax) {
-    Long bestScore = null;
-    Long bestMove = null;
-    final int curPlayer = game.getNextPlayer();
-    long upperBound = game.getDim() * game.getDim();
-    // Check for terminal state
-    if (level++ >= curMax || game.isGameOver()) {
-      if (game.didPlayerWin(player)) {
-        bestScore = upperBound - level;
-      } else if (game.didAnyPlayerWin()) {
-        bestScore = -upperBound + level;
-      } else {
-        bestScore = 0L;
+  public AlphaBetaPruningChooser(final AbstractCellFilter filter) {
+    this(filter, DEFAULT_RANDOM_SHUFFLE, null);
+  }
+
+  public AlphaBetaPruningChooser(final Integer maxDepth) {
+    this(DEFAULT_FILTER, DEFAULT_RANDOM_SHUFFLE, maxDepth);
+  }
+
+  public AlphaBetaPruningChooser() {
+    this(DEFAULT_FILTER, DEFAULT_RANDOM_SHUFFLE, null);
+  }
+
+  public AbstractCellFilter getFilter() {
+    return filter;
+  }
+
+  public boolean isRandomShuffle() {
+    return randomShuffle;
+  }
+
+  public void setRandomShuffle(final boolean randomShuffle) {
+    this.randomShuffle = randomShuffle;
+  }
+
+  public Integer getMaxDepth() {
+    return maxDepth;
+  }
+
+  public void setMaxDepth(final Integer maxDepth) {
+    this.maxDepth = maxDepth;
+  }
+
+  @Override
+  public Cell chooseCell(final Stream<Cell> input, final Game game) {
+    final List<Cell> cells = input.collect(Collectors.toList());
+    if (randomShuffle) {
+      Collections.shuffle(cells);
+    }
+    final Player player = game.getNextPlayer();
+    final Player opponent = game.getOtherPlayer(player);
+    final Game copy = game.getCopy();
+    Long maxScore = null;
+    Cell bestCell = null;
+    for (final Cell cell : cells) {
+      final Cell copyCell = copy.getBoard().getCell(cell.getRowIdx(), cell.getColIdx());
+      if (copyCell.isEmpty()) {
+        copyCell.setPlayer(player);
+        final long score = abp(copy, player, opponent, Long.MIN_VALUE, Long.MAX_VALUE, 0);
+        copyCell.setPlayer(null);
+        if (maxScore == null || score > maxScore) {
+          maxScore = score;
+          bestCell = cell;
+        }
       }
-      return bestScore;
+    }
+    return bestCell;
+  }
+
+  public long abp(final Game game, final Player player, final Player opponent, long alpha, long beta,
+    final int curLevel) {
+
+    // Check for terminal state
+    if (maxDepth != null && curLevel >= maxDepth || game.isGameOver()) {
+      final long utility = game.evaluatePlayerUtility(player);
+      if (game.didPlayerWin(player)) {
+        return Math.max(1L, utility);
+      }
+      else if (game.didPlayerWin(opponent)) {
+        return Math.min(-1L, utility);
+      }
+      else {
+        return utility;
+      }
     }
 
     // Check if we've already solved this state
-    synchronized (getHashScoreMap()) {
-      final long hash = game.getBoardHash();
-      final Long precomputedScore = getHashScoreMap().get(hash);
+    final String hash = game.getBoardHash();
+    synchronized (scoreMap) {
+      final Long precomputedScore = scoreMap.get(hash);
       if (precomputedScore != null) {
         return precomputedScore;
       }
     }
 
-    // Find move with the best score
-    List<Move> moves = yetAnotherMoveFinder( game);
+    // TODO: need to make a copy of the game here ? for parallelism ? don't modify what's been passed in from above...
 
-    try {
-      final Game newGame = game.getCopy();
-
-      for (final Move move : moves) {
-        newGame.setCellValue(move.rowIdx, move.colIdx, curPlayer);
-        final long curScore = alphabetapruning(newGame, player, alpha, beta,
-            level, curMax);
-        if (player == curPlayer) {
-          if (curScore > alpha) {
-            alpha = curScore;
-          }
-        } else {
-          if (curScore < beta) {
-            beta = curScore;
-          }
+    // Try all possible moves
+    final List<Cell> filteredCells = filter.filterCells(game).collect(Collectors.toList());
+    final Player curPlayer = game.getNextPlayer();
+    for (final Cell cell : filteredCells) {
+      cell.setPlayer(curPlayer);
+      final long curScore = abp(game, player, opponent, alpha, beta, curLevel + 1);
+      cell.setPlayer(null);
+      if (player.equals(curPlayer)) {
+        if (curScore > alpha) {
+          alpha = curScore;
         }
-        if (alpha >= beta) {
-          break;
-        }
-
-        // reset the move
-        newGame.setCellValue(move.rowIdx, move.colIdx, null);
       }
-    } catch (DimensionException | StateException e) {
-      Logger.error(e, "could not copy game state");
+      else {
+        if (curScore < beta) {
+          beta = curScore;
+        }
+      }
+      if (alpha >= beta) {
+        break;
+      }
     }
+    final long bestScore = player.equals(curPlayer) ? alpha : beta;
 
-    // if the play is next player
-    // choose alpha
-    if (player == curPlayer) {
-      bestScore = alpha;
-    } else {
-      bestScore = beta;
-    }
-
-    // Update hashScoreMap
-    synchronized (getHashScoreMap()) {
-      final long hash = game.getBoardHash();
-      getHashScoreMap().put(hash, bestScore);
+    // Update score map
+    synchronized (scoreMap) {
+      scoreMap.put(hash, bestScore);
     }
 
     // Return best score
     return bestScore;
-  }
-
-//  @Override
-//  public abstract Move findNextMove(final Game game);
-
-  @Override
-  public Move findNextMove(final Game game) {
-    if (game.isGameOver()) {
-      return null;
-    }
-    final int numFirst = game.countFirstPlayer();
-    final int numOther = game.countOtherPlayer();
-    final int curPlayer = game.getNextPlayer();
-    if (numFirst + numOther == 0) {
-      final int dim = game.getDim();
-      final int center = dim / 2;
-      return new Move(center, center, curPlayer, null);
-    }
-    final List<Move> moves = yetAnotherMoveFinder(game);
-    Long bestScore = null;
-    final Set<Move> bestMoves = new HashSet<>();
-
-    try {
-      final Game newGame = game.getCopy();
-      int maxDepth = newGame.countEmpty();
-      int curMaxLevel = 0;
-      while (curMaxLevel < maxDepth){
-        curMaxLevel++;
-        for (final Move move : moves) {
-          newGame.setCellValue(move.rowIdx, move.colIdx, curPlayer);
-          Long curScore = alphabetapruning(newGame, curPlayer,
-              Long.MIN_VALUE, Long.MAX_VALUE, 0, curMaxLevel);
-          move.setScore(curScore);
-          if (bestScore == null || curScore > bestScore) {
-            bestScore = curScore;
-            bestMoves.clear();
-            bestMoves.add(move);
-          }
-          else if (curScore.equals(bestScore)) {
-            bestMoves.add(move);
-          }
-          newGame.setCellValue(move.rowIdx, move.colIdx, null);
-        }
-      }
-    }
-    catch (DimensionException | StateException e) {
-      Logger.error(e, "could not copy game state");
-    }
-
-    // Return result
-    return selectMove(game, new ArrayList<>(bestMoves));
   }
 }

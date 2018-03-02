@@ -1,17 +1,17 @@
-package edu.gwu.ai.codeknights.tictactoe.filtering.chooser;
+package edu.gwu.ai.codeknights.tictactoe.chooser;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import edu.gwu.ai.codeknights.tictactoe.filtering.core.Cell;
-import edu.gwu.ai.codeknights.tictactoe.filtering.core.Player;
-import edu.gwu.ai.codeknights.tictactoe.filtering.core.TicTacToeGame;
+import edu.gwu.ai.codeknights.tictactoe.core.Cell;
+import edu.gwu.ai.codeknights.tictactoe.core.Game;
+import edu.gwu.ai.codeknights.tictactoe.core.Player;
 
 public class MaxUtilityChooser extends AbstractCellChooser {
 
   @Override
-  public Cell chooseCell(final Stream<Cell> input, final TicTacToeGame game) {
+  public Cell chooseCell(final Stream<Cell> input, final Game game) {
     long maxUtility = 0L;
     Cell bestCell = null;
     final Player player = game.getNextPlayer();

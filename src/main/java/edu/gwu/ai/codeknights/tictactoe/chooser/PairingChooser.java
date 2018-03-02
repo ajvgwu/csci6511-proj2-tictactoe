@@ -1,23 +1,23 @@
-package edu.gwu.ai.codeknights.tictactoe.filtering.chooser;
+package edu.gwu.ai.codeknights.tictactoe.chooser;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import edu.gwu.ai.codeknights.tictactoe.filtering.core.Board;
-import edu.gwu.ai.codeknights.tictactoe.filtering.core.Cell;
-import edu.gwu.ai.codeknights.tictactoe.filtering.core.Player;
-import edu.gwu.ai.codeknights.tictactoe.filtering.core.TicTacToeGame;
+import edu.gwu.ai.codeknights.tictactoe.core.Board;
+import edu.gwu.ai.codeknights.tictactoe.core.Cell;
+import edu.gwu.ai.codeknights.tictactoe.core.Game;
+import edu.gwu.ai.codeknights.tictactoe.core.Player;
 
 public class PairingChooser extends AbstractCellChooser {
 
   @Override
-  public Cell chooseCell(final Stream<Cell> input, final TicTacToeGame game) {
+  public Cell chooseCell(final Stream<Cell> input, final Game game) {
     final List<Cell> cells = input.collect(Collectors.toList());
     return tryFindPair(game, cells);
   }
 
-  public static Cell getPairedCell(final Cell cell, final TicTacToeGame game) {
+  public static Cell getPairedCell(final Cell cell, final Game game) {
     final int rowIdx = cell.getRowIdx();
     final int colIdx = cell.getColIdx();
     final int offsetRow = rowIdx % 8;
@@ -141,14 +141,14 @@ public class PairingChooser extends AbstractCellChooser {
     return null;
   }
 
-  public static Cell tryFindPair(final TicTacToeGame game, final List<Cell> cells) {
-    if (game.getDim() < 8) {
+  public static Cell tryFindPair(final Game game, final List<Cell> cells) {
+    if (game.getDim() < 8 || game.getWinLength() < 8) {
       return null;
     }
+    final Player curPlayer = game.getNextPlayer();
+    final Player opponent = game.getOtherPlayer(curPlayer);
     final Board board = game.getBoard();
-    final Player player = game.getNextPlayer();
-    final Player opponent = game.getOtherPlayer(player);
-    if (board.countPlayer(player) >= board.countPlayer(opponent)) {
+    if (board.countPlayer(curPlayer) >= board.countPlayer(opponent)) {
       return null;
     }
     for (final Cell cell : cells) {

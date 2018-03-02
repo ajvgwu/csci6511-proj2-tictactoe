@@ -1,12 +1,14 @@
 package edu.gwu.ai.codeknights.tictactoe.gui.controller;
 
-import edu.gwu.ai.codeknights.tictactoe.chooser.ParallelAlphaBetaPruningChooser;
+import java.util.Random;
+
+import org.pmw.tinylog.Logger;
+
+import edu.gwu.ai.codeknights.tictactoe.core.Cell;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
-import edu.gwu.ai.codeknights.tictactoe.core.Move;
+import edu.gwu.ai.codeknights.tictactoe.core.Player;
 import edu.gwu.ai.codeknights.tictactoe.gui.TicTacToe;
 import edu.gwu.ai.codeknights.tictactoe.gui.helpers.MainHelper;
-import edu.gwu.ai.codeknights.tictactoe.gui.util.API;
-import edu.gwu.ai.codeknights.tictactoe.gui.util.Player;
 import edu.gwu.ai.codeknights.tictactoe.util.Const;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleStringProperty;
@@ -19,10 +21,9 @@ import javafx.geometry.VPos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.scene.layout.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-
-import java.util.Random;
 
 /**
  * @author zhiyuan
@@ -33,7 +34,7 @@ public class MainController {
 
   private Game game;
   private BooleanBinding isClickable;
-  private int mode;
+  private GameMode mode;
 
   private StringProperty[][] boardProperties;
   private Label[][] matrix;
@@ -83,28 +84,27 @@ public class MainController {
    * the setup method initialize the game for this main panel
    * must be invoked after the main panel being loaded
    *
+   * @param gameId   invoke api to get this value when gameId is 0 and mode is 3, if
+   *                 gameId is not 0, then the game was created by other team
+   * @param dim      number of rows and columns
+   * @param winLen   length of a winning line
+   * @param mode     a integer represents one of three game mode: PvE EvE EvE online
    * @param masterId id of local primary player
    * @param opId     id of opponent player
-   * @param mode     a integer represents one of three game mode: PvE EvE EvE
-   *                 online
-   * @param gameId   invoke api to get this value when gameId is 0 and mode
-   *                 is 3, if gameId is not 0, then the game was created by
-   *                 other team
-   * @param rowLen   number of rows
-   * @param colLen   number columns
-   * @param winLen   length of a winning line
    */
-  public void setup(int mode, int masterId, long gameId, int rowLen, int colLen, int winLen, int opId) {
-    if (mode == 3) {
+  public void setup(long gameId, int dim, int winLen, GameMode mode, int masterId, int opId) {
+    if (GameMode.EVE_ONLINE.equals(mode)) {
       if (gameId == 0) {
-        // TODO create a game on the server, fetch the gameId
+        // TODO: create a game on the server, fetch the gameId
+        Logger.error("TODO: create a game on the server, fetch the gameId");
 //                API.getApiService().post();
 //                API.getApiService().getMoves(String.valueOf(gameId), Integer.MAX_VALUE);
       } else {
-        // hook on a existing game
+        // TODO: hook on a existing game
+        Logger.error("TODO: hook on a existing game");
       }
     } else {
-      // generate all tge ids for non-EvE-online games
+      // generate all ids for non-EvE-online games
       gameId = new Random().nextInt(10000);
       masterId = 10;
       opId = 20;
@@ -113,18 +113,18 @@ public class MainController {
     mMasterId.setText(String.valueOf(masterId));
     mOpId.setText(String.valueOf(opId));
     mGameId.setText(String.valueOf(gameId));
-    mRowLen.setText(String.valueOf(rowLen));
-    mColLen.setText(String.valueOf(colLen));
+    mRowLen.setText(String.valueOf(dim));
+    mColLen.setText(String.valueOf(dim));
     mWinLen.setText(String.valueOf(winLen));
 
     this.mode = mode;
 
     // add matrix to main panel
-    buildBoard(rowLen, colLen);
+    buildBoard(dim, dim);
     TicTacToe.getPrimaryStage().sizeToScene();
-    helper.createGame(gameId, rowLen, colLen, winLen, mode, masterId, opId);
+    helper.createGame(gameId, dim, winLen, mode, masterId, opId);
     game = helper.getGame();
-    if (mode == 1) {
+    if (GameMode.PVE.equals(mode)) {
       mNext.setDisable(true);
     }
   }
@@ -164,8 +164,9 @@ public class MainController {
     isClickable = new BooleanBinding() {
       @Override
       protected boolean computeValue() {
-        return helper.getNextPlayer() == helper.getMaster() && mode == 1
-            && !game.isGameOver();
+        final Player master = helper.getMaster();
+        final Player curPlayer = helper.getNextPlayer();
+        return curPlayer.getId() == master.getId() && GameMode.PVE.equals(mode) && !game.isGameOver();
       }
     };
 
@@ -199,10 +200,10 @@ public class MainController {
 
   private void pve(int row, int col) {
     // master play
-    game.setCellValue(row, col, game.getNextPlayer());
-    helper.history.set("[" + helper.getMaster().getSymbol()
+    game.playInCell(row, col, game.getNextPlayer());
+    helper.history.set("[" + String.valueOf(helper.getMaster().getMarker())
         + "][" + (row + 1) + ", " + (col + 1) + "]\n" + helper.history.get());
-    boardProperties[row][col].set(helper.getMaster().getSymbol());
+    boardProperties[row][col].set(String.valueOf(helper.getMaster().getMarker()));
     mState.setText(game.getBoardStatus());
     boolean isGameOver = game.isGameOver();
     if (!isGameOver) {
@@ -219,11 +220,16 @@ public class MainController {
   private void makeMove() {
     Player player = helper.getNextPlayer();
     long startMs = System.currentTimeMillis();
-    Move move = player.getMoveChooser().findNextMove(game);
-    game.setCellValue(move.rowIdx, move.colIdx, player.getId());
+    Cell cell = player.chooseCell(game);
+    game.playInCell(cell, player);
     long endMs = System.currentTimeMillis();
-    boardProperties[move.rowIdx][move.colIdx].set(player.getSymbol());
-    helper.history.set(String.format("[%s][%d, %d]-AI-%dms\n%s", player.getSymbol(), move.rowIdx + 1, move.colIdx + 1,endMs-startMs, helper.history.get()));
+    boardProperties[cell.getRowIdx()][cell.getColIdx()].set(String.valueOf(player.getMarker()));
+    helper.history.set(String.format("[%s][%d, %d]-AI-%dms\n%s",
+      String.valueOf(player.getMarker()),
+      cell.getRowIdx() + 1,
+      cell.getColIdx() + 1,
+      endMs - startMs,
+      helper.history.get()));
     mState.setText(game.getBoardStatus());
     if (game.isGameOver()) {
       mNext.setDisable(true);

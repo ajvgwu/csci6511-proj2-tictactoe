@@ -1,4 +1,4 @@
-package edu.gwu.ai.codeknights.tictactoe.filtering.filter;
+package edu.gwu.ai.codeknights.tictactoe.filter;
 
 import java.util.HashSet;
 import java.util.List;
@@ -6,14 +6,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import edu.gwu.ai.codeknights.tictactoe.filtering.core.Cell;
-import edu.gwu.ai.codeknights.tictactoe.filtering.core.Player;
-import edu.gwu.ai.codeknights.tictactoe.filtering.core.TicTacToeGame;
+import edu.gwu.ai.codeknights.tictactoe.core.Cell;
+import edu.gwu.ai.codeknights.tictactoe.core.Game;
+import edu.gwu.ai.codeknights.tictactoe.core.Player;
 
 public class BestOpenSublineFilter extends EmptyCellFilter {
 
   @Override
-  public Stream<Cell> filterCells(final Stream<Cell> input, final TicTacToeGame game) {
+  public Stream<Cell> filterCells(final Stream<Cell> input, final Game game) {
     final List<Cell> inputCells = input.collect(Collectors.toList());
     final int winLength = game.getWinLength();
     final Player player = game.getNextPlayer();

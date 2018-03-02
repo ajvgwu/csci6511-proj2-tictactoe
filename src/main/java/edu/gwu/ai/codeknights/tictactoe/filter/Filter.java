@@ -1,4 +1,4 @@
-package edu.gwu.ai.codeknights.tictactoe.filtering.filter;
+package edu.gwu.ai.codeknights.tictactoe.filter;
 
 import java.util.EnumSet;
 import java.util.List;

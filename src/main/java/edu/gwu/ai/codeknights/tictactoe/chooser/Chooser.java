@@ -1,4 +1,4 @@
-package edu.gwu.ai.codeknights.tictactoe.filtering.chooser;
+package edu.gwu.ai.codeknights.tictactoe.chooser;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -7,6 +7,20 @@ import java.util.stream.Collectors;
 
 public enum Chooser {
 
+  STUPID_MOVE("StupidMove") {
+
+    @Override
+    public AbstractCellChooser createChooser() {
+      return new StupidMoveChooser();
+    }
+  },
+  ONLINE_MOVE("OnlineMove") {
+
+    @Override
+    public AbstractCellChooser createChooser() {
+      return new OnlineMoveChooser();
+    }
+  },
   ANY_CELL("AnyCell") {
 
     @Override
