@@ -9,6 +9,6 @@ public class BestOptionChooser extends CompositeFilteringChooser {
 
   public BestOptionChooser() {
     super(Arrays.asList(new PopulatedNeighborFilter(), new BestOpenSublineFilter()),
-      new AlphaBetaPruningChooser(3));
+      new AlphaBetaPruningChooser());
   }
 }

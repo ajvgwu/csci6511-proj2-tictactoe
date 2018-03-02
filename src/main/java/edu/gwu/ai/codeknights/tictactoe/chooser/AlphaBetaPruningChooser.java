@@ -2,8 +2,10 @@ package edu.gwu.ai.codeknights.tictactoe.chooser;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -11,37 +13,31 @@ import edu.gwu.ai.codeknights.tictactoe.core.Cell;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.core.Player;
 import edu.gwu.ai.codeknights.tictactoe.filter.AbstractCellFilter;
-import edu.gwu.ai.codeknights.tictactoe.filter.BestOpenSublineFilter;
+import edu.gwu.ai.codeknights.tictactoe.filter.PopulatedNeighborFilter;
 
 public class AlphaBetaPruningChooser extends AbstractCellChooser {
 
-  public static final AbstractCellFilter DEFAULT_FILTER = new BestOpenSublineFilter();
+  public static final AbstractCellFilter DEFAULT_FILTER = new PopulatedNeighborFilter();
   public static final boolean DEFAULT_RANDOM_SHUFFLE = true;
 
   private final AbstractCellFilter filter;
   private boolean randomShuffle;
-  private Integer maxDepth;
 
   private final Map<String, Long> scoreMap;
 
-  public AlphaBetaPruningChooser(final AbstractCellFilter filter, final boolean randomShuffle, final Integer maxDepth) {
+  public AlphaBetaPruningChooser(final AbstractCellFilter filter, final boolean randomShuffle) {
     this.filter = filter != null ? filter : DEFAULT_FILTER;
     this.randomShuffle = randomShuffle;
-    this.maxDepth = maxDepth;
 
     scoreMap = new HashMap<>();
   }
 
   public AlphaBetaPruningChooser(final AbstractCellFilter filter) {
-    this(filter, DEFAULT_RANDOM_SHUFFLE, null);
-  }
-
-  public AlphaBetaPruningChooser(final Integer maxDepth) {
-    this(DEFAULT_FILTER, DEFAULT_RANDOM_SHUFFLE, maxDepth);
+    this(filter, DEFAULT_RANDOM_SHUFFLE);
   }
 
   public AlphaBetaPruningChooser() {
-    this(DEFAULT_FILTER, DEFAULT_RANDOM_SHUFFLE, null);
+    this(DEFAULT_FILTER, DEFAULT_RANDOM_SHUFFLE);
   }
 
   public AbstractCellFilter getFilter() {
@@ -56,14 +52,6 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
     this.randomShuffle = randomShuffle;
   }
 
-  public Integer getMaxDepth() {
-    return maxDepth;
-  }
-
-  public void setMaxDepth(final Integer maxDepth) {
-    this.maxDepth = maxDepth;
-  }
-
   @Override
   public Cell chooseCell(final Stream<Cell> input, final Game game) {
     final List<Cell> cells = input.collect(Collectors.toList());
@@ -74,27 +62,37 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
     final Player opponent = game.getOtherPlayer(player);
     final Game copy = game.getCopy();
     Long maxScore = null;
-    Cell bestCell = null;
-    for (final Cell cell : cells) {
-      final Cell copyCell = copy.getBoard().getCell(cell.getRowIdx(), cell.getColIdx());
-      if (copyCell.isEmpty()) {
-        copyCell.setPlayer(player);
-        final long score = abp(copy, player, opponent, Long.MIN_VALUE, Long.MAX_VALUE, 0);
-        copyCell.setPlayer(null);
-        if (maxScore == null || score > maxScore) {
-          maxScore = score;
-          bestCell = cell;
+    final Set<Cell> bestCells = new HashSet<>();
+    final int maxDepth = copy.getBoard().countEmpty();
+    int curMaxLevel = 1;
+    while (curMaxLevel < maxDepth) {
+      for (final Cell cell : cells) {
+        final Cell copyCell = copy.getBoard().getCell(cell.getRowIdx(), cell.getColIdx());
+        if (copyCell.isEmpty()) {
+          copyCell.setPlayer(player);
+          final long score = abp(copy, player, opponent, Long.MIN_VALUE, Long.MAX_VALUE, 0, curMaxLevel);
+          copyCell.setPlayer(null);
+          if (maxScore == null || score >= maxScore) {
+            if (maxScore != null && score > maxScore) {
+              bestCells.clear();
+            }
+            maxScore = score;
+            bestCells.add(cell);
+          }
         }
       }
+      curMaxLevel++;
     }
-    return bestCell;
+    return bestCells.stream().findAny().orElse(null);
   }
 
   public long abp(final Game game, final Player player, final Player opponent, long alpha, long beta,
-    final int curLevel) {
+    final int curLevel, final int maxLevel) {
 
     // Check for terminal state
-    if (maxDepth != null && curLevel >= maxDepth || game.isGameOver()) {
+    if (curLevel >= maxLevel || game.isGameOver()) {
+      //TODO: will our scoreMap contain hastily computed values that cause problems at deeper levels?
+      //TODO: try without score map?
       final long utility = game.evaluatePlayerUtility(player);
       if (game.didPlayerWin(player)) {
         return Math.max(1L, utility);
@@ -123,7 +121,7 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
     final Player curPlayer = game.getNextPlayer();
     for (final Cell cell : filteredCells) {
       cell.setPlayer(curPlayer);
-      final long curScore = abp(game, player, opponent, alpha, beta, curLevel + 1);
+      final long curScore = abp(game, player, opponent, alpha, beta, curLevel + 1, maxLevel);
       cell.setPlayer(null);
       if (player.equals(curPlayer)) {
         if (curScore > alpha) {

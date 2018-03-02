@@ -5,6 +5,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import edu.gwu.ai.codeknights.tictactoe.filter.BestOpenSublineFilter;
+import edu.gwu.ai.codeknights.tictactoe.filter.EmptyCellFilter;
+import edu.gwu.ai.codeknights.tictactoe.filter.PopulatedNeighborFilter;
+
 public enum Chooser {
 
   STUPID_MOVE("StupidMove") {
@@ -49,46 +53,25 @@ public enum Chooser {
       return new MaxUtilityChooser();
     }
   },
-  ALPHA_BETA_PRUNING_D2("AlphaBetaPruningD2") {
+  ALPHA_BETA_PRUNING_ALL_EMPTY("AlphaBetaPruningAllEmpty") {
 
     @Override
     public AbstractCellChooser createChooser() {
-      return new AlphaBetaPruningChooser(2);
+      return new AlphaBetaPruningChooser(new EmptyCellFilter());
     }
   },
-  ALPHA_BETA_PRUNING_D4("AlphaBetaPruningD4") {
+  ALPHA_BETA_PRUNING_NEIGHBOR("AlphaBetaPruningNeighbor") {
 
     @Override
     public AbstractCellChooser createChooser() {
-      return new AlphaBetaPruningChooser(4);
+      return new AlphaBetaPruningChooser(new PopulatedNeighborFilter());
     }
   },
-  ALPHA_BETA_PRUNING_D8("AlphaBetaPruningD8") {
+  ALPHA_BETA_PRUNING_BEST_SUBLINE("AlphaBetaPruningBestSubline") {
 
     @Override
     public AbstractCellChooser createChooser() {
-      return new AlphaBetaPruningChooser(8);
-    }
-  },
-  ALPHA_BETA_PRUNING_D16("AlphaBetaPruningD16") {
-
-    @Override
-    public AbstractCellChooser createChooser() {
-      return new AlphaBetaPruningChooser(16);
-    }
-  },
-  ALPHA_BETA_PRUNING_D32("AlphaBetaPruningD32") {
-
-    @Override
-    public AbstractCellChooser createChooser() {
-      return new AlphaBetaPruningChooser(32);
-    }
-  },
-  ALPHA_BETA_PRUNING_D64("AlphaBetaPruningD64") {
-
-    @Override
-    public AbstractCellChooser createChooser() {
-      return new AlphaBetaPruningChooser(64);
+      return new AlphaBetaPruningChooser(new BestOpenSublineFilter());
     }
   },
   BEST_OPTION("BestOption") {
