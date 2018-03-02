@@ -2,6 +2,9 @@ package edu.gwu.ai.codeknights.tictactoe.gui.controller;
 
 import java.util.Random;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.control.TextField;
 import org.pmw.tinylog.Logger;
 
 import edu.gwu.ai.codeknights.tictactoe.chooser.StupidMoveChooser;
@@ -35,6 +38,7 @@ public class MainController {
 
   private Game game;
   private BooleanBinding isClickable;
+  private BooleanProperty isPlayerInput;
   private GameMode mode;
 
   private StringProperty[][] boardProperties;
@@ -74,11 +78,20 @@ public class MainController {
   private TextArea mHistory;
 
   @FXML
+  private TextField mRow;
+
+  @FXML
+  private TextField mCol;
+
+  @FXML
+  private Button mSubmit;
+
+  @FXML
   void initialize() {
     helper = new MainHelper();
-
+    isPlayerInput = new SimpleBooleanProperty(false);
     mHistory.textProperty().bind(helper.history);
-
+    mSubmit.disableProperty().bind(isPlayerInput.not());
   }
 
   /**
@@ -130,6 +143,16 @@ public class MainController {
     if (GameMode.PVE.equals(mode) || GameMode.PVP.equals(mode)) {
       mNext.setDisable(true);
     }
+    mSubmit.setOnAction(event -> {
+      if(!"".equals(mRow.getText().trim())){
+        if(!"".equals(mCol.getText().trim())){
+          Integer row = Integer.parseInt(mRow.getText());
+          Integer col = Integer.parseInt(mCol.getText());
+          pve(row,col);
+          isPlayerInput.set(true);
+        }
+      }
+    });
   }
 
   /**
@@ -167,7 +190,6 @@ public class MainController {
     isClickable = new BooleanBinding() {
       @Override
       protected boolean computeValue() {
-        final Player master = helper.getMaster();
         final Player curPlayer = helper.getNextPlayer();
         return curPlayer.getChooser() instanceof StupidMoveChooser && !game.isGameOver();
       }
@@ -187,6 +209,7 @@ public class MainController {
             final int row = (int) label.getProperties().get("row");
             final int col = (int) label.getProperties().get("col");
             pve(row, col);
+            isPlayerInput.set(true);
           }
         });
         label.getProperties().put("row", i);
@@ -202,6 +225,9 @@ public class MainController {
   }
 
   private void pve(final int row, final int col) {
+    if(!game.getBoard().getCell(row, col).isEmpty()){
+      return;
+    }
     // master play
     final Player nextPlayer = game.getNextPlayer();
     game.playInCell(row, col, nextPlayer);
@@ -219,6 +245,7 @@ public class MainController {
   @FXML
   void nextHandler(final ActionEvent event) {
     makeMove();
+    isPlayerInput.set(true);
   }
 
   private void makeMove() {

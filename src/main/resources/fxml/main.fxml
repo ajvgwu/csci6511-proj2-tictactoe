@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -161,6 +162,32 @@
                            <VBox.margin>
                               <Insets bottom="10.0" top="10.0" />
                            </VBox.margin>
+                        </HBox>
+                        <HBox alignment="CENTER" layoutX="25.0" layoutY="339.0">
+                           <children>
+                              <Label alignment="CENTER" prefWidth="100.0" text="Row" />
+                              <TextField fx:id="mRow" promptText="N/A" HBox.hgrow="ALWAYS" />
+                           </children>
+                           <VBox.margin>
+                              <Insets bottom="10.0" top="10.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox alignment="CENTER" layoutX="25.0" layoutY="379.0">
+                           <children>
+                              <Label alignment="CENTER" prefWidth="100.0" text="Column" />
+                              <TextField fx:id="mCol" promptText="N/A" HBox.hgrow="ALWAYS" />
+                           </children>
+                           <VBox.margin>
+                              <Insets bottom="10.0" top="10.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox alignment="CENTER" layoutX="25.0" layoutY="379.0">
+                           <VBox.margin>
+                              <Insets bottom="10.0" top="10.0" />
+                           </VBox.margin>
+                           <children>
+                              <Button fx:id="mSubmit" mnemonicParsing="false" styleClass="danger" text="Submit" />
+                           </children>
                         </HBox>
                      </children>
                   </VBox>
