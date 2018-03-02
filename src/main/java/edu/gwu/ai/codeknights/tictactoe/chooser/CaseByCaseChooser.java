@@ -21,7 +21,7 @@ public class CaseByCaseChooser extends AbstractCellChooser {
 
     pairingChooser = new PairingChooser();
     ruleBasedChooser = new RuleBasedChooser();
-    abpChooser = new AlphaBetaPruningChooser();
+    abpChooser = new AlphaBetaPruningChooser(neighborFilter);
   }
 
   @Override
@@ -41,7 +41,7 @@ public class CaseByCaseChooser extends AbstractCellChooser {
     }
 
     // Otherwise, play smartly
-    abpChooser.setMaxDepth(game.getDim());
+    abpChooser.setMaxDepth(Math.min(8, game.getDim() * 2));
     choice = abpChooser.chooseCell(neighborFilter.filterCells(cells.stream(), game), game);
     return choice;
   }
