@@ -4,6 +4,7 @@ import java.util.Random;
 
 import org.pmw.tinylog.Logger;
 
+import edu.gwu.ai.codeknights.tictactoe.chooser.StupidMoveChooser;
 import edu.gwu.ai.codeknights.tictactoe.core.Cell;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.core.Player;
@@ -88,7 +89,7 @@ public class MainController {
    *                 gameId is not 0, then the game was created by other team
    * @param dim      number of rows and columns
    * @param winLen   length of a winning line
-   * @param mode     a integer represents one of three game mode: PvE EvE EvE online
+   * @param mode     a integer represents one of game modes
    * @param masterId id of local primary player
    * @param opId     id of opponent player
    */
@@ -124,7 +125,7 @@ public class MainController {
     TicTacToe.getPrimaryStage().sizeToScene();
     helper.createGame(gameId, dim, winLen, mode, masterId, opId);
     game = helper.getGame();
-    if (GameMode.PVE.equals(mode)) {
+    if (GameMode.PVE.equals(mode) || GameMode.PVP.equals(mode)) {
       mNext.setDisable(true);
     }
   }
@@ -166,7 +167,7 @@ public class MainController {
       protected boolean computeValue() {
         final Player master = helper.getMaster();
         final Player curPlayer = helper.getNextPlayer();
-        return curPlayer.getId() == master.getId() && GameMode.PVE.equals(mode) && !game.isGameOver();
+        return (curPlayer.getChooser() instanceof StupidMoveChooser) && !game.isGameOver();
       }
     };
 

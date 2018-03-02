@@ -20,7 +20,13 @@ import javafx.stage.Stage;
 public class StartController {
 
     @FXML
+    private Button stPVP;
+
+    @FXML
     private Button stPVE;
+
+    @FXML
+    private Button stEVP;
 
     @FXML
     private Button stEVE;
@@ -57,20 +63,42 @@ public class StartController {
         stDim.textProperty().addListener(observable -> checkDimWinLen());
         stWinLen.textProperty().addListener(observable -> checkDimWinLen());
 
+        stPVP.setOnAction(event -> {
+            stPVP.disableProperty().set(true);
+            stPVE.disableProperty().set(false);
+            stEVP.disableProperty().set(false);
+            stEVE.disableProperty().set(false);
+            stOnline.disableProperty().set(false);
+        });
+
         stPVE.setOnAction(event -> {
+            stPVP.disableProperty().set(false);
             stPVE.disableProperty().set(true);
+            stEVP.disableProperty().set(false);
+            stEVE.disableProperty().set(false);
+            stOnline.disableProperty().set(false);
+        });
+
+        stEVP.setOnAction(event -> {
+            stPVP.disableProperty().set(false);
+            stPVE.disableProperty().set(false);
+            stEVP.disableProperty().set(true);
             stEVE.disableProperty().set(false);
             stOnline.disableProperty().set(false);
         });
 
         stEVE.setOnAction(event -> {
+            stPVP.disableProperty().set(false);
             stPVE.disableProperty().set(false);
+            stEVP.disableProperty().set(false);
             stEVE.disableProperty().set(true);
             stOnline.disableProperty().set(false);
         });
 
         stOnline.setOnAction(event -> {
+            stPVP.disableProperty().set(false);
             stPVE.disableProperty().set(false);
+            stEVP.disableProperty().set(false);
             stEVE.disableProperty().set(false);
             stOnline.disableProperty().set(true);
         });
@@ -121,17 +149,20 @@ public class StartController {
     }
 
     private GameMode getMode(){
-        if(stPVE.isDisabled()){
-            // PVE
+        if (stPVP.isDisabled()) {
+            return GameMode.PVP;
+        }
+        else if (stPVE.isDisabled()) {
             return GameMode.PVE;
-        }else{
-            if (stEVE.isDisabled()){
-                // EVE
-                return GameMode.EVE;
-            }else{
-                // EVE Online
-                return GameMode.EVE_ONLINE;
-            }
+        }
+        else if (stEVP.isDisabled()) {
+            return GameMode.EVP;
+        }
+        else if (stEVE.isDisabled()) {
+            return GameMode.EVE;
+        }
+        else {
+            return GameMode.EVE_ONLINE;
         }
     }
 }

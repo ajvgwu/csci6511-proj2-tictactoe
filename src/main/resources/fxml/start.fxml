@@ -18,8 +18,26 @@
                <children>
                   <VBox alignment="CENTER">
                      <children>
+                        <Button fx:id="stPVP" alignment="CENTER" mnemonicParsing="false" prefWidth="100.0" styleClass="success" text="PVP" />
+                        <Label text="Player vs Player" />
+                     </children>
+                     <HBox.margin>
+                        <Insets left="20.0" right="20.0" />
+                     </HBox.margin>
+                  </VBox>
+                  <VBox alignment="CENTER">
+                     <children>
                         <Button fx:id="stPVE" alignment="CENTER" mnemonicParsing="false" prefWidth="100.0" styleClass="success" text="PVE" />
                         <Label text="Player vs AI" />
+                     </children>
+                     <HBox.margin>
+                        <Insets left="20.0" right="20.0" />
+                     </HBox.margin>
+                  </VBox>
+                  <VBox alignment="CENTER">
+                     <children>
+                        <Button fx:id="stEVP" alignment="CENTER" mnemonicParsing="false" prefWidth="100.0" styleClass="success" text="EVP" />
+                        <Label text="AI vs Player" />
                      </children>
                      <HBox.margin>
                         <Insets left="20.0" right="20.0" />

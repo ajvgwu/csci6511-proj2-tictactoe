@@ -1,5 +1,6 @@
 package edu.gwu.ai.codeknights.tictactoe.gui.helpers;
 
+import edu.gwu.ai.codeknights.tictactoe.chooser.AbstractCellChooser;
 import edu.gwu.ai.codeknights.tictactoe.chooser.CaseByCaseChooser;
 import edu.gwu.ai.codeknights.tictactoe.chooser.OnlineMoveChooser;
 import edu.gwu.ai.codeknights.tictactoe.chooser.StupidMoveChooser;
@@ -31,40 +32,45 @@ public class MainHelper {
 
     public void createGame(long gameId, int dim, int winLen, GameMode mode, int masterId, int opId) {
 
-        // set player symbols
-        final char masterSymbol = Const.MASTER_PLAYER_CHAR;
-        final char opSymbol = Const.OPPONENT_PLAYER_CHAR;
-
-        // create two players
+        // create the choosers for the two players
+        AbstractCellChooser masterChooser = null;
+        AbstractCellChooser opChooser = null;
         switch (mode) {
+            case PVP: {
+                masterChooser = new StupidMoveChooser();
+                opChooser = new StupidMoveChooser();
+                break;
+            }
             case PVE: {
-                // pve
-                this.master = new Player(masterId, masterSymbol);
-                this.master.setChooser(new StupidMoveChooser());
-                this.opponent = new Player(opId, opSymbol);
-                this.opponent.setChooser(new CaseByCaseChooser());
+                masterChooser = new StupidMoveChooser();
+                opChooser = new CaseByCaseChooser();
+                break;
+            }
+            case EVP: {
+                masterChooser = new CaseByCaseChooser();
+                opChooser = new StupidMoveChooser();
                 break;
             }
             case EVE: {
-                // eve
-                this.master = new Player(masterId, masterSymbol);
-                this.master.setChooser(new CaseByCaseChooser());
-                this.opponent = new Player(opId, opSymbol);
-                this.opponent.setChooser(new CaseByCaseChooser());
+                masterChooser = new CaseByCaseChooser();
+                opChooser = new CaseByCaseChooser();
                 break;
             }
             case EVE_ONLINE: {
-                // eve online
-                this.master = new Player(masterId, masterSymbol);
-                this.master.setChooser(new CaseByCaseChooser());
-                this.opponent = new Player(opId, opSymbol);
-                this.opponent.setChooser(new OnlineMoveChooser());
+                masterChooser = new CaseByCaseChooser();
+                opChooser = new OnlineMoveChooser();
                 break;
             }
         }
 
+        // create players
+        master = new Player(masterId, Const.MASTER_PLAYER_CHAR);
+        master.setChooser(masterChooser);
+        opponent = new Player(opId, Const.OPPONENT_PLAYER_CHAR);
+        opponent.setChooser(opChooser);
+
         // create game
-        this.game = new Game(dim, winLen, gameId, this.master, this.opponent);
+        this.game = new Game(dim, winLen, gameId, master, opponent);
     }
 
     public Player getNextPlayer() {
