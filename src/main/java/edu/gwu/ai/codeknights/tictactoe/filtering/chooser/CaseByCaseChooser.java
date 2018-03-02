@@ -45,9 +45,12 @@ public class CaseByCaseChooser extends AbstractCellChooser {
 
     // Try not to lose
     final Player opponent = game.getOtherPlayer(player);
-    final Cell notLoseCell = RuleBasedChooser.findWinningCell(game, cells, winLength, opponent);
-    if (notLoseCell != null) {
-      return notLoseCell;
+    Cell noLossCell = RuleBasedChooser.findWinningCell(game, cells, winLength, opponent);
+    if (noLossCell == null) {
+      noLossCell = RuleBasedChooser.findLossInTwo(game, cells, winLength, player);
+    }
+    if (noLossCell != null) {
+      return noLossCell;
     }
 
     // Try a pairing strategy

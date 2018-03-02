@@ -42,31 +42,9 @@ public class RuleBasedChooser extends AbstractCellChooser {
     }
 
     // Rule 3b: block opponent early if he can win in 2 moves
-    for (int i = 0; i < cells.size(); i++) {
-      final Cell firstCell = cells.get(i);
-      if (firstCell.isEmpty()
-        && board.getNeighborsOfCell(firstCell).stream().anyMatch(cell -> cell.isPopulatedBy(opponent))) {
-        for (int j = 1; j < cells.size(); j++) {
-          if (j != i) {
-            final Cell secondCell = cells.get(j);
-            if (secondCell.isEmpty()
-              && board.getNeighborsOfCell(secondCell).stream().anyMatch(cell -> cell.isPopulatedBy(opponent))) {
-              firstCell.setPlayer(opponent);
-              secondCell.setPlayer(opponent);
-              final boolean didLose = game.didPlayerWin(opponent);
-              firstCell.setPlayer(null);
-              secondCell.setPlayer(null);
-              if (didLose) {
-                final int distFromCenter1 = Math.abs(firstCell.getRowIdx() - center)
-                  + Math.abs(firstCell.getColIdx() - center);
-                final int distFromCenter2 = Math.abs(secondCell.getRowIdx() - center)
-                  + Math.abs(secondCell.getColIdx() - center);
-                return distFromCenter2 < distFromCenter1 ? secondCell : firstCell;
-              }
-            }
-          }
-        }
-      }
+    final Cell loseInTwoCell = findLossInTwo(game, cells, winLength, player);
+    if (loseInTwoCell != null) {
+      return loseInTwoCell;
     }
 
     // TODO: any other rules ???
@@ -112,5 +90,40 @@ public class RuleBasedChooser extends AbstractCellChooser {
       })
       .findAny()
       .orElse(null);
+  }
+
+  public static Cell findLossInTwo(final TicTacToeGame game, final List<Cell> cells, final int winLength,
+    final Player player) {
+    final Board board = game.getBoard();
+    final int dim = game.getDim();
+    final int center = (int) (dim / 2);
+    final Player opponent = game.getOtherPlayer(player);
+    for (int i = 0; i < cells.size(); i++) {
+      final Cell firstCell = cells.get(i);
+      if (firstCell.isEmpty()
+        && game.getBoard().getNeighborsOfCell(firstCell).stream().anyMatch(cell -> cell.isPopulatedBy(opponent))) {
+        for (int j = 1; j < cells.size(); j++) {
+          if (j != i) {
+            final Cell secondCell = cells.get(j);
+            if (secondCell.isEmpty()
+              && board.getNeighborsOfCell(secondCell).stream().anyMatch(cell -> cell.isPopulatedBy(opponent))) {
+              firstCell.setPlayer(opponent);
+              secondCell.setPlayer(opponent);
+              final boolean didLose = game.didPlayerWin(opponent);
+              firstCell.setPlayer(null);
+              secondCell.setPlayer(null);
+              if (didLose) {
+                final int distFromCenter1 = Math.abs(firstCell.getRowIdx() - center)
+                  + Math.abs(firstCell.getColIdx() - center);
+                final int distFromCenter2 = Math.abs(secondCell.getRowIdx() - center)
+                  + Math.abs(secondCell.getColIdx() - center);
+                return distFromCenter2 < distFromCenter1 ? secondCell : firstCell;
+              }
+            }
+          }
+        }
+      }
+    }
+    return null;
   }
 }

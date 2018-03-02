@@ -280,15 +280,21 @@ public class TicTacToeGame {
         score -= 2 * dim * dim * dim;
       }
       final List<Cell> longestSeq = getLongestOpenSublineForPlayer(line, player);
-      score += longestSeq.stream()
-        .filter(cell -> cell.isPopulatedBy(player))
-        .mapToInt(cell -> 1)
-        .sum();
+      if (longestSeq.size() >= winLength) {
+        final int numPopulated = longestSeq.stream()
+          .filter(cell -> cell.isPopulatedBy(player))
+          .mapToInt(cell -> 1)
+          .sum();
+        score += numPopulated * numPopulated;
+      }
       final List<Cell> longestOppSeq = getLongestOpenSublineForPlayer(line, opponent);
-      score -= longestOppSeq.stream()
-        .filter(cell -> cell.isPopulatedBy(opponent))
-        .mapToInt(cell -> 1)
-        .sum();
+      if (longestOppSeq.size() >= winLength) {
+        final int numPopulated = longestOppSeq.stream()
+          .filter(cell -> cell.isPopulatedBy(opponent))
+          .mapToInt(cell -> 1)
+          .sum();
+        score -= numPopulated * numPopulated;
+      }
     }
     return score;
   }

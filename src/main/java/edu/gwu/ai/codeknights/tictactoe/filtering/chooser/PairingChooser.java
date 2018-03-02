@@ -142,7 +142,7 @@ public class PairingChooser extends AbstractCellChooser {
   }
 
   public static Cell tryFindPair(final TicTacToeGame game, final List<Cell> cells) {
-    if (game.getDim() < 9) {
+    if (game.getDim() < 8) {
       return null;
     }
     final Board board = game.getBoard();
