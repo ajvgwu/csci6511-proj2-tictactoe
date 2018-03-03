@@ -60,15 +60,6 @@ public enum Chooser {
       return new AlphaBetaPruningChooser(new EmptyCellFilter());
     }
   },
-  ALPHA_BETA_PRUNING_ALL_EMPTY_TREE("AlphaBetaPruningAllEmptyTree") {
-
-    @Override
-    public AbstractCellChooser createChooser() {
-      final AlphaBetaPruningChooser chooser = new AlphaBetaPruningChooser(new EmptyCellFilter());
-      chooser.setGraphSearch(false);
-      return chooser;
-    }
-  },
   ALPHA_BETA_PRUNING_NEIGHBOR("AlphaBetaPruningNeighbor") {
 
     @Override
@@ -95,13 +86,6 @@ public enum Chooser {
     @Override
     public AbstractCellChooser createChooser() {
       return new CaseByCaseChooser(new EmptyCellFilter());
-    }
-  },
-  CASE_BY_CASE_ABP_ALL_EMPTY_TREE("CaseByCaseAbpAllEmptyTree") {
-
-    @Override
-    public AbstractCellChooser createChooser() {
-      return new CaseByCaseChooser(new EmptyCellFilter(), false);
     }
   },
   CASE_BY_CASE_ABP_NEIGHBOR("CaseByCaseAbpNeighbor") {

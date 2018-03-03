@@ -19,33 +19,29 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
 
   public static final AbstractCellFilter DEFAULT_FILTER = new PopulatedNeighborFilter();
   public static final boolean DEFAULT_RANDOM_SHUFFLE = true;
-  public static final boolean DEFAULT_GRAPH_SEARCH = true;
 
   private final AbstractCellFilter filter;
   private boolean randomShuffle;
-  private boolean graphSearch;
 
   private final Map<String, Long> scoreMap;
 
-  public AlphaBetaPruningChooser(final AbstractCellFilter filter, final boolean randomShuffle,
-    final boolean graphSearch) {
+  public AlphaBetaPruningChooser(final AbstractCellFilter filter, final boolean randomShuffle) {
     this.filter = filter != null ? filter : DEFAULT_FILTER;
     this.randomShuffle = randomShuffle;
-    this.graphSearch = graphSearch;
 
     scoreMap = new HashMap<>();
   }
 
   public AlphaBetaPruningChooser(final AbstractCellFilter filter) {
-    this(filter, DEFAULT_RANDOM_SHUFFLE, DEFAULT_GRAPH_SEARCH);
+    this(filter, DEFAULT_RANDOM_SHUFFLE);
   }
 
-  public AlphaBetaPruningChooser(final boolean randomShuffle, final boolean graphSearch) {
-    this(DEFAULT_FILTER, randomShuffle, graphSearch);
+  public AlphaBetaPruningChooser(final boolean randomShuffle) {
+    this(DEFAULT_FILTER, randomShuffle);
   }
 
   public AlphaBetaPruningChooser() {
-    this(DEFAULT_FILTER, DEFAULT_RANDOM_SHUFFLE, DEFAULT_GRAPH_SEARCH);
+    this(DEFAULT_FILTER, DEFAULT_RANDOM_SHUFFLE);
   }
 
   public AbstractCellFilter getFilter() {
@@ -60,18 +56,14 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
     this.randomShuffle = randomShuffle;
   }
 
-  public boolean isGraphSearch() {
-    return graphSearch;
-  }
-
-  public void setGraphSearch(final boolean graphSearch) {
-    this.graphSearch = graphSearch;
+  protected Map<String, Long> getScoreMap() {
+    return scoreMap;
   }
 
   @Override
   public Cell chooseCell(final Stream<Cell> input, final Game game) {
     final List<Cell> cells = input.collect(Collectors.toList());
-    if (randomShuffle) {
+    if (isRandomShuffle()) {
       Collections.shuffle(cells);
     }
     final Player player = game.getNextPlayer();
@@ -97,7 +89,10 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
           }
         }
       }
+
+      // Increase max level and clear score map
       curMaxLevel++;
+      // getScoreMap().clear(); // TODO: clear map ???
     }
     return bestCells.stream().findAny().orElse(null);
   }
@@ -106,9 +101,7 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
     final int curLevel, final int maxLevel) {
 
     // Check for terminal state
-    if (curLevel >= maxLevel || game.isGameOver()) {
-      //TODO: will our scoreMap contain hastily computed values that cause problems at deeper levels?
-      //TODO: try without score map?
+    if (curLevel > maxLevel || game.isGameOver()) {
       final long utility = game.evaluatePlayerUtility(player);
       if (game.didPlayerWin(player)) {
         return Math.max(1L, utility);
@@ -122,20 +115,16 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
     }
 
     // Check if we've already solved this state
-    if (graphSearch) {
+    synchronized (getScoreMap()) {
       final String hash = game.getBoardHash();
-      synchronized (scoreMap) {
-        final Long precomputedScore = scoreMap.get(hash);
-        if (precomputedScore != null) {
-          return precomputedScore;
-        }
+      final Long precomputedScore = getScoreMap().get(hash);
+      if (precomputedScore != null) {
+        return precomputedScore;
       }
     }
 
-    // TODO: need to make a copy of the game here ? for parallelism ? don't modify what's been passed in from above...
-
     // Try all possible moves
-    final List<Cell> filteredCells = filter.filterCells(game).collect(Collectors.toList());
+    final List<Cell> filteredCells = getFilter().filterCells(game).collect(Collectors.toList());
     final Player curPlayer = game.getNextPlayer();
     for (final Cell cell : filteredCells) {
       cell.setPlayer(curPlayer);
@@ -158,11 +147,9 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
     final long bestScore = player.equals(curPlayer) ? alpha : beta;
 
     // Update score map
-    if (graphSearch) {
+    synchronized (getScoreMap()) {
       final String hash = game.getBoardHash();
-      synchronized (scoreMap) {
-        scoreMap.put(hash, bestScore);
-      }
+      getScoreMap().put(hash, bestScore);
     }
 
     // Return best score
