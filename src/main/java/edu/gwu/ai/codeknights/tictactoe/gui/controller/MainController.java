@@ -89,7 +89,7 @@ public class MainController {
   @FXML
   void initialize() {
     helper = new MainHelper();
-    isPlayerInput = new SimpleBooleanProperty(false);
+    isPlayerInput = new SimpleBooleanProperty(true);
     mHistory.textProperty().bind(helper.history);
     mSubmit.disableProperty().bind(isPlayerInput.not());
   }
