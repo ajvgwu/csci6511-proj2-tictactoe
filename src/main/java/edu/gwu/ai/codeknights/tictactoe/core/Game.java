@@ -10,6 +10,12 @@ import org.pmw.tinylog.Logger;
 import edu.gwu.ai.codeknights.tictactoe.core.exception.GameException;
 import edu.gwu.ai.codeknights.tictactoe.core.exception.StateException;
 
+/**
+ * Maintains the state for a game of Tic Tac Toe played by two players on a square board. Provides a variety of
+ * operations to check and manipulate the game board.
+ *
+ * @author ajv
+ */
 public class Game {
 
   private final int dim;
@@ -20,6 +26,15 @@ public class Game {
 
   private final Board board;
 
+  /**
+   * Construct a new game with the given board dimension, length required to win, game ID, and players.
+   *
+   * @param dim       the board dimension
+   * @param winLength the length required to win
+   * @param gameId    the game ID
+   * @param player1   the first player
+   * @param player2   the second player
+   */
   public Game(final int dim, final int winLength, final long gameId, final Player player1, final Player player2) {
     this.dim = dim;
     this.winLength = winLength;
@@ -30,30 +45,69 @@ public class Game {
     board = new Board(dim);
   }
 
+  /**
+   * Get the dimension of the square board (number of rows and columns).
+   *
+   * @return the board dimension
+   */
   public int getDim() {
     return dim;
   }
 
+  /**
+   * Get the length (number of contiguous cells populated by a player in a straight line) required to win.
+   *
+   * @return the length required to win
+   */
   public int getWinLength() {
     return winLength;
   }
 
+  /**
+   * Get the game ID.
+   *
+   * @return the game ID
+   */
   public long getGameId() {
     return gameId;
   }
 
+  /**
+   * Get the first player.
+   *
+   * @return the first player
+   */
   public Player getPlayer1() {
     return player1;
   }
 
+  /**
+   * Get the second player.
+   *
+   * @return the second player
+   */
   public Player getPlayer2() {
     return player2;
   }
 
+  /**
+   * Get the board on which the game is being played.
+   *
+   * @return the board
+   */
   public Board getBoard() {
     return board;
   }
 
+  /**
+   * Populate the board state from the given array of player markers and/or blank cells. A player marker is a single
+   * character matching {@link Player#getMarker()} for {@link #player1} or {@link #player2}. Any other string is
+   * interpreted as an empty cell. The board is populated starting from cell {@code (0,0)} (top-left corner), moving
+   * left-to-right along each row and then top-to-bottom down the board until either (a) the last cell at
+   * {@code (dim-1,dim-1)} is populated, or (b) the end of the input array is reached.
+   *
+   * @param args an array of strings representing player markers or blank cells
+   */
   public void populate(final String[] args) {
     final String player1Mark = String.valueOf(player1.getMarker());
     final String player2Mark = String.valueOf(player2.getMarker());
@@ -76,6 +130,18 @@ public class Game {
     }
   }
 
+  /**
+   * Check whether the game is currently in a valid state, and optionally throw a {@link StateException} if a validity
+   * condition has been violated. The game is valid if it has two players with different IDs and markers and if
+   * {@link #player1} has played either the same number of moves or one more move than {@link #player2}.
+   *
+   * @param throwExceptionIfInvalid if {@code true}, throws a {@link StateException} if the game state is invalid
+   *
+   * @return {@code true} if the game state is valid, {@code false} if the game state is invalid and
+   *         {@code throwExceptionIfInvalid} is false
+   *
+   * @throws StateException if the game state is invalid and {@code throwExceptionIfInvalid} is true
+   */
   public boolean checkValidGameState(final boolean throwExceptionIfInvalid) throws StateException {
     if (player1 == null || player2 == null) {
       if (throwExceptionIfInvalid) {
@@ -100,6 +166,12 @@ public class Game {
     return true;
   }
 
+  /**
+   * Delegates to {@link #checkValidGameState(boolean)} to check whether the game is currently in a valid state, but
+   * will not throw an exception if the game state is invalid.
+   *
+   * @return {@code true} if the game state is valid, {@code false} otherwise
+   */
   public boolean isValidGameState() {
     try {
       return checkValidGameState(false);
@@ -110,6 +182,15 @@ public class Game {
     }
   }
 
+  /**
+   * Check whether the given player won on the given line of cells.
+   *
+   * @param player the player for whom a win will be checked
+   * @param line   the line of cells that will be checked
+   *
+   * @return {@code true} if the player has populated at least {@link #winLength} contiguous cells in this line,
+   *         {@code false} otherwise
+   */
   public boolean didPlayerWinOnLine(final Player player, final List<Cell> line) {
     int numConsecutive = 0;
     for (int idx = 0; idx < line.size(); idx++) {
@@ -126,64 +207,140 @@ public class Game {
     return false;
   }
 
+  /**
+   * Check whether the given player has won anywhere on the board (populated at least {@link #winLength} contiguous
+   * cells in any straight line).
+   *
+   * @param player the player for whom a win will be checked
+   *
+   * @return {@code true} if the player has won, {@code false} otherwise
+   */
   public boolean didPlayerWin(final Player player) {
     return board.getLinesAtLeastLength(winLength).stream()
       .anyMatch(line -> didPlayerWinOnLine(player, line));
   }
 
+  /**
+   * Delegates to {@link #didPlayerWin(Player)} to check whether {@link #player1} has won anywhere on the board.
+   *
+   * @return {@code true} if {@link #player1} has won, {@code false} otherwise
+   */
   public boolean didPlayer1Win() {
     return didPlayerWin(player1);
   }
 
+  /**
+   * Delegates to {@link #didPlayerWin(Player)} to check whether {@link #player2} has won anywhere on the board.
+   *
+   * @return {@code true} if {@link #player2} has won, {@code false} otherwise
+   */
   public boolean didPlayer2Win() {
     return didPlayerWin(player2);
   }
 
+  /**
+   * Delegates to {@link #didPlayerWin(Player)} to check whether either {@link #player1} or {@link #player2} has won
+   * anywhere on the board.
+   *
+   * @return {@code true} if either {@link #player1} or {@link #player2} has won, {@code false} otherwise
+   */
   public boolean didAnyWin() {
     return didPlayerWin(player1) || didPlayerWin(player2);
   }
 
+  /**
+   * Check terminal conditions to determine whether the game is over. The game is over if either player won or the
+   * board is full.
+   *
+   * @return {@code true} if the game is over, {@code false} otherwise
+   */
   public boolean isGameOver() {
     return didAnyWin() || board.isFull();
   }
 
+  /**
+   * Get a string that describes the current status of the game: either a player has won, or the game is a draw, or the
+   * game is still in progress.
+   *
+   * @return a string describing the current status of the game
+   */
   public String getBoardStatus() {
-    if (!isGameOver()) {
-      return "IN_PROGRESS";
+    if (didPlayer1Win()) {
+      return String.valueOf(player1) + " WIN";
+    }
+    else if (didPlayer2Win()) {
+      return String.valueOf(player2) + " WIN";
+    }
+    else if (isGameOver()) {
+      return "DRAW";
     }
     else {
-      // game over
-      if (!didAnyWin()) {
-        // no winner
-        return "DRAW";
-      }
-      else if (didPlayer1Win()) {
-        return String.valueOf(player1) + " WIN";
-      }
-      else {
-        return String.valueOf(player2) + " WIN";
-      }
+      return "IN_PROGRESS";
     }
   }
 
+  /**
+   * Fetch the next player that should play on the board. For any valid game state (see
+   * {@link #checkValidGameState(boolean)}), this will be {@link #player1} if the current move counts are equal, and
+   * {@link #player2} otherwise. For an invalid game state, it is possible that a player must play multiple moves in a
+   * row in order to catch up to the other player.
+   *
+   * @return the next player that should play
+   */
   public Player getNextPlayer() {
     final int p1Count = board.countPlayer(player1);
     final int p2Count = board.countPlayer(player2);
     return p1Count <= p2Count ? player1 : player2;
   }
 
+  /**
+   * Fetch the opponent of the given player. If the given player is neither {@link #player1} nor {@link #player2}, the
+   * behavior is undefined (but will most likely return {@code null}.
+   *
+   * @param player the player whose opponent should be fetched
+   *
+   * @return the opponent of the given player, or possibly {@code null} if the given player is not part of this game
+   */
   public Player getOtherPlayer(final Player player) {
-    return Objects.equals(player, player2) ? player1 : player2;
+    return Objects.equals(player, player2) ? player1 : Objects.equals(player, player1) ? player2 : null;
   }
 
+  /**
+   * Convenience function that delegates to {@link Board#getCell(int, int)} and {@link Cell#setPlayer(Player)} to
+   * populate the cell at {@code (rowIdx,colIdx)} by the given player.
+   *
+   * NOTE: no checking is performed to ensure that the cell is empty before the player populates it.
+   *
+   * @param rowIdx zero-based index of the row of the cell
+   * @param colIdx zero-based index of the column of the cell
+   * @param player the player who will populate the cell
+   */
   public void playInCell(final int rowIdx, final int colIdx, final Player player) {
     board.getCell(rowIdx, colIdx).setPlayer(player);
   }
 
+  /**
+   * Delegates to {@link #playInCell(int, int, Player)} to populate a cell by the given player.
+   *
+   * NOTE: no checking is performed to ensure that the cell is empty before the player populates it.
+   *
+   * NOTE: the cell is fetched from the game board using {@link Cell#getRowIdx()} and {@link Cell#getColIdx()}; thus,
+   *       there is no explicit guarantee that the cell passed to this function will actually be the one updated.
+   *
+   * @param cell   the cell which gives the row and column that the player will populate
+   * @param player the player who will populate the cell at the given position
+   */
   public void playInCell(final Cell cell, final Player player) {
     playInCell(cell.getRowIdx(), cell.getColIdx(), player);
   }
 
+  /**
+   * Makes a best-effort attempt to fetch the next player ({@link #getNextPlayer()} and play in the cell chosen by that
+   * player ({@link Player#chooseCell(Game)}).
+   *
+   * @throws GameException if the player chooses a cell that is already populated
+   * @throws GameException if no empty cell is available
+   */
   public void tryPlayNextCell() throws GameException {
     final Player nextPlayer = getNextPlayer();
     Cell cell = nextPlayer.chooseCell(this);
@@ -197,6 +354,9 @@ public class Game {
         .orElse(null);
     }
     if (cell != null) {
+      if (cell.isPopulated()) {
+        throw new GameException("cell is already populated by: " + String.valueOf(cell.getPlayer()));
+      }
       playInCell(cell, nextPlayer);
     }
     else {
@@ -205,10 +365,12 @@ public class Game {
   }
 
   /**
-   * Tries to parse the given {@code coords} string and return the corresponding {@code Cell} from the board.
-   * The expected format is "rowIdx,colIdx" (zero-based). For example, "0,0" is the top-left cell.
-   * @param coords the coordinate of the cell in format "rowIdx,colIdx"
-   * @return the {@code Cell} at the given coord if the string is valid and it is within bounds, otherwise {@code null}
+   * Tries to parse the given {@code coords} string and return the corresponding {@link Cell} from the board.
+   * The expected format is {@code rowIdx,colIdx} (zero-based). For example, {@code 0,0} is the top-left cell.
+   *
+   * @param coords the coordinate of the cell
+   *
+   * @return the {@link Cell} at the given coord if the string is valid and it is within bounds, otherwise {@code null}
    */
   public Cell tryGetCellFromCoord(final String coords) {
     if (coords != null) {
@@ -237,8 +399,10 @@ public class Game {
    * For the given line of cells, find the longest continuous subsequence of cells that are either empty or populated
    * by the player, as long as at least one cell in that subsequence is empty. If multiple subsequences have the same
    * length, choose the one with the most cells already populated by the player.
-   * @param line the line to search
+   *
+   * @param line   the line to search
    * @param player the player
+   *
    * @return the longest subsequence, or {@code null} if no satisfiable subsequence was found
    */
   public List<Cell> getLongestOpenSublineForPlayer(final List<Cell> line, final Player player) {
@@ -287,26 +451,49 @@ public class Game {
     return bestLine;
   }
 
+  /**
+   * For the current game state, compute a numeric value describing how advantageous the current position is for the
+   * given player. Positive values are advantageous, while negative ones are not. Takes into account whether the game
+   * is won (big plus) or lost (big minus); the number of cells occupied by the player in any line with win potential
+   * (plus, scaled by number of cells already occupied by the player); and the same for lines with loss potential
+   * (minus, scaled by number of cells occupied by opponent).
+   *
+   * @param player evaluate the board from the perspective of this player
+   *
+   * @return a numeric value describing the utility of the current game state for the given player
+   */
   public long evaluatePlayerUtility(final Player player) {
     long score = 0L;
     final Player opponent = getOtherPlayer(player);
+
+    // Consider all lines that could be involved in a win/loss
     for (final List<Cell> line : board.getLinesAtLeastLength(winLength)) {
+
+      // Big plus for wins
       if (didPlayerWinOnLine(player, line)) {
         score += 2 * dim * dim * dim;
       }
+
+      // Big minus for losses
       else if (didPlayerWinOnLine(opponent, line)) {
         score -= 2 * dim * dim * dim;
       }
+
+      // Find the player's longest subline in this line (all player tokens or empty)
       final List<Cell> longestSeq = getLongestOpenSublineForPlayer(line, player);
       if (longestSeq.size() >= winLength) {
+        // The player could win on this line, add to the score
         final int numPopulated = longestSeq.stream()
           .filter(cell -> cell.isPopulatedBy(player))
           .mapToInt(cell -> 1)
           .sum();
         score += numPopulated * numPopulated;
       }
+
+      // Find the opponent's longest subline in this line
       final List<Cell> longestOppSeq = getLongestOpenSublineForPlayer(line, opponent);
       if (longestOppSeq.size() >= winLength) {
+        // The player could lose on this line, subtract from the score
         final int numPopulated = longestOppSeq.stream()
           .filter(cell -> cell.isPopulatedBy(opponent))
           .mapToInt(cell -> 1)
@@ -314,21 +501,50 @@ public class Game {
         score -= numPopulated * numPopulated;
       }
     }
+
+    //TODO: consider how many ways the player could win in one move
+    //TODO: 2 ways to win is as good as a win right now, no matter whose turn it is
+
+    // Return final score
     return score;
   }
 
+  /**
+   * Delegates to {@link #evaluatePlayerUtility(Player)} to compute the utility for {@link #player1}.
+   *
+   * @return a numeric value describing the utility of the current game state for {@link #player1}
+   */
   public long evaluatePlayer1Utility() {
     return evaluatePlayerUtility(player1);
   }
 
+  /**
+   * Delegates to {@link #evaluatePlayerUtility(Player)} to compute the utility for {@link #player2}.
+   *
+   * @return a numeric value describing the utility of the current game state for {@link #player2}
+   */
   public long evaluatePlayer2Utility() {
     return evaluatePlayerUtility(player2);
   }
 
+  /**
+   * Delegates to {@link Board#getHash()} to compute a unique hash string for the current board state.
+   *
+   * @return a unique hash string for the current board state
+   */
   public String getBoardHash() {
     return board.getHash();
   }
 
+  /**
+   * Create a copy of the game with a new game ID and new players.
+   *
+   * @param newGameId  the game ID that will be assigned to the copy
+   * @param newPlayer1 the first player in the copy
+   * @param newPlayer2 the second player in the copy
+   *
+   * @return a copy of the game
+   */
   public Game getCopy(final long newGameId, final Player newPlayer1, final Player newPlayer2) {
     final Game copy = new Game(dim, winLength, newGameId, newPlayer1, newPlayer2);
     for (final Cell oldCell : board.getAllCells()) {
@@ -343,6 +559,11 @@ public class Game {
     return copy;
   }
 
+  /**
+   * Delegates to {@link #getCopy(long, Player, Player)} to create an identical copy of the game.
+   *
+   * @return an identical copy of the game
+   */
   public Game getCopy() {
     return getCopy(gameId, player1, player2);
   }
