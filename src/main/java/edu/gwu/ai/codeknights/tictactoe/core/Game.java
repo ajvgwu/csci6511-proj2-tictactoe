@@ -11,8 +11,8 @@ import edu.gwu.ai.codeknights.tictactoe.core.exception.GameException;
 import edu.gwu.ai.codeknights.tictactoe.core.exception.StateException;
 
 /**
- * Maintains the state for a game of Tic Tac Toe played by two players on a square board. Provides a variety of
- * operations to check and manipulate the game board.
+ * Maintains the state for a game of Tic Tac Toe played by two {@link Player}s on a square {@link Board}. Provides a
+ * variety of operations to check and manipulate the game's board.
  *
  * @author ajv
  */
@@ -29,7 +29,7 @@ public class Game {
   /**
    * Construct a new game with the given board dimension, length required to win, game ID, and players.
    *
-   * @param dim       the board dimension
+   * @param dim       the board dimension (number of rows and columns)
    * @param winLength the length required to win
    * @param gameId    the game ID
    * @param player1   the first player
@@ -568,6 +568,16 @@ public class Game {
     return getCopy(gameId, player1, player2);
   }
 
+  /**
+   * Get a string containing information about the current state of the game, including:
+   *   - dimension
+   *   - length required to win
+   *   - current utility of each player
+   *   - whether the game is in a valid state
+   *   - textual representation of the board
+   *
+   * @return a string representing the game state and board
+   */
   @Override
   public String toString() {
     return new StringBuilder()
@@ -580,5 +590,32 @@ public class Game {
       .append("\n")
       .append(board)
       .toString();
+  }
+
+  /**
+   * Check whether the given object is a {@link Game} with the same {@link #dim}, {@link #winLength}, {@link #gameId},
+   * players, and board.
+   *
+   * @param o the other object
+   *
+   * @return {@code true} if the given object is a {@link Game} with identical attributes, {@code false} otherwise
+   */
+  @Override
+  public boolean equals(final Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || !getClass().equals(o.getClass())) {
+      return false;
+    }
+    final Game other = (Game) o;
+    return dim == other.dim && winLength == other.winLength && gameId == other.gameId
+      && Objects.equals(player1, other.player1) && Objects.equals(player2, other.player2)
+      && Objects.equals(board, other.board);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(dim, winLength, gameId, player1, player2, board);
   }
 }

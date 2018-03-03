@@ -131,8 +131,7 @@ public class Player {
    *
    * @param o the other object
    *
-   * @return {@code true} if the given object is a {@link Player} with the same {@link #id} and {@link #marker},
-   *         {@code false} otherwise
+   * @return {@code true} if the given object is a {@link Player} with identical attributes, {@code false} otherwise
    */
   @Override
   public boolean equals(final Object o) {
