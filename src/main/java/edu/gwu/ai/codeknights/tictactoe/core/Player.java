@@ -116,6 +116,11 @@ public class Player {
     return choice;
   }
 
+  /**
+   * Get a string with uniquely identifying features of this player ({@link #marker} and {@link #id}).
+   *
+   * @return a string representing this player
+   */
   @Override
   public String toString() {
     return String.valueOf(marker) + "(id=" + String.valueOf(id) + ")";
