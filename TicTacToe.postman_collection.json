@@ -1,0 +1,393 @@
+{
+	"info": {
+		"name": "TicTacToe",
+		"_postman_id": "e7885eec-98b0-abed-877a-829e328ba059",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "create team",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-api-key",
+						"value": "c474f2094c5fe88faa0c"
+					},
+					{
+						"key": "userId",
+						"value": "407"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "name",
+							"value": "",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "type",
+							"value": "team",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://www.notexponential.com/aip2pgaming/api/index.php",
+					"protocol": "http",
+					"host": [
+						"www",
+						"notexponential",
+						"com"
+					],
+					"path": [
+						"aip2pgaming",
+						"api",
+						"index.php"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get team members",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-api-key",
+						"value": "c474f2094c5fe88faa0c"
+					},
+					{
+						"key": "userId",
+						"value": "407"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "teamId",
+							"value": "1065",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "type",
+							"value": "team",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://www.notexponential.com/aip2pgaming/api/index.php?type=team&teamId=1065",
+					"protocol": "http",
+					"host": [
+						"www",
+						"notexponential",
+						"com"
+					],
+					"path": [
+						"aip2pgaming",
+						"api",
+						"index.php"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "team",
+							"equals": true
+						},
+						{
+							"key": "teamId",
+							"value": "1065",
+							"equals": true
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "add a team member",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-api-key",
+						"value": "c474f2094c5fe88faa0c"
+					},
+					{
+						"key": "userId",
+						"value": "407"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "teamId",
+							"value": "1065",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "type",
+							"value": "member",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "userId",
+							"value": "407",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://www.notexponential.com/aip2pgaming/api/index.php",
+					"protocol": "http",
+					"host": [
+						"www",
+						"notexponential",
+						"com"
+					],
+					"path": [
+						"aip2pgaming",
+						"api",
+						"index.php"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "create game",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-api-key",
+						"value": "c474f2094c5fe88faa0c"
+					},
+					{
+						"key": "userId",
+						"value": "407"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "type",
+							"value": "game",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "teamId1",
+							"value": "1065",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "teamId2",
+							"value": "",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://www.notexponential.com/aip2pgaming/api/index.php",
+					"protocol": "http",
+					"host": [
+						"www",
+						"notexponential",
+						"com"
+					],
+					"path": [
+						"aip2pgaming",
+						"api",
+						"index.php"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "make move",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-api-key",
+						"value": "c474f2094c5fe88faa0c"
+					},
+					{
+						"key": "userId",
+						"value": "407"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "type",
+							"value": "move",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "gameId",
+							"value": "1065",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "teamId",
+							"value": "",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "move",
+							"value": "",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://www.notexponential.com/aip2pgaming/api/index.php",
+					"protocol": "http",
+					"host": [
+						"www",
+						"notexponential",
+						"com"
+					],
+					"path": [
+						"aip2pgaming",
+						"api",
+						"index.php"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get moves",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-api-key",
+						"value": "c474f2094c5fe88faa0c"
+					},
+					{
+						"key": "userId",
+						"value": "407"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "type",
+							"value": "move",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "gameId",
+							"value": "1065",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "teamId",
+							"value": "",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "move",
+							"value": "",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://www.notexponential.com/aip2pgaming/api/index.php?type=moves&gameId=55&count=1",
+					"protocol": "http",
+					"host": [
+						"www",
+						"notexponential",
+						"com"
+					],
+					"path": [
+						"aip2pgaming",
+						"api",
+						"index.php"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "moves",
+							"equals": true
+						},
+						{
+							"key": "gameId",
+							"value": "55",
+							"equals": true
+						},
+						{
+							"key": "count",
+							"value": "1",
+							"equals": true
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
