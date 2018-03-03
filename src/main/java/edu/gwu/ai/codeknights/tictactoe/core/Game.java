@@ -2,8 +2,10 @@ package edu.gwu.ai.codeknights.tictactoe.core;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import org.pmw.tinylog.Logger;
 
@@ -249,6 +251,37 @@ public class Game {
   }
 
   /**
+   * Find the cells the player could populate on the current board state that would lead to a win.
+   *
+   * NOTE: will return an empty set if the given player already won.
+   *
+   * NOTE: will make changes to the board; for thread-safe operation, synchronize on {@link #getBoard()}.
+   *
+   * @param player the player for whom winning cells will be found
+   *
+   * @return a set of empty cells that, if populated, would make this player win
+   */
+  public Set<Cell> getWinningCells(final Player player) {
+    final Set<Cell> winners = new HashSet<>();
+    if (!didPlayerWin(player)) {
+      for (final Cell cell : board.getEmptyCells()) {
+        if (cell.getPlayer() == null) {
+          boolean didWin = false;
+          synchronized (board) {
+            cell.setPlayer(player);
+            didWin = didPlayerWin(player);
+            cell.setPlayer(null);
+          }
+          if (didWin) {
+            winners.add(cell);
+          }
+        }
+      }
+    }
+    return winners;
+  }
+
+  /**
    * Check terminal conditions to determine whether the game is over. The game is over if either player won or the
    * board is full.
    *
@@ -465,18 +498,19 @@ public class Game {
   public long evaluatePlayerUtility(final Player player) {
     long score = 0L;
     final Player opponent = getOtherPlayer(player);
+    final Player nextPlayer = getNextPlayer();
 
     // Consider all lines that could be involved in a win/loss
     for (final List<Cell> line : board.getLinesAtLeastLength(winLength)) {
 
       // Big plus for wins
       if (didPlayerWinOnLine(player, line)) {
-        score += 2 * dim * dim * dim;
+        score += dim * dim * dim * dim;
       }
 
       // Big minus for losses
       else if (didPlayerWinOnLine(opponent, line)) {
-        score -= 2 * dim * dim * dim;
+        score -= dim * dim * dim * dim;
       }
 
       // Find the player's longest subline in this line (all player tokens or empty)
@@ -502,8 +536,20 @@ public class Game {
       }
     }
 
-    //TODO: consider how many ways the player could win in one move
-    //TODO: 2 ways to win is as good as a win right now, no matter whose turn it is
+    // Depending on whose turn it is, count the number of ways the player could win/lose
+    // (winning in two ways is good, but losing in two ways is bad)
+    if (player.equals(nextPlayer)) {
+      final Set<Cell> winners = getWinningCells(player);
+      if (winners.size() > 1) {
+        score += winners.size() * dim * dim;
+      }
+    }
+    else {
+      final Set<Cell> losers = getWinningCells(opponent);
+      if (losers.size() > 1) {
+        score -= losers.size() * dim * dim;
+      }
+    }
 
     // Return final score
     return score;
