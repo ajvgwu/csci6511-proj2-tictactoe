@@ -176,6 +176,7 @@ public class Main {
     if (line == null || help) {
       // Print usage information
       final HelpFormatter formatter = new HelpFormatter();
+      formatter.setWidth(100);
       formatter.printHelp(" ", options);
       if (line == null) {
         // Parse error, so non-zero exit code
