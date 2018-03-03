@@ -22,7 +22,7 @@
                         <Label text="Player vs Player" />
                      </children>
                      <HBox.margin>
-                        <Insets left="20.0" right="20.0" />
+                        <Insets left="10.0" right="10.0" />
                      </HBox.margin>
                   </VBox>
                   <VBox alignment="CENTER">
@@ -31,7 +31,7 @@
                         <Label text="Player vs AI" />
                      </children>
                      <HBox.margin>
-                        <Insets left="20.0" right="20.0" />
+                        <Insets left="10.0" right="10.0" />
                      </HBox.margin>
                   </VBox>
                   <VBox alignment="CENTER">
@@ -40,7 +40,7 @@
                         <Label text="AI vs Player" />
                      </children>
                      <HBox.margin>
-                        <Insets left="20.0" right="20.0" />
+                        <Insets left="10.0" right="10.0" />
                      </HBox.margin>
                   </VBox>
                   <VBox alignment="CENTER">
@@ -57,7 +57,7 @@
                         </Label>
                      </children>
                      <HBox.margin>
-                        <Insets left="20.0" right="20.0" />
+                        <Insets left="10.0" right="10.0" />
                      </HBox.margin>
                   </VBox>
                   <VBox alignment="CENTER">
@@ -70,7 +70,7 @@
                         <Label alignment="CENTER" text="AI vs AI online" />
                      </children>
                      <HBox.margin>
-                        <Insets left="20.0" right="20.0" />
+                        <Insets left="10.0" right="10.0" />
                      </HBox.margin>
                   </VBox>
                </children>

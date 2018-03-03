@@ -38,7 +38,9 @@ public class MainController {
 
   private Game game;
   private BooleanBinding isClickable;
-  private BooleanProperty isPlayerInput;
+  private BooleanProperty isPlayerNext;
+  private BooleanProperty isGameOver;
+  private BooleanProperty isAINext;
   private GameMode mode;
 
   private StringProperty[][] boardProperties;
@@ -89,9 +91,21 @@ public class MainController {
   @FXML
   void initialize() {
     helper = new MainHelper();
-    isPlayerInput = new SimpleBooleanProperty(true);
+    isPlayerNext = new SimpleBooleanProperty(true);
+    isAINext = new SimpleBooleanProperty(false);
+    isGameOver = new SimpleBooleanProperty(false);
     mHistory.textProperty().bind(helper.history);
-    mSubmit.disableProperty().bind(isPlayerInput.not());
+    mSubmit.disableProperty().bind(isPlayerNext.not());
+    mNext.disableProperty().bind(isAINext.not());
+    mSubmit.setOnAction(event -> {
+      if(!"".equals(mRow.getText().trim())){
+        if(!"".equals(mCol.getText().trim())){
+          Integer row = Integer.parseInt(mRow.getText());
+          Integer col = Integer.parseInt(mCol.getText());
+          pve(row,col);
+        }
+      }
+    });
   }
 
   /**
@@ -111,8 +125,6 @@ public class MainController {
       if (gameId == 0) {
         // TODO: create a game on the server, fetch the gameId
         Logger.error("TODO: create a game on the server, fetch the gameId");
-        //                API.getApiService().post();
-        //                API.getApiService().getMoves(String.valueOf(gameId), Integer.MAX_VALUE);
       }
       else {
         // TODO: hook on a existing game
@@ -135,24 +147,19 @@ public class MainController {
 
     this.mode = mode;
 
+    if(mode.equals(GameMode.EVP) || mode.equals(GameMode.EVE_ONLINE) || mode.equals(GameMode.EVE)){
+      isPlayerNext.set(false);
+      isAINext.set(true);
+    }else{
+      isPlayerNext.set(true);
+      isAINext.set(false);
+    }
+
     // add matrix to main panel
     buildBoard(dim, dim);
     TicTacToe.getPrimaryStage().sizeToScene();
     helper.createGame(gameId, dim, winLen, mode, masterId, opId);
     game = helper.getGame();
-    if (GameMode.PVE.equals(mode) || GameMode.PVP.equals(mode)) {
-      mNext.setDisable(true);
-    }
-    mSubmit.setOnAction(event -> {
-      if(!"".equals(mRow.getText().trim())){
-        if(!"".equals(mCol.getText().trim())){
-          Integer row = Integer.parseInt(mRow.getText());
-          Integer col = Integer.parseInt(mCol.getText());
-          pve(row,col);
-          isPlayerInput.set(true);
-        }
-      }
-    });
   }
 
   /**
@@ -191,7 +198,7 @@ public class MainController {
       @Override
       protected boolean computeValue() {
         final Player curPlayer = helper.getNextPlayer();
-        return curPlayer.getChooser() instanceof StupidMoveChooser && !game.isGameOver();
+        return curPlayer.getChooser() instanceof StupidMoveChooser && !isGameOver.get();
       }
     };
 
@@ -209,7 +216,6 @@ public class MainController {
             final int row = (int) label.getProperties().get("row");
             final int col = (int) label.getProperties().get("col");
             pve(row, col);
-            isPlayerInput.set(true);
           }
         });
         label.getProperties().put("row", i);
@@ -238,14 +244,24 @@ public class MainController {
     final boolean isGameOver = game.isGameOver();
     if (!isGameOver) {
       // ai opponent make a move
+      isAINext.set(true);
+      isPlayerNext.set(false);
       makeMove();
+      isAINext.set(false);
+      isPlayerNext.set(true);
     }
   }
 
   @FXML
   void nextHandler(final ActionEvent event) {
     makeMove();
-    isPlayerInput.set(true);
+    if(mode.equals(GameMode.EVE_ONLINE) || mode.equals(GameMode.EVE)){
+      isPlayerNext.set(false);
+      isAINext.set(true);
+    }else{
+      isPlayerNext.set(true);
+      isAINext.set(false);
+    }
   }
 
   private void makeMove() {
@@ -263,7 +279,7 @@ public class MainController {
       helper.history.get()));
     mState.setText(game.getBoardStatus());
     if (game.isGameOver()) {
-      mNext.setDisable(true);
+      isGameOver.set(true);
     }
   }
 
