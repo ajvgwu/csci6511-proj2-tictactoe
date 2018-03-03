@@ -240,8 +240,8 @@ public class MainController {
     helper.history.set("[" + String.valueOf(nextPlayer.getMarker())
       + "][" + row + ", " + col + "]\n" + helper.history.get());
     boardProperties[row][col].set(String.valueOf(nextPlayer.getMarker()));
-    mState.setText(game.getBoardStatus());
-    isGameOver.set( game.isGameOver());
+    mState.setText(game.getGameStatus());
+    isGameOver.set(game.isGameOver());
     if (!isGameOver.get()) {
       // ai opponent make a move
       isAINext.set(true);
@@ -277,7 +277,7 @@ public class MainController {
       cell.getColIdx(),
       endMs - startMs,
       helper.history.get()));
-    mState.setText(game.getBoardStatus());
+    mState.setText(game.getGameStatus());
     isGameOver.set(game.isGameOver());
   }
 

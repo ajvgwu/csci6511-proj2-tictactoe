@@ -264,7 +264,7 @@ public class Game {
    *
    * @return a string describing the current status of the game
    */
-  public String getBoardStatus() {
+  public String getGameStatus() {
     if (didPlayer1Win()) {
       return String.valueOf(player1) + " WIN";
     }
