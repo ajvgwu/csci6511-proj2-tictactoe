@@ -57,8 +57,8 @@ public class RuleBasedChooser extends AbstractCellChooser {
     }
 
     // Rule 5: prevent opponent fork on next move
-    // TODO: opponent predictive fork detection is too slow
-    Logger.debug("TODO: opponent predictive fork detection is too slow");
+    // TODO: opponent predictive fork detection is too slow, disabled for now
+    Logger.debug("TODO: opponent predictive fork detection is too slow, disabled for now");
     /*
     final Set<Cell> cellsCausingOppFork = new HashSet<>();
     for (final Cell cell : cells) {
