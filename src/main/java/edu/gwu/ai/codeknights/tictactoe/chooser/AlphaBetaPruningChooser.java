@@ -19,25 +19,33 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
 
   public static final AbstractCellFilter DEFAULT_FILTER = new PopulatedNeighborFilter();
   public static final boolean DEFAULT_RANDOM_SHUFFLE = true;
+  public static final boolean DEFAULT_GRAPH_SEARCH = true;
 
   private final AbstractCellFilter filter;
   private boolean randomShuffle;
+  private boolean graphSearch;
 
   private final Map<String, Long> scoreMap;
 
-  public AlphaBetaPruningChooser(final AbstractCellFilter filter, final boolean randomShuffle) {
+  public AlphaBetaPruningChooser(final AbstractCellFilter filter, final boolean randomShuffle,
+    final boolean graphSearch) {
     this.filter = filter != null ? filter : DEFAULT_FILTER;
     this.randomShuffle = randomShuffle;
+    this.graphSearch = graphSearch;
 
     scoreMap = new HashMap<>();
   }
 
   public AlphaBetaPruningChooser(final AbstractCellFilter filter) {
-    this(filter, DEFAULT_RANDOM_SHUFFLE);
+    this(filter, DEFAULT_RANDOM_SHUFFLE, DEFAULT_GRAPH_SEARCH);
+  }
+
+  public AlphaBetaPruningChooser(final boolean randomShuffle, final boolean graphSearch) {
+    this(DEFAULT_FILTER, randomShuffle, graphSearch);
   }
 
   public AlphaBetaPruningChooser() {
-    this(DEFAULT_FILTER, DEFAULT_RANDOM_SHUFFLE);
+    this(DEFAULT_FILTER, DEFAULT_RANDOM_SHUFFLE, DEFAULT_GRAPH_SEARCH);
   }
 
   public AbstractCellFilter getFilter() {
@@ -50,6 +58,14 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
 
   public void setRandomShuffle(final boolean randomShuffle) {
     this.randomShuffle = randomShuffle;
+  }
+
+  public boolean isGraphSearch() {
+    return graphSearch;
+  }
+
+  public void setGraphSearch(final boolean graphSearch) {
+    this.graphSearch = graphSearch;
   }
 
   @Override
@@ -106,11 +122,13 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
     }
 
     // Check if we've already solved this state
-    final String hash = game.getBoardHash();
-    synchronized (scoreMap) {
-      final Long precomputedScore = scoreMap.get(hash);
-      if (precomputedScore != null) {
-        return precomputedScore;
+    if (graphSearch) {
+      final String hash = game.getBoardHash();
+      synchronized (scoreMap) {
+        final Long precomputedScore = scoreMap.get(hash);
+        if (precomputedScore != null) {
+          return precomputedScore;
+        }
       }
     }
 
@@ -140,8 +158,11 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
     final long bestScore = player.equals(curPlayer) ? alpha : beta;
 
     // Update score map
-    synchronized (scoreMap) {
-      scoreMap.put(hash, bestScore);
+    if (graphSearch) {
+      final String hash = game.getBoardHash();
+      synchronized (scoreMap) {
+        scoreMap.put(hash, bestScore);
+      }
     }
 
     // Return best score
