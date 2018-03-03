@@ -1,11 +1,13 @@
 package edu.gwu.ai.codeknights.tictactoe.gui.helpers;
 
+import edu.gwu.ai.codeknights.tictactoe.chooser.AbpTimeLimitChooser;
 import edu.gwu.ai.codeknights.tictactoe.chooser.AbstractCellChooser;
 import edu.gwu.ai.codeknights.tictactoe.chooser.CaseByCaseChooser;
 import edu.gwu.ai.codeknights.tictactoe.chooser.OnlineMoveChooser;
 import edu.gwu.ai.codeknights.tictactoe.chooser.StupidMoveChooser;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.core.Player;
+import edu.gwu.ai.codeknights.tictactoe.filter.EmptyCellFilter;
 import edu.gwu.ai.codeknights.tictactoe.gui.controller.GameMode;
 import edu.gwu.ai.codeknights.tictactoe.util.Const;
 import javafx.beans.property.SimpleStringProperty;
@@ -33,6 +35,7 @@ public class MainHelper {
     public void createGame(long gameId, int dim, int winLen, GameMode mode, int masterId, int opId) {
 
         // create the choosers for the two players
+        // for AI players, use time-limited alpha-beta pruning with a limit of 110 seconds (1min 50sec)
         AbstractCellChooser masterChooser = null;
         AbstractCellChooser opChooser = null;
         switch (mode) {
@@ -43,21 +46,21 @@ public class MainHelper {
             }
             case PVE: {
                 masterChooser = new StupidMoveChooser();
-                opChooser = new CaseByCaseChooser();
+                opChooser = new CaseByCaseChooser(new AbpTimeLimitChooser(110, new EmptyCellFilter()));
                 break;
             }
             case EVP: {
-                masterChooser = new CaseByCaseChooser();
+                masterChooser = new CaseByCaseChooser(new AbpTimeLimitChooser(110, new EmptyCellFilter()));
                 opChooser = new StupidMoveChooser();
                 break;
             }
             case EVE: {
-                masterChooser = new CaseByCaseChooser();
-                opChooser = new CaseByCaseChooser();
+                masterChooser = new CaseByCaseChooser(new AbpTimeLimitChooser(110, new EmptyCellFilter()));
+                opChooser = new CaseByCaseChooser(new AbpTimeLimitChooser(110, new EmptyCellFilter()));
                 break;
             }
             case EVE_ONLINE: {
-                masterChooser = new CaseByCaseChooser();
+                masterChooser = new CaseByCaseChooser(new AbpTimeLimitChooser(110, new EmptyCellFilter()));
                 opChooser = new OnlineMoveChooser();
                 break;
             }

@@ -74,11 +74,25 @@ public enum Chooser {
       return new AlphaBetaPruningChooser(new BestOpenSublineFilter());
     }
   },
-  BEST_OPTION("BestOption") {
+  ABP_LIMIT_10SEC_ALL_EMPTY("AbpLimit10SecAllEmpty") {
 
     @Override
     public AbstractCellChooser createChooser() {
-      return new BestOptionChooser();
+      return new AbpTimeLimitChooser(10, new EmptyCellFilter());
+    }
+  },
+  ABP_LIMIT_100SEC_ALL_EMPTY("AbpLimit100SecAllEmpty") {
+
+    @Override
+    public AbstractCellChooser createChooser() {
+      return new AbpTimeLimitChooser(100, new EmptyCellFilter());
+    }
+  },
+  ABP_LIMIT_120SEC_ALL_EMPTY("AbpLimit120SecAllEmpty") {
+
+    @Override
+    public AbstractCellChooser createChooser() {
+      return new AbpTimeLimitChooser(120, new EmptyCellFilter());
     }
   },
   CASE_BY_CASE_ABP_ALL_EMPTY("CaseByCaseAbpAllEmpty") {
@@ -100,6 +114,27 @@ public enum Chooser {
     @Override
     public AbstractCellChooser createChooser() {
       return new CaseByCaseChooser(new BestOpenSublineFilter());
+    }
+  },
+  CASE_BY_CASE_ABP_LIMIT_10SEC_ALL_EMPTY("CaseByCaseAbpLimit10SecAllEmpty") {
+
+    @Override
+    public AbstractCellChooser createChooser() {
+      return new CaseByCaseChooser(new AbpTimeLimitChooser(10, new EmptyCellFilter()));
+    }
+  },
+  CASE_BY_CASE_ABP_LIMIT_100SEC_ALL_EMPTY("CaseByCaseAbpLimit100SecAllEmpty") {
+
+    @Override
+    public AbstractCellChooser createChooser() {
+      return new CaseByCaseChooser(new AbpTimeLimitChooser(100, new EmptyCellFilter()));
+    }
+  },
+  CASE_BY_CASE_ABP_LIMIT_120SEC_ALL_EMPTY("CaseByCaseAbpLimit120SecAllEmpty") {
+
+    @Override
+    public AbstractCellChooser createChooser() {
+      return new CaseByCaseChooser(new AbpTimeLimitChooser(120, new EmptyCellFilter()));
     }
   };
 

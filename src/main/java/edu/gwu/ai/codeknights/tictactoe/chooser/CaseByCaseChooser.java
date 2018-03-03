@@ -14,14 +14,18 @@ public class CaseByCaseChooser extends AbstractCellChooser {
   private final RuleBasedChooser ruleBasedChooser;
   private final AlphaBetaPruningChooser abpChooser;
 
-  public CaseByCaseChooser(final AbstractCellFilter abpFilter) {
+  public CaseByCaseChooser(final AlphaBetaPruningChooser abp) {
     pairingChooser = new PairingChooser();
     ruleBasedChooser = new RuleBasedChooser();
-    abpChooser = new AlphaBetaPruningChooser(abpFilter);
+    abpChooser = abp;
+  }
+
+  public CaseByCaseChooser(final AbstractCellFilter abpFilter) {
+    this(new AlphaBetaPruningChooser(abpFilter));
   }
 
   public CaseByCaseChooser() {
-    this(null);
+    this(new AlphaBetaPruningChooser());
   }
 
   @Override
