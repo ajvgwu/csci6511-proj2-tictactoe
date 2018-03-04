@@ -84,8 +84,6 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
     final Player player = game.getNextPlayer();
     final Player opponent = game.getOtherPlayer(player);
     final Game copy = game.getCopy();
-    Long maxScore = null;
-    final Set<Cell> bestCells = new HashSet<>();
     final int maxDepth = copy.getBoard().countEmpty();
     int curMaxLevel = 1;
     while (curMaxLevel < maxDepth) {
@@ -95,11 +93,11 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
           copyCell.setPlayer(player);
           final long score = abp(copy, player, opponent, Long.MIN_VALUE, Long.MAX_VALUE, 0, curMaxLevel);
           copyCell.setPlayer(null);
-          if (maxScore == null || score >= maxScore) {
-            if (maxScore != null && score > maxScore) {
+          if (bestScore == null || score >= bestScore) {
+            if (bestScore != null && score > bestScore) {
               bestCells.clear();
             }
-            maxScore = score;
+            bestScore = score;
             bestCells.add(cell);
           }
         }
