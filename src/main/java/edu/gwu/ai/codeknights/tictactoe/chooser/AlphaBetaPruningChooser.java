@@ -23,13 +23,17 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
   private final AbstractCellFilter filter;
   private boolean randomShuffle;
 
-  private final Map<String, Long> scoreMap;
+  private Map<String, Long> scoreMap;
+  private Long bestScore;
+  private Set<Cell> bestCells;
 
   public AlphaBetaPruningChooser(final AbstractCellFilter filter, final boolean randomShuffle) {
     this.filter = filter != null ? filter : DEFAULT_FILTER;
     this.randomShuffle = randomShuffle;
 
-    scoreMap = new HashMap<>();
+    scoreMap = null;
+    bestScore = null;
+    bestCells = null;
   }
 
   public AlphaBetaPruningChooser(final AbstractCellFilter filter) {
@@ -60,8 +64,19 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
     return scoreMap;
   }
 
+  protected Long getBestScore() {
+    return bestScore;
+  }
+
+  protected Set<Cell> getBestCells() {
+    return bestCells;
+  }
+
   @Override
   public Cell chooseCell(final Stream<Cell> input, final Game game) {
+    scoreMap = new HashMap<>();
+    bestScore = null;
+    bestCells = new HashSet<>();
     final List<Cell> cells = input.collect(Collectors.toList());
     if (isRandomShuffle()) {
       Collections.shuffle(cells);
@@ -144,15 +159,15 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
         break;
       }
     }
-    final long bestScore = player.equals(curPlayer) ? alpha : beta;
+    final long score = player.equals(curPlayer) ? alpha : beta;
 
     // Update score map
     synchronized (getScoreMap()) {
       final String hash = game.getBoardHash();
-      getScoreMap().put(hash, bestScore);
+      getScoreMap().put(hash, score);
     }
 
     // Return best score
-    return bestScore;
+    return score;
   }
 }
