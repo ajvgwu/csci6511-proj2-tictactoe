@@ -3,7 +3,7 @@
 
   <groupId>edu.gwu.ai.codeknights</groupId>
   <artifactId>csci6511-proj2-tictactoe</artifactId>
-  <version>0.2-beta</version>
+  <version>0.3-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>csci6511-proj2-tictactoe</name>
