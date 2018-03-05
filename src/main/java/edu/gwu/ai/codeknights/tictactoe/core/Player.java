@@ -15,7 +15,6 @@ public class Player {
   private final char marker;
 
   private AbstractCellChooser chooser;
-  private AbstractCellChooser fallbackChooser;
 
   /**
    * Construct a new player with the given ID and marker.
@@ -28,7 +27,6 @@ public class Player {
     this.marker = marker;
 
     chooser = null;
-    fallbackChooser = null;
   }
 
   /**
@@ -50,7 +48,7 @@ public class Player {
   }
 
   /**
-   * Get the cell chooser for this player. This is the primary chooser used in {@link #chooseCell(Game)}.
+   * Get the cell chooser for this player, which is used in {@link #chooseCell(Game)}.
    *
    * @return the player's cell chooser
    */
@@ -59,7 +57,7 @@ public class Player {
   }
 
   /**
-   * Assign a cell chooser for this player. This is the primary chooser used in {@link #chooseCell(Game)}.
+   * Assign a cell chooser for this player, which is used in {@link #chooseCell(Game)}.
    *
    * @param chooser the player's new cell chooser
    */
@@ -68,52 +66,20 @@ public class Player {
   }
 
   /**
-   * Get the fallback cell chooser for this player. This is the fallback chooser used in {@link #chooseCell(Game)}.
-   *
-   * @return the fallback cell chooser
-   */
-  public AbstractCellChooser getFallbackChooser() {
-    return fallbackChooser;
-  }
-
-  /**
-   * Assign a fallback cell chooser for this player. This is the fallback chooser used in {@link #chooseCell(Game)}.
-   *
-   * @param fallbackChooser the fallback cell chooser
-   */
-  public void setFallbackChooser(final AbstractCellChooser fallbackChooser) {
-    this.fallbackChooser = fallbackChooser;
-  }
-
-  /**
-   * Use the primary chooser (see {@link #getChooser()}) to choose a cell from the given game to populate. If it does
-   * not choose a valid cell, use the fallback chooser (see {@link #getFallbackChooser()}) to choose a cell. If it also
-   * does not choose a valid cell, try to find any empty cell in which to play.
+   * Use the chooser (see {@link #getChooser()}) to choose a cell from the given game to populate.
    *
    * @param game the game from which to select a cell
    *
-   * @return the chosen cell, or {@code null} if no empty cell was found
+   * @return the chosen cell, or {@code null} if cell was chosen
    */
   public Cell chooseCell(final Game game) {
-    Cell choice = null;
     if (chooser != null) {
-      choice = chooser.chooseCell(game);
-      if (choice != null && choice.isPopulated()) {
-        choice = null;
+      final Cell choice = chooser.chooseCell(game);
+      if (choice != null && !choice.isPopulated()) {
+        return choice;
       }
     }
-    if (choice == null && fallbackChooser != null) {
-      choice = fallbackChooser.chooseCell(game);
-      if (choice != null && choice.isPopulated()) {
-        choice = null;
-      }
-    }
-    if (choice == null) {
-      choice = game.getBoard().getEmptyCells().stream()
-        .findAny()
-        .orElse(null);
-    }
-    return choice;
+    return null;
   }
 
   /**

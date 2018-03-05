@@ -14,25 +14,20 @@ import edu.gwu.ai.codeknights.tictactoe.gui.util.API;
 import retrofit2.Call;
 import retrofit2.Response;
 
-public class OnlineMoveFetcher extends AbstractCellChooser {
-
-  public static final String API_RESPONSEKEY_CODE = "code";
-  public static final String API_CODE_SUCCESS = "OK";
-
-  public static final String API_RESPONSEKEY_MOVES = "moves";
-
-  public static final String API_MOVEKEY_GAMEID = "gameId";
-  public static final String API_MOVEKEY_TEAMID = "teamId";
-  public static final String API_MOVEKEY_MOVE = "move";
+public class OnlineMoveFetcher extends AbstractOnlineChooser {
 
   @Override
   public Cell chooseCell(final Stream<Cell> input, final Game game) {
+    tryFastForward(game);
+    if (game.isGameOver()) {
+      return null;
+    }
     final long gameId = game.getGameId();
     final int dim = game.getDim();
     final int numCells = dim * dim;
     final int numEmpty = game.getBoard().countEmpty();
     final int numMoves = numCells - numEmpty;
-    final int numMovesExpected = numMoves + 1;
+    final int numMovesExpected = Math.max(numCells, numMoves + 1);
     final Player curPlayer = game.getNextPlayer();
     final int curPlayerId = curPlayer.getId();
     while (true) {

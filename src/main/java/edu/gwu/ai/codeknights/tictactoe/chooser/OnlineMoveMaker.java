@@ -14,9 +14,7 @@ import edu.gwu.ai.codeknights.tictactoe.gui.util.API;
 import retrofit2.Call;
 import retrofit2.Response;
 
-public class OnlineMoveMaker extends AbstractCellChooser {
-
-  public static final String API_TYPE_MOVE = "move";
+public class OnlineMoveMaker extends AbstractOnlineChooser {
 
   private final CaseByCaseChooser chooser;
 
@@ -26,6 +24,10 @@ public class OnlineMoveMaker extends AbstractCellChooser {
 
   @Override
   public Cell chooseCell(final Stream<Cell> input, final Game game) {
+    tryFastForward(game);
+    if (game.isGameOver()) {
+      return null;
+    }
     final long gameId = game.getGameId();
     final Player curPlayer = game.getNextPlayer();
     final int curPlayerId = curPlayer.getId();
@@ -42,8 +44,8 @@ public class OnlineMoveMaker extends AbstractCellChooser {
       try {
         final Response<Map> response = call.execute();
         final Map<?, ?> body = response.body();
-        final Object o = body.get(OnlineMoveFetcher.API_RESPONSEKEY_CODE);
-        if (o instanceof String && o.equals(OnlineMoveFetcher.API_CODE_SUCCESS)) {
+        final Object o = body.get(API_RESPONSEKEY_CODE);
+        if (o instanceof String && o.equals(API_CODE_SUCCESS)) {
           return choice;
         }
         Thread.sleep(1000);
