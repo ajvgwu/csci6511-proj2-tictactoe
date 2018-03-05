@@ -3,7 +3,7 @@ package edu.gwu.ai.codeknights.tictactoe.gui.helpers;
 import edu.gwu.ai.codeknights.tictactoe.chooser.AbpTimeLimitChooser;
 import edu.gwu.ai.codeknights.tictactoe.chooser.AbstractCellChooser;
 import edu.gwu.ai.codeknights.tictactoe.chooser.CaseByCaseChooser;
-import edu.gwu.ai.codeknights.tictactoe.chooser.OnlineMoveChooser;
+import edu.gwu.ai.codeknights.tictactoe.chooser.OnlineMoveFetcher;
 import edu.gwu.ai.codeknights.tictactoe.chooser.StupidMoveChooser;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.core.Player;
@@ -61,7 +61,7 @@ public class MainHelper {
             }
             case EVE_ONLINE: {
                 masterChooser = new CaseByCaseChooser(new AbpTimeLimitChooser(110, new EmptyCellFilter()));
-                opChooser = new OnlineMoveChooser();
+                opChooser = new OnlineMoveFetcher();
                 break;
             }
         }

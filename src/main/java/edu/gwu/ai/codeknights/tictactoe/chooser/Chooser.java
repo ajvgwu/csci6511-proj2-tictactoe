@@ -18,11 +18,18 @@ public enum Chooser {
       return new StupidMoveChooser();
     }
   },
-  ONLINE_MOVE("OnlineMove") {
+  ONLINE_MOVE_MAKER("OnlineMoveMaker") {
 
     @Override
     public AbstractCellChooser createChooser() {
-      return new OnlineMoveChooser();
+      return new OnlineMoveMaker();
+    }
+  },
+  ONLINE_MOVE_FETCHER("OnlineMoveFetcher") {
+
+    @Override
+    public AbstractCellChooser createChooser() {
+      return new OnlineMoveFetcher();
     }
   },
   ANY_CELL("AnyCell") {

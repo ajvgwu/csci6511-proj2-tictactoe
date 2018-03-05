@@ -14,7 +14,7 @@ import edu.gwu.ai.codeknights.tictactoe.gui.util.API;
 import retrofit2.Call;
 import retrofit2.Response;
 
-public class OnlineMoveChooser extends AbstractCellChooser {
+public class OnlineMoveFetcher extends AbstractCellChooser {
 
   public static final String API_RESPONSEKEY_CODE = "code";
   public static final String API_CODE_SUCCESS = "OK";
@@ -34,11 +34,12 @@ public class OnlineMoveChooser extends AbstractCellChooser {
     final int numMoves = numCells - numEmpty;
     final int numMovesExpected = numMoves + 1;
     final Player curPlayer = game.getNextPlayer();
+    final int curPlayerId = curPlayer.getId();
     while (true) {
       final Call<Map> call = API.getApiService().getMoves(String.valueOf(gameId), numMoves + 1);
       try {
         final Response<Map> response = call.execute();
-        final Map body = response.body();
+        final Map<?, ?> body = response.body();
         Object o = body.get(API_RESPONSEKEY_CODE);
         if (o instanceof String && o.equals(API_CODE_SUCCESS)) {
           o = body.get(API_RESPONSEKEY_MOVES);
@@ -51,7 +52,7 @@ public class OnlineMoveChooser extends AbstractCellChooser {
                 final Object gameIdObj = move.get(API_MOVEKEY_GAMEID);
                 final Object teamIdObj = move.get(API_MOVEKEY_TEAMID);
                 final Object moveObj = move.get(API_MOVEKEY_MOVE);
-                if (String.valueOf(gameId).equals(gameIdObj) && String.valueOf(curPlayer.getId()).equals(teamIdObj)
+                if (String.valueOf(gameId).equals(gameIdObj) && String.valueOf(curPlayerId).equals(teamIdObj)
                   && moveObj instanceof String) {
                   final Cell cell = game.tryGetCellFromCoord((String) moveObj);
                   if (cell != null) {

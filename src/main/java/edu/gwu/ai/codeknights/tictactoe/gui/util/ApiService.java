@@ -1,8 +1,8 @@
 package edu.gwu.ai.codeknights.tictactoe.gui.util;
 
-import okhttp3.RequestBody;
 import retrofit2.Call;
-import retrofit2.http.Body;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
@@ -14,8 +14,14 @@ import java.util.Map;
  */
 public interface ApiService {
 
+    @FormUrlEncoded
     @POST("index.php")
-    Call<Map> post(@Body RequestBody body);
+    Call<Map> post(
+      @Field("type") String type,
+      @Field("teamId") String teamId,
+      @Field("gameId") String gameId,
+      @Field("move") String move
+    );
 
     @GET("index.php?type=team")
     Call<Map> getTeamMembers(@Query("teamId") String teamId);
