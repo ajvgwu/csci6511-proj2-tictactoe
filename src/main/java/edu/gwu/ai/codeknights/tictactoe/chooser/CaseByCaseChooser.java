@@ -32,14 +32,8 @@ public class CaseByCaseChooser extends AbstractCellChooser {
   public Cell chooseCell(final Stream<Cell> input, final Game game) {
     final List<Cell> cells = input.collect(Collectors.toList());
 
-    // Try pairing strategy
-    Cell choice = pairingChooser.chooseCell(cells.stream(), game);
-    if (choice != null) {
-      return choice;
-    }
-
     // Try rule-based strategy
-    choice = ruleBasedChooser.chooseCell(cells.stream(), game);
+    Cell choice = ruleBasedChooser.chooseCell(cells.stream(), game);
     if (choice != null) {
       return choice;
     }

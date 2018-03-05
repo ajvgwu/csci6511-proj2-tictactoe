@@ -8,8 +8,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.pmw.tinylog.Logger;
-
 import edu.gwu.ai.codeknights.tictactoe.core.Board;
 import edu.gwu.ai.codeknights.tictactoe.core.Cell;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
@@ -56,10 +54,8 @@ public class RuleBasedChooser extends AbstractCellChooser {
       return forkCell;
     }
 
-    // Rule 5: prevent opponent fork on next move
-    // TODO: opponent predictive fork detection is too slow, disabled for now
-    Logger.debug("TODO: opponent predictive fork detection is too slow, disabled for now");
     /*
+    // Rule 5: prevent opponent fork on next move
     final Set<Cell> cellsCausingOppFork = new HashSet<>();
     for (final Cell cell : cells) {
       if (cell.isEmpty()) {
@@ -80,7 +76,6 @@ public class RuleBasedChooser extends AbstractCellChooser {
       }
     }
     cells.removeAll(cellsCausingOppFork);
-    */
 
     // Rule 6: try to win in 2 moves
     final Cell winInTwoCell = findWinInTwo(game, cells, winLength, player);
@@ -95,6 +90,7 @@ public class RuleBasedChooser extends AbstractCellChooser {
     }
 
     // TODO: any other rules ???
+    */
 
     // No choice made
     return null;
