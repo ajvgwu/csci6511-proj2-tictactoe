@@ -472,14 +472,18 @@ public class Main {
 
     public void singlePlay() {
       printCurGameInfo();
-      if (!game.isGameOver()) {
-        try {
+      try {
+        if (!game.isGameOver()) {
+          final long startTimeMs = System.currentTimeMillis();
           game.tryPlayNextCell();
+          final long endTimeMs = System.currentTimeMillis();
+          final double elapsedSec = (double) ((endTimeMs - startTimeMs) / 1000.0);
+          System.out.println("time elapsed: " + String.valueOf(elapsedSec));
           printCurGameInfo();
         }
-        catch (final GameException e) {
-          Logger.error(e, "could not play a move");
-        }
+      }
+      catch (final GameException e) {
+        Logger.error(e, "could not play a move");
       }
     }
 
