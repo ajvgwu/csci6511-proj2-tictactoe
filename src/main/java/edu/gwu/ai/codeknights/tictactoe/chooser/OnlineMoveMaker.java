@@ -18,9 +18,9 @@ public class OnlineMoveMaker extends AbstractOnlineChooser {
 
   private final CaseByCaseChooser chooser;
 
-  public OnlineMoveMaker() {
+  public OnlineMoveMaker(final int limitSec) {
     // For 2-min move time limit, leave 20 seconds for overhead (e.g., fast-forwarding game)
-    chooser = new CaseByCaseChooser(new AbpTimeLimitChooser(100, new EmptyCellFilter()));
+    chooser = new CaseByCaseChooser(new AbpTimeLimitChooser(limitSec, new EmptyCellFilter()));
   }
 
   @Override

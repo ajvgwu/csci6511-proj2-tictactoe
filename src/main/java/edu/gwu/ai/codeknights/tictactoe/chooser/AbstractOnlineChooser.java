@@ -43,9 +43,10 @@ public abstract class AbstractOnlineChooser extends AbstractCellChooser {
         if (o.equals(API_CODE_SUCCESS)) {
           o = body.get(API_RESPONSEKEY_MOVES);
           if (o instanceof List<?>) {
-            final List<?> list = (List<?>) o;
-            for (int i = list.size() - 1; i >= 0; i--) {
-              final Object item = list.get(i);
+            Player curPlayer = game.getPlayer1();
+            final List<?> moves = (List<?>) o;
+            for (int i = moves.size() - 1; i >= 0; i--) {
+              final Object item = moves.get(i);
               if (item instanceof Map<?, ?>) {
                 final Map<?, ?> move = (Map<?, ?>) item;
                 final Object gameIdObj = move.get(API_MOVEKEY_GAMEID);
@@ -53,19 +54,19 @@ public abstract class AbstractOnlineChooser extends AbstractCellChooser {
                 if (String.valueOf(gameId).equals(gameIdObj) && moveObj instanceof String) {
                   final Cell cell = game.tryGetCellFromCoord((String) moveObj);
                   if (cell != null) {
-                    Player player = i % 2 == 0 ? game.getPlayer1() : game.getPlayer2();
                     final Object teamIdObj = move.get(API_MOVEKEY_TEAMID);
-                    if (!String.valueOf(player.getId()).equals(teamIdObj)) {
+                    if (!String.valueOf(curPlayer.getId()).equals(teamIdObj)) {
                       Logger.warn("moves from server might be out of order");
-                      final Player otherPlayer = game.getOtherPlayer(player);
+                      final Player otherPlayer = game.getOtherPlayer(curPlayer);
                       if (String.valueOf(otherPlayer.getId()).equals(teamIdObj)) {
-                        player = otherPlayer;
+                        curPlayer = otherPlayer;
                       }
                     }
-                    cell.setPlayer(player);
+                    cell.setPlayer(curPlayer);
                   }
                 }
               }
+              curPlayer = game.getOtherPlayer(curPlayer);
             }
           }
         }

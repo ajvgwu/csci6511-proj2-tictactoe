@@ -17,6 +17,8 @@ import org.pmw.tinylog.Logger;
 import edu.gwu.ai.codeknights.tictactoe.chooser.AbstractCellChooser;
 import edu.gwu.ai.codeknights.tictactoe.chooser.AbstractOnlineChooser;
 import edu.gwu.ai.codeknights.tictactoe.chooser.Chooser;
+import edu.gwu.ai.codeknights.tictactoe.chooser.OnlineMoveFetcher;
+import edu.gwu.ai.codeknights.tictactoe.chooser.OnlineMoveMaker;
 import edu.gwu.ai.codeknights.tictactoe.core.Cell;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.core.Player;
@@ -33,14 +35,16 @@ public class Main {
     // Default values
     boolean help = false;
     boolean gui = false;
-    int dim = 3;
-    int winLength = 3;
-    long gameId = 1001;
-    int player1Id = 1;
+    int dim = 6;
+    int winLength = 4;
+    long gameId = 0;
+    int player1Id = 1065;
     final char player1Marker = Const.MASTER_PLAYER_CHAR;
-    int player2Id = 2;
+    int player2Id = 1050;
     final char player2Marker = Const.OPPONENT_PLAYER_CHAR;
+    int timeLimitSec = 110;
     String[] stateArgs = null;
+    Integer playOnlineAs = null;
     String singlePlayChooser = null;
     String finishGameP1Chooser = null;
     String finishGameP2Chooser = null;
@@ -76,11 +80,19 @@ public class Main {
       .hasArg().argName("ID")
       .desc("identifier for player2 (default is " + String.valueOf(player2Id) + ")")
       .build();
+    final Option timeLimitOpt = Option.builder().longOpt("time-limit")
+      .hasArg().argName("LIMIT")
+      .desc("time limit in seconds for online moves (default is " + String.valueOf(timeLimitSec) + ")")
+      .build();
     final Option stateOpt = Option.builder("s").longOpt("state")
       .hasArgs().argName("CELLS")
       .desc("initial state of board (default is an empty board); moves of the first player given by \""
         + String.valueOf(player1Marker) + "\"; moves of the second player given by \"" + String.valueOf(player2Marker)
         + "\"; empty spaces given by any other string")
+      .build();
+    final Option playOnlineAsOpt = Option.builder().longOpt("play-online-as")
+      .hasArg().argName("1|2")
+      .desc("play a game via the online server as either the first or second player")
       .build();
     final Option singlePlayOpt = Option.builder().longOpt("single-play")
       .hasArg().argName("CHOOSER")
@@ -117,7 +129,9 @@ public class Main {
     options.addOption(gameIdOpt);
     options.addOption(player1IdOpt);
     options.addOption(player2IdOpt);
+    options.addOption(timeLimitOpt);
     options.addOption(stateOpt);
+    options.addOption(playOnlineAsOpt);
     options.addOption(singlePlayOpt);
     options.addOption(finishGameOpt);
     options.addOption(compareChoosersOpt);
@@ -143,40 +157,63 @@ public class Main {
       gameId = parseLong(line, gameIdOpt, gameId);
       player1Id = parseInt(line, player1IdOpt, player1Id);
       player2Id = parseInt(line, player2IdOpt, player2Id);
+      timeLimitSec = parseInt(line, timeLimitOpt, timeLimitSec);
       stateArgs = parseStringArray(line, stateOpt, stateArgs);
-      if (line.hasOption(singlePlayOpt.getLongOpt()) && line.hasOption(finishGameOpt.getLongOpt())) {
+    }
+    if (line != null) {
+      playOnlineAs = parseInteger(line, playOnlineAsOpt, null);
+      if (playOnlineAs != null && line.hasOption(singlePlayOpt.getLongOpt())) {
         line = null;
         Logger.error(
           "choose only one of the following options: "
+            + playOnlineAsOpt.getLongOpt() + ", "
+            + singlePlayOpt.getLongOpt());
+      }
+    }
+    if (line != null) {
+      singlePlayChooser = parseString(line, singlePlayOpt, singlePlayChooser);
+      if ((playOnlineAs != null || singlePlayChooser != null) && line.hasOption(finishGameOpt.getLongOpt())) {
+        line = null;
+        Logger.error(
+          "choose only one of the following options: "
+            + playOnlineAsOpt.getLongOpt() + ", "
             + singlePlayOpt.getLongOpt() + ", "
             + finishGameOpt.getLongOpt());
       }
-      singlePlayChooser = parseString(line, singlePlayOpt, singlePlayChooser);
+    }
+    if (line != null) {
       final String[] finishGameChoosers = parseStringArray(line, finishGameOpt, null);
       if (finishGameChoosers != null && finishGameChoosers.length > 0) {
         finishGameP1Chooser = finishGameChoosers[0];
         finishGameP2Chooser = finishGameChoosers.length > 1 ? finishGameChoosers[1] : null;
       }
-      if ((singlePlayChooser != null || finishGameChoosers != null)
+      if ((playOnlineAs != null || singlePlayChooser != null || finishGameChoosers != null)
         && line.hasOption(compareChoosersOpt.getLongOpt())) {
         line = null;
         Logger.error(
           "choose only one of the following options: "
+            + playOnlineAsOpt.getLongOpt() + ", "
             + singlePlayOpt.getLongOpt() + ", "
             + finishGameOpt.getLongOpt() + ", "
             + compareChoosersOpt.getLongOpt());
       }
+    }
+    if (line != null) {
       compareChoosers = parseStringArray(line, compareChoosersOpt, null);
-      if ((singlePlayChooser != null || finishGameChoosers != null || compareChoosers != null)
+      if ((playOnlineAs != null || singlePlayChooser != null || finishGameP1Chooser != null
+        || finishGameP2Chooser != null || compareChoosers != null)
         && line.hasOption(testFilterOpt.getLongOpt())) {
         line = null;
         Logger.error(
           "choose only one of the following options: "
+            + playOnlineAsOpt.getLongOpt() + ", "
             + singlePlayOpt.getLongOpt() + ", "
             + finishGameOpt.getLongOpt() + ", "
             + compareChoosersOpt.getLongOpt() + ", "
             + testFilterOpt.getLongOpt());
       }
+    }
+    if (line != null) {
       testFilter = parseString(line, testFilterOpt, testFilter);
       userId = parseString(line, userIdOpt, userId);
       if (userId != null) {
@@ -209,7 +246,29 @@ public class Main {
       if (stateArgs != null) {
         game.populate(stateArgs);
       }
-      if (singlePlayChooser != null) {
+      if (playOnlineAs != null) {
+        // Play a game with an opponent via the online server
+        final Player localPlayer = playOnlineAs.equals(1) ? player1 : playOnlineAs.equals(2) ? player2 : null;
+        if (localPlayer != null) {
+          final Player remotePlayer = game.getOtherPlayer(localPlayer);
+          localPlayer.setChooser(new OnlineMoveMaker(timeLimitSec));
+          remotePlayer.setChooser(new OnlineMoveFetcher());
+          if (game.getGameId() > 1000 && (player1.getId() == 1065 || player2.getId() == 1065)) {
+            AbstractOnlineChooser.tryFastForward(game);
+            while (!game.isGameOver()) {
+              new TestScenario(game).singlePlay();
+            }
+          }
+          else {
+            Logger.error("options not suitable for online game: gameId={}, player1.id={}, player2.id={}",
+              game.getGameId(), player1.getId(), player2.getId());
+          }
+        }
+        else {
+          Logger.error("invalid player number (should be 1 or 2): playOnlineAs={}", playOnlineAs);
+        }
+      }
+      else if (singlePlayChooser != null) {
         // Play the next move
         final AbstractCellChooser chooser = getChooserByName(singlePlayChooser);
         player1.setChooser(chooser);
@@ -220,11 +279,6 @@ public class Main {
         // Finish the current game
         player1.setChooser(getChooserByName(finishGameP1Chooser));
         player2.setChooser(getChooserByName(finishGameP2Chooser));
-        if (game.getGameId() > 0 && (player1.getId() == 1065 || player2.getId() == 1065)
-          && player1.getChooser() instanceof AbstractOnlineChooser
-          && player2.getChooser() instanceof AbstractOnlineChooser) {
-          AbstractOnlineChooser.tryFastForward(game);
-        }
         new TestScenario(game).finishGame();
       }
       else if (testFilter != null) {
@@ -307,18 +361,27 @@ public class Main {
     return line.hasOption(opt.getLongOpt());
   }
 
-  public static int parseInt(final CommandLine line, final Option opt, final int defaultVal) {
+  public static Integer parseInteger(final CommandLine line, final Option opt, final Integer defaultVal) {
     final String optName = opt.getLongOpt();
     if (line.hasOption(optName)) {
-      final String val = line.getOptionValue(optName);
-      try {
-        return Integer.parseInt(val);
+      String val = line.getOptionValue(optName);
+      if (val != null) {
+        val = val.trim();
       }
-      catch (final NumberFormatException e) {
-        Logger.error(e, "could not parse " + optName + " as int: " + val);
+      if (val.length() > 0) {
+        try {
+          return Integer.parseInt(val);
+        }
+        catch (final NumberFormatException e) {
+          Logger.error(e, "could not parse " + optName + " as int: " + val);
+        }
       }
     }
     return defaultVal;
+  }
+
+  public static int parseInt(final CommandLine line, final Option opt, final int defaultVal) {
+    return parseInteger(line, opt, defaultVal);
   }
 
   public static long parseLong(final CommandLine line, final Option opt, final long defaultVal) {
