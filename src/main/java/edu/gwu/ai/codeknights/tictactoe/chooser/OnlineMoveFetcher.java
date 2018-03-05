@@ -40,28 +40,34 @@ public class OnlineMoveFetcher extends AbstractOnlineChooser {
         final Map<?, ?> body = response.body();
         Logger.debug("body of response: {}", body);
         Object o = body.get(API_RESPONSEKEY_CODE);
-        if (o instanceof String && o.equals(API_CODE_SUCCESS)) {
-          o = body.get(API_RESPONSEKEY_MOVES);
-          if (o instanceof List<?>) {
-            final List<?> list = (List<?>) o;
-            if (list.size() == numMovesExpected) {
-              o = list.get(0);
-              if (o instanceof Map<?, ?>) {
-                final Map<?, ?> move = (Map<?, ?>) o;
-                final Object gameIdObj = move.get(API_MOVEKEY_GAMEID);
-                final Object teamIdObj = move.get(API_MOVEKEY_TEAMID);
-                final Object moveObj = move.get(API_MOVEKEY_MOVE);
-                if (String.valueOf(gameId).equals(gameIdObj) && String.valueOf(curPlayerId).equals(teamIdObj)
-                  && moveObj instanceof String) {
-                  Logger.debug("looking for cell corresponding to move fetched from server: {}", moveObj);
-                  final Cell cell = game.tryGetCellFromCoord((String) moveObj);
-                  if (cell != null) {
-                    Logger.debug("query successful, returning move in cell: {}", cell);
-                    return cell;
+        if (o instanceof String) {
+          if (o.equals(API_CODE_SUCCESS)) {
+            o = body.get(API_RESPONSEKEY_MOVES);
+            if (o instanceof List<?>) {
+              final List<?> list = (List<?>) o;
+              if (list.size() == numMovesExpected) {
+                o = list.get(0);
+                if (o instanceof Map<?, ?>) {
+                  final Map<?, ?> move = (Map<?, ?>) o;
+                  final Object gameIdObj = move.get(API_MOVEKEY_GAMEID);
+                  final Object teamIdObj = move.get(API_MOVEKEY_TEAMID);
+                  final Object moveObj = move.get(API_MOVEKEY_MOVE);
+                  if (String.valueOf(gameId).equals(gameIdObj) && String.valueOf(curPlayerId).equals(teamIdObj)
+                    && moveObj instanceof String) {
+                    Logger.debug("looking for cell corresponding to move fetched from server: {}", moveObj);
+                    final Cell cell = game.tryGetCellFromCoord((String) moveObj);
+                    if (cell != null) {
+                      Logger.debug("query successful, returning move in cell: {}", cell);
+                      return cell;
+                    }
                   }
                 }
               }
             }
+          }
+          else {
+            final Object msgObj = body.get(API_RESPONSEKEY_MESSAGE);
+            Logger.error("got response {} from server with message: {}", o, msgObj);
           }
         }
         Thread.sleep(1000);

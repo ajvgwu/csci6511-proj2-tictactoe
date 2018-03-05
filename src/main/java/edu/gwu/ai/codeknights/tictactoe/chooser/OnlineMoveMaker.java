@@ -51,9 +51,15 @@ public class OnlineMoveMaker extends AbstractOnlineChooser {
         final Map<?, ?> body = response.body();
         Logger.debug("body of response: {}", body);
         final Object o = body.get(API_RESPONSEKEY_CODE);
-        if (o instanceof String && o.equals(API_CODE_SUCCESS)) {
-          Logger.debug("response successful, returning move in cell: {}", choice);
-          return choice;
+        if (o instanceof String) {
+          if (o.equals(API_CODE_SUCCESS)) {
+            Logger.debug("response successful, returning move in cell: {}", choice);
+            return choice;
+          }
+          else {
+            final Object msgObj = body.get(API_RESPONSEKEY_MESSAGE);
+            Logger.error("got response {} from server with message: {}", o, msgObj);
+          }
         }
         Thread.sleep(1000);
       }
