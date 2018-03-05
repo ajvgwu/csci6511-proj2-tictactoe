@@ -7,21 +7,23 @@ import java.util.stream.Stream;
 import edu.gwu.ai.codeknights.tictactoe.core.Cell;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.filter.AbstractCellFilter;
+import edu.gwu.ai.codeknights.tictactoe.filter.EmptyCellFilter;
+import edu.gwu.ai.codeknights.tictactoe.filter.PopulatedNeighborFilter;
 
 public class CaseByCaseChooser extends AbstractCellChooser {
 
-  private final PairingChooser pairingChooser;
   private final RuleBasedChooser ruleBasedChooser;
   private final AlphaBetaPruningChooser abpChooser;
 
+  private final PopulatedNeighborFilter abpNeighborFilter;
+  private final EmptyCellFilter abpAllEmptyFilter;
+
   public CaseByCaseChooser(final AlphaBetaPruningChooser abp) {
-    pairingChooser = new PairingChooser();
     ruleBasedChooser = new RuleBasedChooser();
     abpChooser = abp;
-  }
 
-  public CaseByCaseChooser(final AbstractCellFilter abpFilter) {
-    this(new AlphaBetaPruningChooser(abpFilter));
+    abpNeighborFilter = new PopulatedNeighborFilter();
+    abpAllEmptyFilter = new EmptyCellFilter();
   }
 
   public CaseByCaseChooser() {
@@ -39,7 +41,16 @@ public class CaseByCaseChooser extends AbstractCellChooser {
     }
 
     // Otherwise, play smartly
-    choice = abpChooser.chooseCell(cells.stream(), game);
+    final int dim = game.getDim();
+    final int numCells = dim * dim;
+    final int numEmpty = game.getBoard().countEmpty();
+    final int numPopulated = numCells - numEmpty;
+    AbstractCellFilter filter = abpAllEmptyFilter;
+    if (numPopulated < 3) {
+      filter = abpNeighborFilter;
+    }
+    abpChooser.setFilter(filter);
+    choice = abpChooser.chooseCell(filter.filterCells(cells.stream(), game), game);
     return choice;
   }
 }

@@ -9,7 +9,6 @@ import org.pmw.tinylog.Logger;
 import edu.gwu.ai.codeknights.tictactoe.core.Cell;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.core.Player;
-import edu.gwu.ai.codeknights.tictactoe.filter.EmptyCellFilter;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.API;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -20,7 +19,7 @@ public class OnlineMoveMaker extends AbstractOnlineChooser {
 
   public OnlineMoveMaker(final int limitSec) {
     // For 2-min move time limit, leave 20 seconds for overhead (e.g., fast-forwarding game)
-    chooser = new CaseByCaseChooser(new AbpTimeLimitChooser(limitSec, new EmptyCellFilter()));
+    chooser = new CaseByCaseChooser(new AbpTimeLimitChooser(limitSec));
   }
 
   @Override

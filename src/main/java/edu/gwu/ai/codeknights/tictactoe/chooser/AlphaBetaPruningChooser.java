@@ -1,5 +1,6 @@
 package edu.gwu.ai.codeknights.tictactoe.chooser;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,39 +14,35 @@ import edu.gwu.ai.codeknights.tictactoe.core.Cell;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.core.Player;
 import edu.gwu.ai.codeknights.tictactoe.filter.AbstractCellFilter;
-import edu.gwu.ai.codeknights.tictactoe.filter.PopulatedNeighborFilter;
 
 public class AlphaBetaPruningChooser extends AbstractCellChooser {
 
-  public static final AbstractCellFilter DEFAULT_FILTER = new PopulatedNeighborFilter();
-  public static final boolean DEFAULT_RANDOM_SHUFFLE = true;
-
-  private final AbstractCellFilter filter;
-  private final boolean randomShuffle;
+  private AbstractCellFilter filter;
 
   private final Map<String, SearchResult> resultMap;
+
   private Long bestScore;
   private Set<Cell> bestCells;
 
-  public AlphaBetaPruningChooser(final AbstractCellFilter filter, final boolean randomShuffle) {
-    this.filter = filter != null ? filter : DEFAULT_FILTER;
-    this.randomShuffle = randomShuffle;
+  public AlphaBetaPruningChooser(final AbstractCellFilter filter) {
+    this.filter = filter;
 
     resultMap = new HashMap<>();
+
     bestScore = null;
     bestCells = null;
   }
 
-  public AlphaBetaPruningChooser(final AbstractCellFilter filter) {
-    this(filter, DEFAULT_RANDOM_SHUFFLE);
-  }
-
-  public AlphaBetaPruningChooser(final boolean randomShuffle) {
-    this(DEFAULT_FILTER, randomShuffle);
-  }
-
   public AlphaBetaPruningChooser() {
-    this(DEFAULT_FILTER, DEFAULT_RANDOM_SHUFFLE);
+    this(null);
+  }
+
+  public AbstractCellFilter getFilter() {
+    return filter;
+  }
+
+  public void setFilter(final AbstractCellFilter filter) {
+    this.filter = filter;
   }
 
   @Override
@@ -55,10 +52,8 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
     bestCells = new HashSet<>();
 
     // Shuffle input cells
-    final List<Cell> cells = input.collect(Collectors.toList());
-    if (randomShuffle) {
-      Collections.shuffle(cells);
-    }
+    final List<Cell> cells = new ArrayList<>(input.collect(Collectors.toList()));
+    Collections.shuffle(cells);
 
     // Create a copy of the game
     final Game copy = game.getCopy();
@@ -125,11 +120,17 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
       }
     }
 
-    // Try all possible moves
-    final List<Cell> filteredCells = filter.filterCells(game).collect(Collectors.toList());
-    if (randomShuffle) {
-      Collections.shuffle(filteredCells);
+    // Filter and shuffle cells
+    final List<Cell> filteredCells = new ArrayList<>();
+    if (filter != null) {
+      filteredCells.addAll(filter.filterCells(game).collect(Collectors.toList()));
     }
+    else {
+      filteredCells.addAll(game.getBoard().getEmptyCells());
+    }
+    Collections.shuffle(filteredCells);
+
+    // Try all possible moves
     final Player curPlayer = game.getNextPlayer();
     SearchResult bestResult = null;
     for (final Cell cell : filteredCells) {
