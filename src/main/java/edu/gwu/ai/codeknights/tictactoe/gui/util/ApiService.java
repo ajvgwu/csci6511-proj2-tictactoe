@@ -5,7 +5,7 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
-import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 import java.util.Map;
 
@@ -14,13 +14,12 @@ import java.util.Map;
  */
 public interface ApiService {
 
-    @POST("/index.php")
+    @POST("index.php")
     Call<Map> post(@Body RequestBody body);
 
-    @GET("/index.php?type=team&teamId={teamId}")
-    Call<Map> getTeamMembers(@Path("teamId") String teamId);
+    @GET("index.php?type=team")
+    Call<Map> getTeamMembers(@Query("teamId") String teamId);
 
-    @GET("/index.php?type=moves&gameId={gameId}&count={}")
-    Call<Map> getMoves(@Path("gameId") String gameId, @Path("count") Integer count);
-
+    @GET("index.php?type=moves")
+    Call<Map> getMoves(@Query("gameId") String gameId, @Query("count") Integer count);
 }

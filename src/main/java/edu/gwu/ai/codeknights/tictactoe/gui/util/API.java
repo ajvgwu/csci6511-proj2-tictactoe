@@ -11,11 +11,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 public class API {
 
-    public final static String BASE_URL = "http://www.notexponential.com/aip2pgaming/api";
-    private final static String HEADER_API_KEY = "x-api-key";
-    private final static String HEADER_API_KEY_VALUE = "";
-    private final static String HEADER_USER_ID = "userId";
-    private final static String HEADER_USER_ID_VALUE = "79";
+    public static final String BASE_URL = "http://www.notexponential.com/aip2pgaming/api/";
+    public static final String HEADER_CONTENT_TYPE = "Content-Type";
+    public static final String HEADER_CONTENT_TYPE_VALUE = "application/x-www-form-urlencoded";
+    public static final String HEADER_API_KEY = "x-api-key";
+    public static String HEADER_API_KEY_VALUE = "";
+    public static final String HEADER_USER_ID = "userId";
+    public static String HEADER_USER_ID_VALUE = "";
 
     private API() {
 
@@ -26,6 +28,7 @@ public class API {
     private static Interceptor headerInteceptor = chain -> {
         Request originalRequest = chain.request();
         Headers.Builder builder = new Headers.Builder();
+        builder.set(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_VALUE);
         builder.set(HEADER_API_KEY, HEADER_API_KEY_VALUE);
         builder.set(HEADER_USER_ID, HEADER_USER_ID_VALUE);
 

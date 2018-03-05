@@ -23,6 +23,7 @@ import edu.gwu.ai.codeknights.tictactoe.core.exception.GameException;
 import edu.gwu.ai.codeknights.tictactoe.filter.AbstractCellFilter;
 import edu.gwu.ai.codeknights.tictactoe.filter.Filter;
 import edu.gwu.ai.codeknights.tictactoe.gui.TicTacToe;
+import edu.gwu.ai.codeknights.tictactoe.gui.util.API;
 import edu.gwu.ai.codeknights.tictactoe.util.Const;
 
 public class Main {
@@ -45,6 +46,8 @@ public class Main {
     String finishGameP2Chooser = null;
     String[] compareChoosers = null;
     String testFilter = null;
+    String userId = null;
+    String apiKey = null;
 
     // Command-line options
     final Option helpOpt = Option.builder("h").longOpt("help")
@@ -102,6 +105,14 @@ public class Main {
       .hasArg().argName("FILTER")
       .desc("test the given filter (any one of " + String.valueOf(getFilterNames()) + ")")
       .build();
+    final Option userIdOpt = Option.builder().longOpt("api-user-id")
+      .hasArg().argName("USER-ID")
+      .desc("userId for game server API")
+      .build();
+    final Option apiKeyOpt = Option.builder().longOpt("api-key")
+      .hasArg().argName("API-KEY")
+      .desc("apiKey for game server API")
+      .build();
 
     final Options options = new Options();
     options.addOption(helpOpt);
@@ -117,6 +128,8 @@ public class Main {
     options.addOption(finishGameOpt);
     options.addOption(compareChoosersOpt);
     options.addOption(testFilterOpt);
+    options.addOption(userIdOpt);
+    options.addOption(apiKeyOpt);
 
     // Parse command-line options
     final CommandLineParser parser = new DefaultParser();
@@ -171,7 +184,15 @@ public class Main {
             + compareChoosersOpt.getLongOpt() + ", "
             + testFilterOpt.getLongOpt());
       }
-      testFilter = parseString(line, testFilterOpt, null);
+      testFilter = parseString(line, testFilterOpt, testFilter);
+      userId = parseString(line, userIdOpt, userId);
+      if (userId != null) {
+        API.HEADER_USER_ID_VALUE = userId;
+      }
+      apiKey = parseString(line, apiKeyOpt, apiKey);
+      if (apiKey != null) {
+        API.HEADER_API_KEY_VALUE = apiKey;
+      }
     }
     if (line == null || help) {
       // Print usage information
