@@ -18,8 +18,6 @@ public class OnlineMoveFetcher extends AbstractOnlineChooser {
 
   @Override
   public Cell chooseCell(final Stream<Cell> input, final Game game) {
-    Logger.debug("fast-forwarding game to current state");
-    tryFastForward(game);
     if (game.isGameOver()) {
       Logger.debug("no more moves, game is over");
       return null;

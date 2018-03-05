@@ -15,6 +15,7 @@ import org.apache.commons.cli.ParseException;
 import org.pmw.tinylog.Logger;
 
 import edu.gwu.ai.codeknights.tictactoe.chooser.AbstractCellChooser;
+import edu.gwu.ai.codeknights.tictactoe.chooser.AbstractOnlineChooser;
 import edu.gwu.ai.codeknights.tictactoe.chooser.Chooser;
 import edu.gwu.ai.codeknights.tictactoe.core.Cell;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
@@ -219,6 +220,9 @@ public class Main {
         // Finish the current game
         player1.setChooser(getChooserByName(finishGameP1Chooser));
         player2.setChooser(getChooserByName(finishGameP2Chooser));
+        if (player1.getChooser() instanceof AbstractOnlineChooser) {
+          AbstractOnlineChooser.tryFastForward(game, 0);
+        }
         new TestScenario(game).finishGame();
       }
       else if (testFilter != null) {
