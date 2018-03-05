@@ -18,7 +18,12 @@ public class OnlineMoveChooser extends AbstractCellChooser {
 
   public static final String API_RESPONSEKEY_CODE = "code";
   public static final String API_CODE_SUCCESS = "OK";
+
   public static final String API_RESPONSEKEY_MOVES = "moves";
+
+  public static final String API_MOVEKEY_GAMEID = "gameId";
+  public static final String API_MOVEKEY_TEAMID = "teamId";
+  public static final String API_MOVEKEY_MOVE = "move";
 
   @Override
   public Cell chooseCell(final Stream<Cell> input, final Game game) {
@@ -40,12 +45,18 @@ public class OnlineMoveChooser extends AbstractCellChooser {
           if (o instanceof List<?>) {
             final List<?> list = (List<?>) o;
             if (list.size() == numMovesExpected) {
-              o = list.get(list.size() - 1);
-              if (o instanceof String) {
-                final String coords = (String) o;
-                final Cell cell = game.tryGetCellFromCoord(coords);
-                if (cell != null) {
-                  return cell;
+              o = list.get(0);
+              if (o instanceof Map<?, ?>) {
+                final Map<?, ?> move = (Map<?, ?>) o;
+                final Object gameIdObj = move.get(API_MOVEKEY_GAMEID);
+                final Object teamIdObj = move.get(API_MOVEKEY_TEAMID);
+                final Object moveObj = move.get(API_MOVEKEY_MOVE);
+                if (String.valueOf(gameId).equals(gameIdObj) && String.valueOf(curPlayer.getId()).equals(teamIdObj)
+                  && moveObj instanceof String) {
+                  final Cell cell = game.tryGetCellFromCoord((String) moveObj);
+                  if (cell != null) {
+                    return cell;
+                  }
                 }
               }
             }
