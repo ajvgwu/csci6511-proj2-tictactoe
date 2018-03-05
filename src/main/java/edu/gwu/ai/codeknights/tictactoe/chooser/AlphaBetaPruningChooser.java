@@ -21,9 +21,9 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
   public static final boolean DEFAULT_RANDOM_SHUFFLE = true;
 
   private final AbstractCellFilter filter;
-  private boolean randomShuffle;
+  private final boolean randomShuffle;
 
-  private Map<String, Long> scoreMap;
+  private final Map<String, SearchResult> resultMap;
   private Long bestScore;
   private Set<Cell> bestCells;
 
@@ -31,7 +31,7 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
     this.filter = filter != null ? filter : DEFAULT_FILTER;
     this.randomShuffle = randomShuffle;
 
-    scoreMap = null;
+    resultMap = new HashMap<>();
     bestScore = null;
     bestCells = null;
   }
@@ -48,124 +48,181 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
     this(DEFAULT_FILTER, DEFAULT_RANDOM_SHUFFLE);
   }
 
-  public AbstractCellFilter getFilter() {
-    return filter;
+  @Override
+  public Cell chooseCell(final Stream<Cell> input, final Game game) {
+    // Starting a new search, initialize results
+    bestScore = null;
+    bestCells = new HashSet<>();
+
+    // Shuffle input cells
+    final List<Cell> cells = input.collect(Collectors.toList());
+    if (randomShuffle) {
+      Collections.shuffle(cells);
+    }
+
+    // Create a copy of the game
+    final Game copy = game.getCopy();
+    final Player player = copy.getNextPlayer();
+    final Player opponent = copy.getOtherPlayer(player);
+
+    // Set max depth to number of empty spaces
+    int curMaxDepth = 1;
+    final int maxDepth = copy.getBoard().countEmpty();
+    while (curMaxDepth < maxDepth) {
+
+      // Player tries each available cell
+      for (final Cell cell : cells) {
+        final Cell copyCell = copy.getBoard().getCell(cell.getRowIdx(), cell.getColIdx());
+        if (copyCell.isEmpty()) {
+          copyCell.setPlayer(player);
+          final SearchResult result = abp(copy, player, opponent, Long.MIN_VALUE, Long.MAX_VALUE, 1, curMaxDepth);
+          copyCell.setPlayer(null);
+          if (bestScore == null || result.getScore() >= bestScore) {
+            if (bestScore != null && result.getScore() > bestScore) {
+              bestCells.clear();
+            }
+            bestScore = result.getScore();
+            bestCells.add(cell);
+          }
+        }
+      }
+
+      // Increase max depth (iterative deepening)
+      curMaxDepth++;
+    }
+
+    // Return any of the equally-best cells
+    return bestCells.stream().findAny().orElse(null);
   }
 
-  public boolean isRandomShuffle() {
-    return randomShuffle;
-  }
+  public SearchResult abp(final Game game, final Player player, final Player opponent, long alpha, long beta,
+    final int curDepth, final int maxDepth) {
 
-  public void setRandomShuffle(final boolean randomShuffle) {
-    this.randomShuffle = randomShuffle;
-  }
+    // Check for terminal state or stopping condition
+    final boolean isGameOver = game.isGameOver();
+    if (isGameOver || curDepth >= maxDepth) {
+      long utility = game.evaluatePlayerUtility(player);
+      if (isGameOver) {
+        if (game.didPlayerWin(player)) {
+          utility = Math.max(1L, utility);
+        }
+        else if (game.didPlayerWin(opponent)) {
+          utility = Math.min(-1L, utility);
+        }
+      }
+      final SearchResult result = new SearchResult(curDepth, maxDepth, isGameOver, utility);
+      return result;
+    }
 
-  protected Map<String, Long> getScoreMap() {
-    return scoreMap;
-  }
+    // Check if we've already solved this state
+    synchronized (resultMap) {
+      final String hash = game.getBoardHash();
+      final SearchResult result = resultMap.get(hash);
+      if (result != null) {
+        if (result.didTerminate() || result.getDepthReached() >= curDepth) {
+          return result;
+        }
+      }
+    }
 
-  protected Long getBestScore() {
-    return bestScore;
+    // Try all possible moves
+    final List<Cell> filteredCells = filter.filterCells(game).collect(Collectors.toList());
+    if (randomShuffle) {
+      Collections.shuffle(filteredCells);
+    }
+    final Player curPlayer = game.getNextPlayer();
+    SearchResult bestResult = null;
+    for (final Cell cell : filteredCells) {
+      if (cell.isEmpty()) {
+        cell.setPlayer(curPlayer);
+        final SearchResult result = abp(game, player, opponent, alpha, beta, curDepth + 1, maxDepth);
+        cell.setPlayer(null);
+        if (player.equals(curPlayer)) {
+          if (result.getScore() > alpha) {
+            alpha = result.getScore();
+            bestResult = result;
+          }
+        }
+        else {
+          if (result.getScore() < beta) {
+            beta = result.getScore();
+            bestResult = result;
+          }
+        }
+        if (alpha >= beta) {
+          break;
+        }
+      }
+    }
+
+    // Update score map
+    synchronized (resultMap) {
+      final String hash = game.getBoardHash();
+      resultMap.put(hash, bestResult);
+    }
+
+    // Return best result
+    return bestResult;
   }
 
   protected Set<Cell> getBestCells() {
     return bestCells;
   }
 
-  @Override
-  public Cell chooseCell(final Stream<Cell> input, final Game game) {
-    scoreMap = new HashMap<>();
-    bestScore = null;
-    bestCells = new HashSet<>();
-    final List<Cell> cells = input.collect(Collectors.toList());
-    if (isRandomShuffle()) {
-      Collections.shuffle(cells);
-    }
-    final Player player = game.getNextPlayer();
-    final Player opponent = game.getOtherPlayer(player);
-    final Game copy = game.getCopy();
-    final int maxDepth = copy.getBoard().countEmpty();
-    int curMaxLevel = 1;
-    while (curMaxLevel < maxDepth) {
-      for (final Cell cell : cells) {
-        final Cell copyCell = copy.getBoard().getCell(cell.getRowIdx(), cell.getColIdx());
-        if (copyCell.isEmpty()) {
-          copyCell.setPlayer(player);
-          final long score = abp(copy, player, opponent, Long.MIN_VALUE, Long.MAX_VALUE, 0, curMaxLevel);
-          copyCell.setPlayer(null);
-          if (bestScore == null || score >= bestScore) {
-            if (bestScore != null && score > bestScore) {
-              bestCells.clear();
-            }
-            bestScore = score;
-            bestCells.add(cell);
-          }
-        }
-      }
+  public static class SearchResult {
 
-      // Increase max level and clear score map
-      curMaxLevel++;
-      // getScoreMap().clear(); // TODO: clear map ???
-    }
-    return bestCells.stream().findAny().orElse(null);
-  }
+    private int depthReached;
+    private int maxDepth;
+    private boolean didTerminate;
+    private long score;
 
-  public long abp(final Game game, final Player player, final Player opponent, long alpha, long beta,
-    final int curLevel, final int maxLevel) {
-
-    // Check for terminal state
-    if (curLevel > maxLevel || game.isGameOver()) {
-      final long utility = game.evaluatePlayerUtility(player);
-      if (game.didPlayerWin(player)) {
-        return Math.max(1L, utility);
-      }
-      else if (game.didPlayerWin(opponent)) {
-        return Math.min(-1L, utility);
-      }
-      else {
-        return utility;
-      }
+    public SearchResult(final int depthReached, final int maxDepth, final boolean didTerminate, final long score) {
+      this.depthReached = depthReached;
+      this.maxDepth = maxDepth;
+      this.didTerminate = didTerminate;
+      this.score = score;
     }
 
-    // Check if we've already solved this state
-    synchronized (getScoreMap()) {
-      final String hash = game.getBoardHash();
-      final Long precomputedScore = getScoreMap().get(hash);
-      if (precomputedScore != null) {
-        return precomputedScore;
-      }
+    public int getDepthReached() {
+      return depthReached;
     }
 
-    // Try all possible moves
-    final List<Cell> filteredCells = getFilter().filterCells(game).collect(Collectors.toList());
-    final Player curPlayer = game.getNextPlayer();
-    for (final Cell cell : filteredCells) {
-      cell.setPlayer(curPlayer);
-      final long curScore = abp(game, player, opponent, alpha, beta, curLevel + 1, maxLevel);
-      cell.setPlayer(null);
-      if (player.equals(curPlayer)) {
-        if (curScore > alpha) {
-          alpha = curScore;
-        }
-      }
-      else {
-        if (curScore < beta) {
-          beta = curScore;
-        }
-      }
-      if (alpha >= beta) {
-        break;
-      }
-    }
-    final long score = player.equals(curPlayer) ? alpha : beta;
-
-    // Update score map
-    synchronized (getScoreMap()) {
-      final String hash = game.getBoardHash();
-      getScoreMap().put(hash, score);
+    public void setDepthReached(final int depthReached) {
+      this.depthReached = depthReached;
     }
 
-    // Return best score
-    return score;
+    public int getMaxDepth() {
+      return maxDepth;
+    }
+
+    public void setMaxDepth(final int maxDepth) {
+      this.maxDepth = maxDepth;
+    }
+
+    public boolean didTerminate() {
+      return didTerminate;
+    }
+
+    public void setDidTerminate(final boolean didTerminate) {
+      this.didTerminate = didTerminate;
+    }
+
+    public long getScore() {
+      return score;
+    }
+
+    public void setScore(final long score) {
+      this.score = score;
+    }
+
+    @Override
+    public String toString() {
+      return new StringBuilder()
+        .append("depthReached=").append(depthReached)
+        .append(", maxDepth=").append(maxDepth)
+        .append(", didTerminate=").append(didTerminate)
+        .append(", score=").append(score)
+        .toString();
+    }
   }
 }
