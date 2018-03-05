@@ -220,8 +220,10 @@ public class Main {
         // Finish the current game
         player1.setChooser(getChooserByName(finishGameP1Chooser));
         player2.setChooser(getChooserByName(finishGameP2Chooser));
-        if (player1.getChooser() instanceof AbstractOnlineChooser) {
-          AbstractOnlineChooser.tryFastForward(game, 0);
+        if (game.getGameId() > 0 && (player1.getId() == 1065 || player2.getId() == 1065)
+          && player1.getChooser() instanceof AbstractOnlineChooser
+          && player2.getChooser() instanceof AbstractOnlineChooser) {
+          AbstractOnlineChooser.tryFastForward(game);
         }
         new TestScenario(game).finishGame();
       }

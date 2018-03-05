@@ -28,7 +28,7 @@ public abstract class AbstractOnlineChooser extends AbstractCellChooser {
   public static final String API_MOVEKEY_TEAMID = "teamId";
   public static final String API_MOVEKEY_MOVE = "move";
 
-  public static void tryFastForward(final Game game, final int playerIdx) {
+  public static void tryFastForward(final Game game) {
     final long gameId = game.getGameId();
     final int dim = game.getDim();
     final int numCells = dim * dim;
@@ -44,25 +44,25 @@ public abstract class AbstractOnlineChooser extends AbstractCellChooser {
           o = body.get(API_RESPONSEKEY_MOVES);
           if (o instanceof List<?>) {
             final List<?> list = (List<?>) o;
-            for (int i = 0; i < list.size(); i++) {
-              if (i < list.size() - 1 || i % 2 == playerIdx) {
-                final Object item = list.get(i);
-                if (item instanceof Map<?, ?>) {
-                  final Map<?, ?> move = (Map<?, ?>) item;
-                  final Object gameIdObj = move.get(API_MOVEKEY_GAMEID);
-                  final Object moveObj = move.get(API_MOVEKEY_MOVE);
-                  if (String.valueOf(gameId).equals(gameIdObj) && moveObj instanceof String) {
-                    final Cell cell = game.tryGetCellFromCoord((String) moveObj);
-                    if (cell != null) {
-                      final Object teamIdObj = move.get(API_MOVEKEY_TEAMID);
-                      Player curPlayer = game.getNextPlayer();
-                      final Player opponent = game.getOtherPlayer(curPlayer);
-                      if (!String.valueOf(opponent.getId()).equals(teamIdObj)) {
-                        Logger.warn("moves from server might be out of order");
-                        curPlayer = opponent;
+            for (int i = list.size() - 1; i >= 0; i--) {
+              final Object item = list.get(i);
+              if (item instanceof Map<?, ?>) {
+                final Map<?, ?> move = (Map<?, ?>) item;
+                final Object gameIdObj = move.get(API_MOVEKEY_GAMEID);
+                final Object moveObj = move.get(API_MOVEKEY_MOVE);
+                if (String.valueOf(gameId).equals(gameIdObj) && moveObj instanceof String) {
+                  final Cell cell = game.tryGetCellFromCoord((String) moveObj);
+                  if (cell != null) {
+                    Player player = i % 2 == 0 ? game.getPlayer1() : game.getPlayer2();
+                    final Object teamIdObj = move.get(API_MOVEKEY_TEAMID);
+                    if (!String.valueOf(player.getId()).equals(teamIdObj)) {
+                      Logger.warn("moves from server might be out of order");
+                      final Player otherPlayer = game.getOtherPlayer(player);
+                      if (String.valueOf(otherPlayer.getId()).equals(teamIdObj)) {
+                        player = otherPlayer;
                       }
-                      cell.setPlayer(curPlayer);
                     }
+                    cell.setPlayer(player);
                   }
                 }
               }
