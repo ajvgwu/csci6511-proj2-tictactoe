@@ -31,7 +31,10 @@ public class OnlineMoveMaker extends AbstractCellChooser {
     final int curPlayerId = curPlayer.getId();
 
     // Select a cell to play and send to server
-    final Cell choice = chooser.chooseCell(input, game);
+    Cell choice = chooser.chooseCell(input, game);
+    if (choice == null) {
+      choice = game.getBoard().getEmptyCells().stream().findAny().orElse(null);
+    }
     final String moveCoords = String.valueOf(choice.getRowIdx()) + "," + String.valueOf(choice.getColIdx());
     while (true) {
       final Call<Map> call = API.getApiService().post(API_TYPE_MOVE, String.valueOf(curPlayerId),
