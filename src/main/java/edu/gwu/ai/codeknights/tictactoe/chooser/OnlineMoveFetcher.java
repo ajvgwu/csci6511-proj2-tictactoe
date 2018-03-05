@@ -18,8 +18,10 @@ public class OnlineMoveFetcher extends AbstractOnlineChooser {
 
   @Override
   public Cell chooseCell(final Stream<Cell> input, final Game game) {
+    Logger.debug("fast-forwarding game to current state");
     tryFastForward(game);
     if (game.isGameOver()) {
+      Logger.debug("no more moves, game is over");
       return null;
     }
     final long gameId = game.getGameId();
@@ -27,14 +29,18 @@ public class OnlineMoveFetcher extends AbstractOnlineChooser {
     final int numCells = dim * dim;
     final int numEmpty = game.getBoard().countEmpty();
     final int numMoves = numCells - numEmpty;
-    final int numMovesExpected = Math.max(numCells, numMoves + 1);
+    final int numMovesExpected = numMoves + 1;
+    final int numMovesToFetch = Math.max(numCells, numMovesExpected);
     final Player curPlayer = game.getNextPlayer();
     final int curPlayerId = curPlayer.getId();
     while (true) {
-      final Call<Map> call = API.getApiService().getMoves(String.valueOf(gameId), numMoves + 1);
+      final Call<Map> call = API.getApiService().getMoves(String.valueOf(gameId), numMovesToFetch);
       try {
+        Logger.debug("fetching up to {} moves from server", numMovesToFetch);
         final Response<Map> response = call.execute();
+        Logger.debug("got response from server: {}", response);
         final Map<?, ?> body = response.body();
+        Logger.debug("body of response: {}", body);
         Object o = body.get(API_RESPONSEKEY_CODE);
         if (o instanceof String && o.equals(API_CODE_SUCCESS)) {
           o = body.get(API_RESPONSEKEY_MOVES);
@@ -49,8 +55,10 @@ public class OnlineMoveFetcher extends AbstractOnlineChooser {
                 final Object moveObj = move.get(API_MOVEKEY_MOVE);
                 if (String.valueOf(gameId).equals(gameIdObj) && String.valueOf(curPlayerId).equals(teamIdObj)
                   && moveObj instanceof String) {
+                  Logger.debug("looking for cell corresponding to move fetched from server: {}", moveObj);
                   final Cell cell = game.tryGetCellFromCoord((String) moveObj);
                   if (cell != null) {
+                    Logger.debug("query successful, returning move in cell: {}", cell);
                     return cell;
                   }
                 }
@@ -61,7 +69,7 @@ public class OnlineMoveFetcher extends AbstractOnlineChooser {
         Thread.sleep(1000);
       }
       catch (IOException | InterruptedException e) {
-        Logger.error(e, "could not get response to API request from server");
+        Logger.error(e, "error while fetching move from server");
       }
     }
   }
