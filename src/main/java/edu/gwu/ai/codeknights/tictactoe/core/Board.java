@@ -349,11 +349,15 @@ public class Board {
    */
   @Override
   public String toString() {
+    final int dimStrLen = String.valueOf(dim - 1).length();
+    final String idxFormat = "%" + String.valueOf(dimStrLen) + "d";
     final StringBuilder bldr = new StringBuilder();
+    // TODO: add column headers ???
     for (int rowIdx = 0; rowIdx < dim; rowIdx++) {
       if (bldr.length() > 0) {
         bldr.append("\n");
       }
+      bldr.append("[").append(String.format(idxFormat, rowIdx)).append("]");
       for (int colIdx = 0; colIdx < dim; colIdx++) {
         bldr.append(" ").append(getCell(rowIdx, colIdx)).append(" ");
       }
