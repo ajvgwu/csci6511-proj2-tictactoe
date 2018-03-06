@@ -15,19 +15,6 @@ import retrofit2.Response;
 
 public abstract class AbstractOnlineChooser extends AbstractCellChooser {
 
-  public static final String API_RESPONSEKEY_CODE = "code";
-  public static final String API_CODE_SUCCESS = "OK";
-  public static final String API_CODE_FAILURE = "FAIL";
-
-  public static final String API_TYPE_MOVE = "move";
-
-  public static final String API_RESPONSEKEY_MOVES = "moves";
-  public static final String API_RESPONSEKEY_MESSAGE = "message";
-
-  public static final String API_MOVEKEY_GAMEID = "gameId";
-  public static final String API_MOVEKEY_TEAMID = "teamId";
-  public static final String API_MOVEKEY_MOVE = "move";
-
   public static void tryFastForward(final Game game) {
     final long gameId = game.getGameId();
     final int dim = game.getDim();
@@ -38,10 +25,10 @@ public abstract class AbstractOnlineChooser extends AbstractCellChooser {
       Logger.debug("got response from server: {}", response);
       final Map<?, ?> body = response.body();
       Logger.debug("body of response: {}", body);
-      Object o = body.get(API_RESPONSEKEY_CODE);
+      Object o = body.get(API.API_RESPONSEKEY_CODE);
       if (o instanceof String) {
-        if (o.equals(API_CODE_SUCCESS)) {
-          o = body.get(API_RESPONSEKEY_MOVES);
+        if (o.equals(API.API_CODE_SUCCESS)) {
+          o = body.get(API.API_RESPONSEKEY_MOVES);
           if (o instanceof List<?>) {
             Player curPlayer = game.getPlayer1();
             final List<?> moves = (List<?>) o;
@@ -49,12 +36,12 @@ public abstract class AbstractOnlineChooser extends AbstractCellChooser {
               final Object item = moves.get(i);
               if (item instanceof Map<?, ?>) {
                 final Map<?, ?> move = (Map<?, ?>) item;
-                final Object gameIdObj = move.get(API_MOVEKEY_GAMEID);
-                final Object moveObj = move.get(API_MOVEKEY_MOVE);
+                final Object gameIdObj = move.get(API.API_MOVEKEY_GAMEID);
+                final Object moveObj = move.get(API.API_MOVEKEY_MOVE);
                 if (String.valueOf(gameId).equals(gameIdObj) && moveObj instanceof String) {
                   final Cell cell = game.tryGetCellFromCoord((String) moveObj);
                   if (cell != null) {
-                    final Object teamIdObj = move.get(API_MOVEKEY_TEAMID);
+                    final Object teamIdObj = move.get(API.API_MOVEKEY_TEAMID);
                     if (!String.valueOf(curPlayer.getId()).equals(teamIdObj)) {
                       Logger.warn("moves from server might be out of order");
                       final Player otherPlayer = game.getOtherPlayer(curPlayer);
@@ -71,7 +58,7 @@ public abstract class AbstractOnlineChooser extends AbstractCellChooser {
           }
         }
         else {
-          final Object msgObj = body.get(API_RESPONSEKEY_MESSAGE);
+          final Object msgObj = body.get(API.API_RESPONSEKEY_MESSAGE);
           Logger.error("got response {} from server with message: {}", o, msgObj);
         }
       }

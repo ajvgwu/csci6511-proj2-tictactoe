@@ -19,9 +19,9 @@ import picocli.CommandLine.Option;
 public class CompareChoosers extends AbstractOfflineSubcommand {
 
   @Option(
-    names = {"--choosers"}, required = true, arity = "1..*",
+    names = {"--choosers"}, arity = "1..*",
     description = "choosers that will be compared on the next move for the current board state")
-  private Chooser[] choosers = null;
+  private Chooser[] choosers = Chooser.values();
 
   @Override
   protected void validateArgs() throws Exception {

@@ -19,6 +19,21 @@ public class API {
     public static final String HEADER_USER_ID = "userId";
     public static String HEADER_USER_ID_VALUE = "";
 
+    public static final String API_RESPONSEKEY_CODE = "code";
+    public static final String API_CODE_SUCCESS = "OK";
+    public static final String API_CODE_FAILURE = "FAIL";
+
+    public static final String API_TYPE_GAME = "game";
+    public static final String API_TYPE_MOVE = "move";
+
+    public static final String API_RESPONSEKEY_GAMEID = "gameId";
+    public static final String API_RESPONSEKEY_MOVES = "moves";
+    public static final String API_RESPONSEKEY_MESSAGE = "message";
+
+    public static final String API_MOVEKEY_GAMEID = "gameId";
+    public static final String API_MOVEKEY_TEAMID = "teamId";
+    public static final String API_MOVEKEY_MOVE = "move";
+
     private API() {
 
     }

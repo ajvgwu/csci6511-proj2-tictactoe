@@ -9,34 +9,6 @@ import edu.gwu.ai.codeknights.tictactoe.filter.PopulatedNeighborFilter;
 
 public enum Chooser {
 
-  ONLINE_MOVE_FETCHER("OnlineMoveFetcher") {
-
-    @Override
-    public AbstractCellChooser createChooser() {
-      return new OnlineMoveFetcher();
-    }
-  },
-  ONLINE_MOVE_MAKER_90SEC("OnlineMoveMaker90Sec") {
-
-    @Override
-    public AbstractCellChooser createChooser() {
-      return new OnlineMoveMaker(90);
-    }
-  },
-  ONLINE_MOVE_MAKER_100SEC("OnlineMoveMaker100Sec") {
-
-    @Override
-    public AbstractCellChooser createChooser() {
-      return new OnlineMoveMaker(100);
-    }
-  },
-  ONLINE_MOVE_MAKER_110SEC("OnlineMoveMaker110Sec") {
-
-    @Override
-    public AbstractCellChooser createChooser() {
-      return new OnlineMoveMaker(110);
-    }
-  },
   ALPHA_BETA_PRUNING("AlphaBetaPruning") {
 
     @Override

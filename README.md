@@ -32,19 +32,53 @@ To create shaded JAR file (runnable JAR file with all dependencies included):
 ```bash
 cd /path/to/csci6511-proj2-tictactoe/
 mvn package
-# shaded JAR file will be written to ./target/csci6511-proj2-tictactoe-0.1-SNAPSHOT-shaded.jar
+# shaded JAR file will be written to ./target/csci6511-proj2-tictactoe-<version>-shaded.jar
 ```
 
-To run the program:
+To clean, compile, package, and install into your local maven repo:
 
 ```bash
-# java -jar ./target/csci6511-proj2-tictactoe-0.1-SNAPSHOT-shaded.jar <args>
+cd /path/to/csci6511-proj2-tictactoe/
+mvn clean install
+```
 
-# For example:
-java -jar ./target/csci6511-proj2-tictactoe-0.1-SNAPSHOT-shaded.jar --dim 3 --win-length 3 --state _ _ _ _ O X X _ _ O _ _ X X O
+## Usage Instructions
 
-# Or, for usage info:
-java -jar ./target/csci6511-proj2-tictactoe-0.1-SNAPSHOT-shaded.jar --help
+To run the program from the command line:
+
+```bash
+# java -jar ./target/csci6511-proj2-tictactoe-<version>-shaded.jar <cmd> <args>
+
+# For general usage info, use the '--help' flag:
+java -jar ./target/csci6511-proj2-tictactoe-0.3-SNAPSHOT-shaded.jar --help
+
+# For usage info for a particular command, also use the '--help' flag:
+java -jar ./target/csci6511-proj2-tictactoe-0.3-SNAPSHOT-shaded.jar <cmd> --help
+```
+
+## Creating and Playing an Online Game
+
+```bash
+# 1. Create a new game
+java -jar ./target/csci6511-proj2-ticctoe-0.3-SNAPSHOT-shaded.jar \
+  create-online-game --user-id <your userId> --api-key <your apiKey> \
+    --player1-id <your team id> --player2-id <opponent team id>
+# Make note of output, which contains gameId
+
+# 2. In first session, play as player1
+java -jar ./target/csci6511-proj2-ticctoe-0.3-SNAPSHOT-shaded.jar \
+  play-online-game --user-id <your userId> --api-key <your apiKey> \
+    --player1-id <your team id> --player2-id <opponent team id> \
+    --game-id <gameId from step 1> \
+    --dim 18 --win-length 8 # or whatever board size you agreed upon
+
+# 3. In another session, play as player2
+java -jar ./target/csci6511-proj2-ticctoe-0.3-SNAPSHOT-shaded.jar \
+  play-online-game --user-id <your userId> --api-key <your apiKey> \
+    --player1-id <your team id> --player2-id <opponent team id> \
+    --game-id <gameId from step 1> \
+    --dim 18 --win-length 8 \
+    --player2
 ```
 
 ## Screenshot

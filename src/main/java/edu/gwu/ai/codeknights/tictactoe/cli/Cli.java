@@ -13,7 +13,8 @@ import picocli.CommandLine.RunLast;
   name = "cli", sortOptions = false, showDefaultValues = true,
   description = "command-line interface",
   subcommands = {
-    CompareChoosers.class, TestFilter.class, SingleMove.class, FinishGame.class, OnlineGame.class, LaunchGui.class})
+    SingleMove.class, FinishGame.class, TestFilter.class, CompareChoosers.class, CreateOnlineGame.class,
+    PlayOnlineGame.class, LaunchGui.class})
 public class Cli implements Callable<Void> {
 
   @Option(

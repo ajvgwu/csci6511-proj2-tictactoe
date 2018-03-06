@@ -41,7 +41,7 @@ public class OnlineMoveMaker extends AbstractOnlineChooser {
     }
     final String moveCoords = String.valueOf(choice.getRowIdx()) + "," + String.valueOf(choice.getColIdx());
     while (true) {
-      final Call<Map> call = API.getApiService().post(API_TYPE_MOVE, String.valueOf(curPlayerId),
+      final Call<Map> call = API.getApiService().post(API.API_TYPE_MOVE, String.valueOf(curPlayerId),
         String.valueOf(gameId), moveCoords);
       try {
         Logger.debug("sending move to server: {}", moveCoords);
@@ -49,14 +49,14 @@ public class OnlineMoveMaker extends AbstractOnlineChooser {
         Logger.debug("got response from server: {}", response);
         final Map<?, ?> body = response.body();
         Logger.debug("body of response: {}", body);
-        final Object o = body.get(API_RESPONSEKEY_CODE);
+        final Object o = body.get(API.API_RESPONSEKEY_CODE);
         if (o instanceof String) {
-          if (o.equals(API_CODE_SUCCESS)) {
+          if (o.equals(API.API_CODE_SUCCESS)) {
             Logger.debug("response successful, returning move in cell: {}", choice);
             return choice;
           }
           else {
-            final Object msgObj = body.get(API_RESPONSEKEY_MESSAGE);
+            final Object msgObj = body.get(API.API_RESPONSEKEY_MESSAGE);
             Logger.error("got response {} from server with message: {}", o, msgObj);
           }
         }
