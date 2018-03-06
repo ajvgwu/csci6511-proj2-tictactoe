@@ -77,14 +77,14 @@ public class RuleBasedChooser extends AbstractCellChooser {
     }
     cells.removeAll(cellsCausingOppFork);
     
-    // TODO: any other rules ???
-    */
-
     // Rule 6: try to win in 2 moves
     final Cell winInTwoCell = findWinInTwo(game, cells, winLength, player);
     if (winInTwoCell != null) {
       return winInTwoCell;
     }
+
+    // TODO: any other rules ???
+    */
 
     // Rule 7: block opponent early if he can win in 2 moves
     final Cell loseInTwoCell = findWinInTwo(game, cells, winLength, opponent);
