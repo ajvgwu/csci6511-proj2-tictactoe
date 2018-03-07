@@ -3,6 +3,9 @@ package edu.gwu.ai.codeknights.tictactoe.gui.controller;
 import java.util.Random;
 
 import edu.gwu.ai.codeknights.tictactoe.chooser.AbstractOnlineChooser;
+import edu.gwu.ai.codeknights.tictactoe.chooser.OnlineMoveFetcher;
+import edu.gwu.ai.codeknights.tictactoe.chooser.OnlineMoveMaker;
+import edu.gwu.ai.codeknights.tictactoe.cli.AbstractSubcommand;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.TextField;
@@ -121,12 +124,9 @@ public class MainController {
    * @param opId     id of opponent player
    */
   public void setup(long gameId, final int dim, final int winLen, final GameMode mode, int masterId, int opId) {
-    boolean toHookExistingGame = false;
     if (GameMode.EVE_ONLINE.equals(mode)) {
       if (gameId == 0) {
-        helper.createOnelineGame(masterId, opId);
-      } else {
-        toHookExistingGame = true;
+        gameId = helper.createOnelineGame(masterId, opId);
       }
     } else {
       // generate all ids for non-EvE-online games
@@ -135,13 +135,25 @@ public class MainController {
       opId = 20;
     }
 
+    // add matrix to main panel
+    buildBoard(dim, dim);
+    TicTacToe.getPrimaryStage().sizeToScene();
+    helper.createLocalGame(gameId, dim, winLen, mode, masterId, opId);
+    game = helper.getGame();
+
+    if(mode.equals(GameMode.EVE_ONLINE)){
+      // Fast-forward game to current state
+      AbstractOnlineChooser.tryFastForward(game);
+    }
+
     mMasterId.setText(String.valueOf(masterId));
     mOpId.setText(String.valueOf(opId));
     mGameId.setText(String.valueOf(gameId));
     mRowLen.setText(String.valueOf(dim));
     mColLen.setText(String.valueOf(dim));
     mWinLen.setText(String.valueOf(winLen));
-
+    mState.setText(game.getGameStatus());
+    mTurn.setText(String.valueOf(game.getNextPlayer().getMarker()));
     this.mode = mode;
 
     if(mode.equals(GameMode.EVP) || mode.equals(GameMode.EVE_ONLINE) || mode.equals(GameMode.EVE)){
@@ -150,16 +162,6 @@ public class MainController {
     }else{
       isPlayerNext.set(true);
       isAINext.set(false);
-    }
-
-    // add matrix to main panel
-    buildBoard(dim, dim);
-    TicTacToe.getPrimaryStage().sizeToScene();
-    helper.createLocalGame(gameId, dim, winLen, mode, masterId, opId);
-    game = helper.getGame();
-    if(toHookExistingGame){
-      // hook on a existing game
-      AbstractOnlineChooser.tryFastForward(game);
     }
   }
 
@@ -242,6 +244,7 @@ public class MainController {
       + "][" + row + ", " + col + "]\n" + helper.history.get());
     boardProperties[row][col].set(String.valueOf(nextPlayer.getMarker()));
     mState.setText(game.getGameStatus());
+    mTurn.setText(String.valueOf(game.getNextPlayer().getMarker()));
     isGameOver.set(game.isGameOver());
     if (!isGameOver.get()) {
       // ai opponent make a move
@@ -280,6 +283,7 @@ public class MainController {
       helper.history.get()));
     mState.setText(game.getGameStatus());
     isGameOver.set(game.isGameOver());
+    mTurn.setText(String.valueOf(game.getNextPlayer().getMarker()));
   }
 
   public Game getGame() {
