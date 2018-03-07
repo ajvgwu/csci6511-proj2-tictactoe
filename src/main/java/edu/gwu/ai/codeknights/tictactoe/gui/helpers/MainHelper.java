@@ -9,9 +9,16 @@ import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.core.Player;
 import edu.gwu.ai.codeknights.tictactoe.filter.EmptyCellFilter;
 import edu.gwu.ai.codeknights.tictactoe.gui.controller.GameMode;
+import edu.gwu.ai.codeknights.tictactoe.gui.util.API;
 import edu.gwu.ai.codeknights.tictactoe.util.Const;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import org.pmw.tinylog.Logger;
+import retrofit2.Call;
+import retrofit2.Response;
+
+import java.io.IOException;
+import java.util.Map;
 
 /**
  * @author zhiyuan
@@ -32,7 +39,7 @@ public class MainHelper {
       history = new SimpleStringProperty("");
     }
 
-    public void createGame(long gameId, int dim, int winLen, GameMode mode, int masterId, int opId) {
+    public void createLocalGame(long gameId, int dim, int winLen, GameMode mode, int masterId, int opId) {
 
         // create the choosers for the two players
         // for AI players, use time-limited alpha-beta pruning with a limit of 110 seconds (1min 50sec)
@@ -64,6 +71,8 @@ public class MainHelper {
                 opChooser = new OnlineMoveFetcher();
                 break;
             }
+            default:
+                Logger.error("Invalid Game Mode");
         }
 
         // create players
@@ -74,6 +83,30 @@ public class MainHelper {
 
         // create game
         this.game = new Game(dim, winLen, gameId, master, opponent);
+    }
+
+    public long createOnelineGame(int team1Id, int team2Id){
+        long gameId = 0L;
+        final Call<Map> call = API.getApiService().postGame(API.API_TYPE_GAME,
+                String.valueOf(team1Id), String.valueOf(team2Id));
+        final Response<Map> response;
+        try {
+            response = call.execute();
+            final Map<?, ?> body = response.body();
+            Logger.debug("body of response: {}", body);
+            final Object o = body.get(API.API_RESPONSEKEY_CODE);
+            if (o instanceof String) {
+                if (o.equals(API.API_CODE_SUCCESS)) {
+                    final Object gameIdObj = body.get(API.API_RESPONSEKEY_GAMEID);
+                    gameId = Long.valueOf(String.valueOf(gameIdObj));
+                    System.out.println("created game with gameId=" + String.valueOf(gameIdObj));
+                }
+            }
+        } catch (IOException e) {
+            Logger.error("failed in creating game");
+        }
+
+        return gameId;
     }
 
     public Player getNextPlayer() {

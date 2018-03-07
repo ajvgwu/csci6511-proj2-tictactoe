@@ -2,10 +2,10 @@ package edu.gwu.ai.codeknights.tictactoe.gui.controller;
 
 import java.util.Random;
 
+import edu.gwu.ai.codeknights.tictactoe.chooser.AbstractOnlineChooser;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.TextField;
-import org.pmw.tinylog.Logger;
 
 import edu.gwu.ai.codeknights.tictactoe.chooser.StupidMoveChooser;
 import edu.gwu.ai.codeknights.tictactoe.core.Cell;
@@ -121,19 +121,16 @@ public class MainController {
    * @param opId     id of opponent player
    */
   public void setup(long gameId, final int dim, final int winLen, final GameMode mode, int masterId, int opId) {
+    boolean toHookExistingGame = false;
     if (GameMode.EVE_ONLINE.equals(mode)) {
       if (gameId == 0) {
-        // TODO: create a game on the server, fetch the gameId
-        Logger.error("TODO: create a game on the server, fetch the gameId");
+        helper.createOnelineGame(masterId, opId);
+      } else {
+        toHookExistingGame = true;
       }
-      else {
-        // TODO: hook on a existing game
-        Logger.error("TODO: hook on a existing game");
-      }
-    }
-    else {
+    } else {
       // generate all ids for non-EvE-online games
-      gameId = new Random().nextInt(10000);
+      gameId = new Random().nextInt(1000);
       masterId = 10;
       opId = 20;
     }
@@ -158,8 +155,12 @@ public class MainController {
     // add matrix to main panel
     buildBoard(dim, dim);
     TicTacToe.getPrimaryStage().sizeToScene();
-    helper.createGame(gameId, dim, winLen, mode, masterId, opId);
+    helper.createLocalGame(gameId, dim, winLen, mode, masterId, opId);
     game = helper.getGame();
+    if(toHookExistingGame){
+      // hook on a existing game
+      AbstractOnlineChooser.tryFastForward(game);
+    }
   }
 
   /**

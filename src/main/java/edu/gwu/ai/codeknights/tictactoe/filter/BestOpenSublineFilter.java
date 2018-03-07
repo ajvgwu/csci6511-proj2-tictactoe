@@ -35,6 +35,6 @@ public class BestOpenSublineFilter extends EmptyCellFilter {
       }
     }
     return super.filterCells(inputCells.stream(), game)
-      .filter(cell -> candidates.contains(cell));
+      .filter(candidates::contains);
   }
 }
