@@ -6,10 +6,14 @@ import edu.gwu.ai.codeknights.tictactoe.gui.TicTacToe;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.FXMLLoadResult;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.FXMLUtil;
 import edu.gwu.ai.codeknights.tictactoe.util.Const;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -53,10 +57,25 @@ public class StartController {
     private TextField stGameId;
 
     @FXML
+    private RadioButton stFirstHome;
+
+    @FXML
+    private RadioButton stSecondHome;
+
+    @FXML
     private Text stErr;
 
     @FXML
     void initialize() {
+
+        stFirstHome.selectedProperty().addListener((observable, oldValue,
+                                                    newValue) -> stSecondHome.setSelected(!newValue));
+
+        stSecondHome.selectedProperty().addListener((observable, oldValue,
+                                                    newValue) -> stFirstHome.setSelected(!newValue));
+
+        stFirstHome.setSelected(true);
+        stSecondHome.setSelected(false);
 
         stErr.setStyle("-fx-fill: red");
 
@@ -139,13 +158,17 @@ public class StartController {
             primaryStage.setScene(new Scene(result.getNode()));
             primaryStage.setResizable(true);
             MainController controller = (MainController) result.getController();
-            controller.setup(gameId, dim, winLen, mode, teamId, opponentId);
+            controller.setup(gameId, dim, winLen, mode, teamId, opponentId, getIsHome());
             stStart.setDisable(true);
         } catch (IOException e) {
             e.printStackTrace();
         }catch (NumberFormatException e){
             stErr.setText("Invalid Number");
         }
+    }
+
+    private boolean getIsHome(){
+        return stFirstHome.isSelected();
     }
 
     private GameMode getMode(){

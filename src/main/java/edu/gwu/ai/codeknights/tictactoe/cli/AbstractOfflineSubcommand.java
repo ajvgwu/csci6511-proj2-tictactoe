@@ -21,8 +21,8 @@ public abstract class AbstractOfflineSubcommand extends AbstractSubcommand {
   }
 
   @Override
-  protected Game createGame() {
-    final Game game = super.createGame();
+  protected Game createGame(boolean isHome) {
+    final Game game = super.createGame(isHome);
     game.populate(getStateArgs());
     return game;
   }

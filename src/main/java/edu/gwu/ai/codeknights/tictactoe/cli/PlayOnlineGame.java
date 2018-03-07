@@ -49,7 +49,7 @@ public class PlayOnlineGame extends AbstractOnlineSubcommand {
     validateArgs();
 
     // Instantiate game
-    final Game game = createGame();
+    final Game game = createGame(true);
 
     // Configure local player
     Player localPlayer = game.getPlayer1();

@@ -41,7 +41,7 @@ public class CompareChoosers extends AbstractOfflineSubcommand {
     validateArgs();
 
     // Create game
-    final Game game = createGame();
+    final Game game = createGame(true);
 
     // Compare selected choosers
     final Map<String, AbstractCellChooser> chooserMap = new LinkedHashMap<>();

@@ -33,7 +33,7 @@ public class SingleMove extends AbstractOfflineSubcommand {
     validateArgs();
 
     // Create game
-    final Game game = createGame();
+    final Game game = createGame(true);
 
     // Configure the chooser for whichever player is next
     game.getNextPlayer().setChooser(chooser.createChooser());

@@ -158,6 +158,11 @@
                         <HBox alignment="CENTER" layoutX="24.0" layoutY="290.0">
                            <children>
                               <Button fx:id="mNext" alignment="CENTER" mnemonicParsing="false" onAction="#nextHandler" styleClass="danger" text="Next" />
+                              <Button fx:id="mRefresh" alignment="CENTER" layoutX="121.0" layoutY="10.0" mnemonicParsing="false" onAction="#refreshHandler" styleClass="danger" text="Refresh">
+                                 <HBox.margin>
+                                    <Insets left="20.0" />
+                                 </HBox.margin>
+                              </Button>
                            </children>
                            <VBox.margin>
                               <Insets bottom="10.0" top="10.0" />
@@ -215,7 +220,7 @@
                <children>
                   <TitledPane alignment="CENTER" collapsible="false" text="Move History" textAlignment="CENTER" VBox.vgrow="ALWAYS">
                      <content>
-                        <TextArea fx:id="mHistory" prefHeight="400.0" prefWidth="150.0" promptText="N/A" />
+                        <TextArea fx:id="mHistory" editable="false" prefHeight="400.0" prefWidth="150.0" promptText="N/A" />
                      </content>
                   </TitledPane>
                </children>

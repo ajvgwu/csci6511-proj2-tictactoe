@@ -28,14 +28,15 @@ public class MainHelper {
     public StringProperty history;
 
     public MainHelper() {
-      game = null;
-      master = null;
-      opponent = null;
+        game = null;
+        master = null;
+        opponent = null;
 
-      history = new SimpleStringProperty("");
+        history = new SimpleStringProperty("");
     }
 
-    public void createLocalGame(long gameId, int dim, int winLen, GameMode mode, int masterId, int opId) {
+    public void createLocalGame(long gameId, int dim, int winLen, GameMode
+            mode, int masterId, int opId, boolean isHome) {
 
         // create the choosers for the two players
         // for AI players, use time-limited alpha-beta pruning with a limit of 110 seconds (1min 50sec)
@@ -78,10 +79,10 @@ public class MainHelper {
         opponent.setChooser(opChooser);
 
         // create game
-        this.game = new Game(dim, winLen, gameId, master, opponent);
+        this.game = new Game(dim, winLen, gameId, master, opponent, isHome);
     }
 
-    public long createOnelineGame(int team1Id, int team2Id){
+    public long createOnelineGame(int team1Id, int team2Id) {
         long gameId = 0L;
         final Call<Map> call = API.getApiService().postGame(API.API_TYPE_GAME,
                 String.valueOf(team1Id), String.valueOf(team2Id));
@@ -90,11 +91,14 @@ public class MainHelper {
             response = call.execute();
             final Map<?, ?> body = response.body();
             Logger.debug("body of response: {}", body);
-            final Object o = body.get(API.API_RESPONSEKEY_CODE);
-            if (o instanceof String) {
-                if (o.equals(API.API_CODE_SUCCESS)) {
+            if (body == null) {
+                gameId = -1L;
+            } else {
+                final Object o = body.get(API.API_RESPONSEKEY_CODE);
+                if (API.API_CODE_SUCCESS.equals(String.valueOf(o))) {
                     final Object gameIdObj = body.get(API.API_RESPONSEKEY_GAMEID);
-                    gameId = Long.valueOf(String.valueOf(gameIdObj));
+                    String gameIdStr = String.valueOf(gameIdObj);
+                    gameId = Double.valueOf(gameIdStr).longValue();
                     System.out.println("created game with gameId=" + String.valueOf(gameIdObj));
                 }
             }

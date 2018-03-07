@@ -3,9 +3,6 @@ package edu.gwu.ai.codeknights.tictactoe.gui.controller;
 import java.util.Random;
 
 import edu.gwu.ai.codeknights.tictactoe.chooser.AbstractOnlineChooser;
-import edu.gwu.ai.codeknights.tictactoe.chooser.OnlineMoveFetcher;
-import edu.gwu.ai.codeknights.tictactoe.chooser.OnlineMoveMaker;
-import edu.gwu.ai.codeknights.tictactoe.cli.AbstractSubcommand;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.TextField;
@@ -94,7 +91,7 @@ public class MainController {
   @FXML
   void initialize() {
     helper = new MainHelper();
-    isPlayerNext = new SimpleBooleanProperty(true);
+    isPlayerNext = new SimpleBooleanProperty(false);
     isAINext = new SimpleBooleanProperty(false);
     isGameOver = new SimpleBooleanProperty(false);
     mHistory.textProperty().bind(helper.history);
@@ -123,7 +120,8 @@ public class MainController {
    * @param masterId id of local primary player
    * @param opId     id of opponent player
    */
-  public void setup(long gameId, final int dim, final int winLen, final GameMode mode, int masterId, int opId) {
+  public void setup(long gameId, final int dim, final int winLen, final
+  GameMode mode, int masterId, int opId, boolean isHome) {
     if (GameMode.EVE_ONLINE.equals(mode)) {
       if (gameId == 0) {
         gameId = helper.createOnelineGame(masterId, opId);
@@ -135,25 +133,8 @@ public class MainController {
       opId = 20;
     }
 
-    // add matrix to main panel
-    buildBoard(dim, dim);
-    TicTacToe.getPrimaryStage().sizeToScene();
-    helper.createLocalGame(gameId, dim, winLen, mode, masterId, opId);
+    helper.createLocalGame(gameId, dim, winLen, mode, masterId, opId, isHome);
     game = helper.getGame();
-
-    if(mode.equals(GameMode.EVE_ONLINE)){
-      // Fast-forward game to current state
-      AbstractOnlineChooser.tryFastForward(game);
-    }
-
-    mMasterId.setText(String.valueOf(masterId));
-    mOpId.setText(String.valueOf(opId));
-    mGameId.setText(String.valueOf(gameId));
-    mRowLen.setText(String.valueOf(dim));
-    mColLen.setText(String.valueOf(dim));
-    mWinLen.setText(String.valueOf(winLen));
-    mState.setText(game.getGameStatus());
-    mTurn.setText(String.valueOf(game.getNextPlayer().getMarker()));
     this.mode = mode;
 
     if(mode.equals(GameMode.EVP) || mode.equals(GameMode.EVE_ONLINE) || mode.equals(GameMode.EVE)){
@@ -163,6 +144,11 @@ public class MainController {
       isPlayerNext.set(true);
       isAINext.set(false);
     }
+
+    // add matrix to main panel
+    buildBoard(dim, dim);
+    TicTacToe.getPrimaryStage().sizeToScene();
+    refresh();
   }
 
   /**
@@ -243,9 +229,7 @@ public class MainController {
     helper.history.set("[" + String.valueOf(nextPlayer.getMarker())
       + "][" + row + ", " + col + "]\n" + helper.history.get());
     boardProperties[row][col].set(String.valueOf(nextPlayer.getMarker()));
-    mState.setText(game.getGameStatus());
-    mTurn.setText(String.valueOf(game.getNextPlayer().getMarker()));
-    isGameOver.set(game.isGameOver());
+    refresh();
     if (!isGameOver.get()) {
       // ai opponent make a move
       isAINext.set(true);
@@ -257,15 +241,19 @@ public class MainController {
   }
 
   @FXML
-  void nextHandler(final ActionEvent event) {
+  void nextHandler(ActionEvent event) {
+    isAINext.set(false);
     makeMove();
     if(mode.equals(GameMode.EVE_ONLINE) || mode.equals(GameMode.EVE)){
-      isPlayerNext.set(false);
       isAINext.set(true);
     }else{
-      isPlayerNext.set(true);
       isAINext.set(false);
     }
+  }
+
+  @FXML
+  void refreshHandler(ActionEvent event){
+    refresh();
   }
 
   private void makeMove() {
@@ -281,9 +269,31 @@ public class MainController {
       cell.getColIdx(),
       endMs - startMs,
       helper.history.get()));
+    refresh();
+  }
+
+  private void refresh(){
+    if(mode.equals(GameMode.EVE_ONLINE)){
+      AbstractOnlineChooser.tryFastForward(game);
+    }
+    for (int i = 0; i < game.getDim(); i++) {
+      for (int j = 0; j < game.getDim(); j++) {
+        Player player = game.getBoard().getCell(i,j).getPlayer();
+        if(player != null){
+          String marker = String.valueOf(player.getMarker());
+          boardProperties[i][j].set(marker);
+        }
+      }
+    }
+    mMasterId.setText(String.valueOf(game.getPlayer1().getId()));
+    mOpId.setText(String.valueOf(game.getPlayer2().getId()));
+    mGameId.setText(String.valueOf(game.getGameId()));
+    mRowLen.setText(String.valueOf(game.getDim()));
+    mColLen.setText(String.valueOf(game.getDim()));
+    mWinLen.setText(String.valueOf(game.getWinLength()));
     mState.setText(game.getGameStatus());
-    isGameOver.set(game.isGameOver());
     mTurn.setText(String.valueOf(game.getNextPlayer().getMarker()));
+    isGameOver.set(game.isGameOver());
   }
 
   public Game getGame() {

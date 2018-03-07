@@ -46,7 +46,7 @@ public class FinishGame extends AbstractOfflineSubcommand {
     validateArgs();
 
     // Create game
-    final Game game = createGame();
+    final Game game = createGame(true);
 
     // Configure choosers for both players
     game.getPlayer1().setChooser(getPlayer1Chooser().createChooser());

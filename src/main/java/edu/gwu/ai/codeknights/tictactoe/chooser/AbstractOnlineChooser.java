@@ -1,8 +1,7 @@
 package edu.gwu.ai.codeknights.tictactoe.chooser;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.pmw.tinylog.Logger;
 
@@ -25,35 +24,27 @@ public abstract class AbstractOnlineChooser extends AbstractCellChooser {
       Logger.debug("got response from server: {}", response);
       final Map<?, ?> body = response.body();
       Logger.debug("body of response: {}", body);
+      if(body == null){
+        return;
+      }
       Object o = body.get(API.API_RESPONSEKEY_CODE);
       if (o instanceof String) {
         if (o.equals(API.API_CODE_SUCCESS)) {
           o = body.get(API.API_RESPONSEKEY_MOVES);
           if (o instanceof List<?>) {
-            Player curPlayer = game.getPlayer1();
             final List<?> moves = (List<?>) o;
-            for (int i = moves.size() - 1; i >= 0; i--) {
-              final Object item = moves.get(i);
-              if (item instanceof Map<?, ?>) {
-                final Map<?, ?> move = (Map<?, ?>) item;
-                final Object gameIdObj = move.get(API.API_MOVEKEY_GAMEID);
-                final Object moveObj = move.get(API.API_MOVEKEY_MOVE);
-                if (String.valueOf(gameId).equals(gameIdObj) && moveObj instanceof String) {
-                  final Cell cell = game.tryGetCellFromCoord((String) moveObj);
-                  if (cell != null) {
-                    final Object teamIdObj = move.get(API.API_MOVEKEY_TEAMID);
-                    if (!String.valueOf(curPlayer.getId()).equals(teamIdObj)) {
-                      Logger.warn("moves from server might be out of order");
-                      final Player otherPlayer = game.getOtherPlayer(curPlayer);
-                      if (String.valueOf(otherPlayer.getId()).equals(teamIdObj)) {
-                        curPlayer = otherPlayer;
-                      }
-                    }
-                    cell.setPlayer(curPlayer);
-                  }
+            List<Cell> cells = parseCells(game, moves);
+            Integer prevPlayerId = null;
+            for(Cell cell: cells){
+              Player player = cell.getPlayer();
+              if(player != null){
+                if(prevPlayerId != null && player.getId() == prevPlayerId){
+                    Logger.warn("moves from server might be out of order");
                 }
+                prevPlayerId = player.getId();
+                game.getBoard().getCell(cell.getRowIdx(), cell.getColIdx())
+                        .setPlayer(player);
               }
-              curPlayer = game.getOtherPlayer(curPlayer);
             }
           }
         }
@@ -66,5 +57,53 @@ public abstract class AbstractOnlineChooser extends AbstractCellChooser {
     catch (final IOException e) {
       Logger.error(e, "error while fetching moves from server to fast-forward game");
     }
+  }
+
+  private static List<Cell> parseCells(final Game game, List<?> moves){
+    Set<Cell> cellSet = new HashSet<>();
+    for (int i = moves.size() - 1; i >= 0; i--) {
+      final Object item = moves.get(i);
+      if (item instanceof Map<?, ?>) {
+        final Map<?, ?> move = (Map<?, ?>) item;
+        final Object moveObj = move.get(API.API_MOVEKEY_MOVE);
+        final Cell cell = tryGetCellFromCoord((String) moveObj);
+        if (cell != null) {
+          final Object teamIdObj = move.get(API.API_MOVEKEY_TEAMID);
+          Integer teamId = Integer.parseInt((String)teamIdObj);
+          Player player = game.getPlayer(teamId);
+          cell.setPlayer(player);
+          cellSet.add(cell);
+        }
+      }
+    }
+    Logger.debug("Fetched "+cellSet.size()+" moves from server");
+    return new ArrayList<>(cellSet);
+  }
+
+  /**
+   * Tries to parse the given {@code coords} string and return a new  {@link Cell}.
+   * The expected format is {@code rowIdx,colIdx} (zero-based). For example, {@code 0,0} is the top-left cell.
+   *
+   * @param coords the coordinate of the cell
+   *
+   * @return the {@link Cell}
+   */
+  static Cell tryGetCellFromCoord(final String coords) {
+    if (coords != null) {
+      final String[] parts = coords.split(",", 2);
+      if (parts.length >= 2) {
+        final String rowVal = parts[0];
+        final String colVal = parts[1];
+        try {
+          final int rowIdx = Integer.parseInt(rowVal.trim());
+          final int colIdx = Integer.parseInt(colVal.trim());
+          return new Cell(rowIdx, colIdx);
+        }
+        catch (final NumberFormatException e) {
+          Logger.error(e, "could not parse cell coordinates (expected format \"rowIdx,colIdx\"): " + coords);
+        }
+      }
+    }
+    return null;
   }
 }

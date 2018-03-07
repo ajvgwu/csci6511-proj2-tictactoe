@@ -81,11 +81,11 @@ public abstract class AbstractSubcommand implements Callable<Void> {
     return player2Id;
   }
 
-  protected Game createGame() {
+  protected Game createGame(boolean isHome) {
     final Player player1 = new Player(getPlayer1Id(), Const.MASTER_PLAYER_CHAR);
     final Player player2 = new Player(getPlayer2Id(), Const.OPPONENT_PLAYER_CHAR);
-    final Game game = new Game(getDim(), getWinLength(), getGameId(), player1, player2);
-    return game;
+    return new Game(getDim(), getWinLength(), getGameId(), player1,
+            player2, isHome);
   }
 
   @Override

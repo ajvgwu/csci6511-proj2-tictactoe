@@ -38,7 +38,7 @@ public class TestFilter extends AbstractOfflineSubcommand {
     validateArgs();
 
     // Create game
-    final Game game = createGame();
+    final Game game = createGame(true);
 
     // Test the filter
     final GameplayHelper helper = new GameplayHelper(game);

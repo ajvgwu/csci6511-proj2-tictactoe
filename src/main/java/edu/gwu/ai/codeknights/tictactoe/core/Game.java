@@ -25,6 +25,7 @@ public class Game {
   private final long gameId;
   private final Player player1;
   private final Player player2;
+  private boolean isHome;
 
   private final Board board;
 
@@ -37,12 +38,14 @@ public class Game {
    * @param player1   the first player
    * @param player2   the second player
    */
-  public Game(final int dim, final int winLength, final long gameId, final Player player1, final Player player2) {
+  public Game(final int dim, final int winLength, final long gameId, final
+  Player player1, final Player player2, boolean isHome) {
     this.dim = dim;
     this.winLength = winLength;
     this.gameId = gameId;
     this.player1 = player1;
     this.player2 = player2;
+    this.isHome = isHome;
 
     board = new Board(dim);
   }
@@ -99,6 +102,18 @@ public class Game {
    */
   public Board getBoard() {
     return board;
+  }
+
+  public Player getPlayer(int id){
+    Player player = null;
+    if(this.getPlayer1().getId() == id){
+      player = this.getPlayer1();
+    }
+    if(this.getPlayer2().getId() == id){
+      player = this.getPlayer2();
+    }
+
+    return player;
   }
 
   /**
@@ -323,7 +338,11 @@ public class Game {
   public Player getNextPlayer() {
     final int p1Count = board.countPlayer(player1);
     final int p2Count = board.countPlayer(player2);
-    return p1Count <= p2Count ? player1 : player2;
+    if((p1Count == p2Count && isHome) || p1Count < p2Count){
+      return player1;
+    }else{
+      return player2;
+    }
   }
 
   /**
@@ -395,35 +414,6 @@ public class Game {
     else {
       throw new GameException("no empty cell available for player: " + String.valueOf(nextPlayer));
     }
-  }
-
-  /**
-   * Tries to parse the given {@code coords} string and return the corresponding {@link Cell} from the board.
-   * The expected format is {@code rowIdx,colIdx} (zero-based). For example, {@code 0,0} is the top-left cell.
-   *
-   * @param coords the coordinate of the cell
-   *
-   * @return the {@link Cell} at the given coord if the string is valid and it is within bounds, otherwise {@code null}
-   */
-  public Cell tryGetCellFromCoord(final String coords) {
-    if (coords != null) {
-      final String[] parts = coords.split(",", 2);
-      if (parts != null && parts.length >= 2) {
-        final String rowVal = parts[0];
-        final String colVal = parts[1];
-        try {
-          final int rowIdx = Integer.parseInt(rowVal.trim());
-          final int colIdx = Integer.parseInt(colVal.trim());
-          if (rowIdx < dim && colIdx < dim) {
-            return board.getCell(rowIdx, colIdx);
-          }
-        }
-        catch (final NumberFormatException e) {
-          Logger.error(e, "could not parse cell coordinates (expected format \"rowIdx,colIdx\"): " + coords);
-        }
-      }
-    }
-    return null;
   }
 
   /**
@@ -592,7 +582,8 @@ public class Game {
    * @return a copy of the game
    */
   public Game getCopy(final long newGameId, final Player newPlayer1, final Player newPlayer2) {
-    final Game copy = new Game(dim, winLength, newGameId, newPlayer1, newPlayer2);
+    final Game copy = new Game(dim, winLength, newGameId, newPlayer1,
+            newPlayer2, isHome);
     for (final Cell oldCell : board.getAllCells()) {
       final Cell newCell = copy.getBoard().getCell(oldCell.getRowIdx(), oldCell.getColIdx());
       if (oldCell.isPopulatedBy(player1)) {

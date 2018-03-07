@@ -45,7 +45,7 @@ public class OnlineMoveFetcher extends AbstractOnlineChooser {
             o = body.get(API.API_RESPONSEKEY_MOVES);
             if (o instanceof List<?>) {
               final List<?> list = (List<?>) o;
-              if (list.size() == numMovesExpected) {
+              if (list.size() >= numMovesExpected) {
                 o = list.get(0);
                 if (o instanceof Map<?, ?>) {
                   final Map<?, ?> move = (Map<?, ?>) o;
@@ -55,7 +55,7 @@ public class OnlineMoveFetcher extends AbstractOnlineChooser {
                   if (String.valueOf(gameId).equals(gameIdObj) && String.valueOf(curPlayerId).equals(teamIdObj)
                     && moveObj instanceof String) {
                     Logger.debug("looking for cell corresponding to move fetched from server: {}", moveObj);
-                    final Cell cell = game.tryGetCellFromCoord((String) moveObj);
+                    final Cell cell = tryGetCellFromCoord((String) moveObj);
                     if (cell != null) {
                       Logger.debug("query successful, returning move in cell: {}", cell);
                       return cell;
@@ -70,7 +70,7 @@ public class OnlineMoveFetcher extends AbstractOnlineChooser {
             Logger.error("got response {} from server with message: {}", o, msgObj);
           }
         }
-        Thread.sleep(1000);
+        Thread.sleep(2000);
       }
       catch (IOException | InterruptedException e) {
         Logger.error(e, "error while fetching move from server");
