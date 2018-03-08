@@ -3,6 +3,7 @@ package edu.gwu.ai.codeknights.tictactoe.gui.controller;
 import java.io.IOException;
 
 import edu.gwu.ai.codeknights.tictactoe.gui.TicTacToe;
+import edu.gwu.ai.codeknights.tictactoe.gui.util.API;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.FXMLLoadResult;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.FXMLUtil;
 import edu.gwu.ai.codeknights.tictactoe.util.Const;
@@ -61,6 +62,12 @@ public class StartController {
 
     @FXML
     private RadioButton stSecondHome;
+
+    @FXML
+    private TextField stUserId;
+
+    @FXML
+    private TextField stKey;
 
     @FXML
     private Text stErr;
@@ -157,8 +164,13 @@ public class StartController {
             FXMLUtil.addStylesheets(result.getNode(), Const.UNIVERSAL_STYLESHEET_URL);
             primaryStage.setScene(new Scene(result.getNode()));
             primaryStage.setResizable(true);
+            String key = stKey.getText().trim();
+            String userId = stUserId.getText().trim();
+            API.HEADER_API_KEY_VALUE = key;
+            API.HEADER_USER_ID_VALUE = userId;
             MainController controller = (MainController) result.getController();
-            controller.setup(gameId, dim, winLen, mode, teamId, opponentId, getIsHome());
+            controller.setup(gameId, dim, winLen, mode, teamId, opponentId,
+                    getIsHome());
             stStart.setDisable(true);
         } catch (IOException e) {
             e.printStackTrace();

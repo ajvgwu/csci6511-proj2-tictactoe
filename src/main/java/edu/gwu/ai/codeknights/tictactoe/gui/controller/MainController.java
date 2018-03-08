@@ -1,10 +1,13 @@
 package edu.gwu.ai.codeknights.tictactoe.gui.controller;
 
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
 
 import edu.gwu.ai.codeknights.tictactoe.chooser.AbstractOnlineChooser;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.concurrent.Task;
 import javafx.scene.control.TextField;
 
 import edu.gwu.ai.codeknights.tictactoe.chooser.StupidMoveChooser;
@@ -228,7 +231,6 @@ public class MainController {
     game.playInCell(row, col, nextPlayer);
     helper.history.set("[" + String.valueOf(nextPlayer.getMarker())
       + "][" + row + ", " + col + "]\n" + helper.history.get());
-    boardProperties[row][col].set(String.valueOf(nextPlayer.getMarker()));
     refresh();
     if (!isGameOver.get()) {
       // ai opponent make a move
@@ -242,13 +244,26 @@ public class MainController {
 
   @FXML
   void nextHandler(ActionEvent event) {
-    isAINext.set(false);
-    makeMove();
-    if(mode.equals(GameMode.EVE_ONLINE) || mode.equals(GameMode.EVE)){
-      isAINext.set(true);
-    }else{
-      isAINext.set(false);
-    }
+    Task task = new Task() {
+      @Override
+      protected Object call() throws Exception {
+        while (!game.isGameOver() && !isPlayerNext.get() && isAINext.get()){
+          isAINext.set(false);
+          makeMove();
+          if(mode.equals(GameMode.EVE_ONLINE) || mode.equals(GameMode.EVE)){
+            isPlayerNext.set(false);
+            isAINext.set(true);
+          }else{
+            isPlayerNext.set(true);
+            isAINext.set(false);
+          }
+        }
+        return true;
+      }
+    };
+
+    Thread thread = new Thread(task);
+    thread.start();
   }
 
   @FXML
@@ -262,7 +277,6 @@ public class MainController {
     final Cell cell = player.chooseCell(game);
     game.playInCell(cell, player);
     final long endMs = System.currentTimeMillis();
-    boardProperties[cell.getRowIdx()][cell.getColIdx()].set(String.valueOf(player.getMarker()));
     helper.history.set(String.format("[%s][%d, %d]-AI-%dms\n%s",
       String.valueOf(player.getMarker()),
       cell.getRowIdx(),
@@ -276,15 +290,19 @@ public class MainController {
     if(mode.equals(GameMode.EVE_ONLINE)){
       AbstractOnlineChooser.tryFastForward(game);
     }
-    for (int i = 0; i < game.getDim(); i++) {
-      for (int j = 0; j < game.getDim(); j++) {
-        Player player = game.getBoard().getCell(i,j).getPlayer();
-        if(player != null){
-          String marker = String.valueOf(player.getMarker());
-          boardProperties[i][j].set(marker);
+
+    Platform.runLater(() -> {
+      for (int i = 0; i < game.getDim(); i++) {
+        for (int j = 0; j < game.getDim(); j++) {
+          Player player = game.getBoard().getCell(i,j).getPlayer();
+          if(player != null){
+            String marker = String.valueOf(player.getMarker());
+            boardProperties[i][j].set(marker);
+          }
         }
       }
-    }
+    });
+
     mMasterId.setText(String.valueOf(game.getPlayer1().getId()));
     mOpId.setText(String.valueOf(game.getPlayer2().getId()));
     mGameId.setText(String.valueOf(game.getGameId()));
