@@ -19,6 +19,11 @@ public class PlayOnlineGame extends AbstractOnlineSubcommand {
   private boolean player2 = false;
 
   @Option(
+    names = {"--spectator"},
+    description = "do not play as either player, just spectate and display moves that are made by the players")
+  private boolean spectator = false;
+
+  @Option(
     names = {"--time-limit-sec"},
     description = "time limit (in seconds) for choosing a move")
   private int timeLimitSec = 110;
@@ -30,6 +35,7 @@ public class PlayOnlineGame extends AbstractOnlineSubcommand {
       throw new IllegalArgumentException("gameId must be >= 1000");
     }
     player2 = !!player2;
+    spectator = !!spectator;
     timeLimitSec = Math.max(0, timeLimitSec);
     if (timeLimitSec < 1) {
       throw new IllegalArgumentException("timeLimitSec must be >= 1");
@@ -38,6 +44,10 @@ public class PlayOnlineGame extends AbstractOnlineSubcommand {
 
   protected boolean isPlayer2() {
     return player2;
+  }
+
+  protected boolean isSpectator() {
+    return spectator;
   }
 
   protected int getTimeLimitSec() {
@@ -56,7 +66,12 @@ public class PlayOnlineGame extends AbstractOnlineSubcommand {
     if (isPlayer2()) {
       localPlayer = game.getPlayer2();
     }
-    localPlayer.setChooser(new OnlineMoveMaker(getTimeLimitSec()));
+    if (isSpectator()) {
+      localPlayer.setChooser(new OnlineMoveFetcher());
+    }
+    else {
+      localPlayer.setChooser(new OnlineMoveMaker(getTimeLimitSec()));
+    }
 
     // Configure remote player
     final Player remotePlayer = game.getOtherPlayer(localPlayer);
