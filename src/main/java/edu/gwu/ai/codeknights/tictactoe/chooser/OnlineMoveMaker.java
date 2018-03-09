@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import edu.gwu.ai.codeknights.tictactoe.util.Const;
 import org.pmw.tinylog.Logger;
 
 import edu.gwu.ai.codeknights.tictactoe.core.Cell;
@@ -39,7 +40,7 @@ public class OnlineMoveMaker extends AbstractOnlineChooser {
       Logger.debug("no cell found, choosing any empty cell");
       choice = game.getBoard().getEmptyCells().stream().findAny().orElse(null);
     }
-    final String moveCoords = String.valueOf(choice.getRowIdx()) + "," + String.valueOf(choice.getColIdx());
+    final String moveCoords = String.valueOf(choice.getRowIdx()+ Const.ONLINE_BOARD_OFFSET) + "," + String.valueOf(choice.getColIdx()+Const.ONLINE_BOARD_OFFSET);
     while (true) {
       final Call<Map> call = API.getApiService().post(API.API_TYPE_MOVE, String.valueOf(curPlayerId),
         String.valueOf(gameId), moveCoords);

@@ -3,6 +3,7 @@ package edu.gwu.ai.codeknights.tictactoe.chooser;
 import java.io.IOException;
 import java.util.*;
 
+import edu.gwu.ai.codeknights.tictactoe.util.Const;
 import org.pmw.tinylog.Logger;
 
 import edu.gwu.ai.codeknights.tictactoe.core.Cell;
@@ -95,8 +96,8 @@ public abstract class AbstractOnlineChooser extends AbstractCellChooser {
         final String rowVal = parts[0];
         final String colVal = parts[1];
         try {
-          final int rowIdx = Integer.parseInt(rowVal.trim());
-          final int colIdx = Integer.parseInt(colVal.trim());
+          final int rowIdx = Integer.parseInt(rowVal.trim())- Const.ONLINE_BOARD_OFFSET;
+          final int colIdx = Integer.parseInt(colVal.trim())-Const.ONLINE_BOARD_OFFSET;
           return new Cell(rowIdx, colIdx);
         }
         catch (final NumberFormatException e) {
