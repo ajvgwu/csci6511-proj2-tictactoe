@@ -1,8 +1,8 @@
-package edu.gwu.ai.codeknights.tictactoe.gui;
+package edu.gwu.ai.codeknights.tictactoe;
 
 import edu.gwu.ai.codeknights.tictactoe.gui.util.FXMLLoadResult;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.FXMLUtil;
-import edu.gwu.ai.codeknights.tictactoe.util.Const;
+import edu.gwu.ai.codeknights.tictactoe.gui.util.Const;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -10,7 +10,7 @@ import javafx.stage.Stage;
 /**
  * @author zhiyuan
  */
-public class TicTacToe extends Application {
+public class Spectator extends Application {
 
     /**
      * primaryStage is the root component of the UI module
@@ -34,7 +34,7 @@ public class TicTacToe extends Application {
         primaryStage.setResizable(false);
         primaryStage.show();
 
-        TicTacToe.primaryStage = primaryStage;
+        Spectator.primaryStage = primaryStage;
     }
 
     /**

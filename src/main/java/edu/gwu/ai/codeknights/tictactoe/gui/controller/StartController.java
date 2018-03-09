@@ -2,15 +2,11 @@ package edu.gwu.ai.codeknights.tictactoe.gui.controller;
 
 import java.io.IOException;
 
-import edu.gwu.ai.codeknights.tictactoe.core.Game;
-import edu.gwu.ai.codeknights.tictactoe.gui.TicTacToe;
+import edu.gwu.ai.codeknights.tictactoe.Spectator;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.API;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.FXMLLoadResult;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.FXMLUtil;
-import edu.gwu.ai.codeknights.tictactoe.util.Const;
-import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import edu.gwu.ai.codeknights.tictactoe.gui.util.Const;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -26,22 +22,7 @@ import javafx.stage.Stage;
 public class StartController {
 
     @FXML
-    private Button stPVP;
-
-    @FXML
-    private Button stPVE;
-
-    @FXML
-    private Button stEVP;
-
-    @FXML
-    private Button stEVE;
-
-    @FXML
     private Button stOnline;
-
-    @FXML
-    private Button stStart;
 
     @FXML
     private Button stSpectate;
@@ -84,56 +65,13 @@ public class StartController {
 
         stSecondHome.selectedProperty().addListener((observable, oldValue,
                                                      newValue) -> stFirstHome.setSelected(!newValue));
-
         stFirstHome.setSelected(true);
         stSecondHome.setSelected(false);
-
         stErr.setStyle("-fx-fill: red");
-
         stDim.textProperty().addListener(observable -> checkDimWinLen());
         stWinLen.textProperty().addListener(observable -> checkDimWinLen());
 
-        stPVP.setOnAction(event -> {
-            stPVP.disableProperty().set(true);
-            stPVE.disableProperty().set(false);
-            stEVP.disableProperty().set(false);
-            stEVE.disableProperty().set(false);
-            stOnline.disableProperty().set(false);
-        });
-
-        stPVE.setOnAction(event -> {
-            stPVP.disableProperty().set(false);
-            stPVE.disableProperty().set(true);
-            stEVP.disableProperty().set(false);
-            stEVE.disableProperty().set(false);
-            stOnline.disableProperty().set(false);
-        });
-
-        stEVP.setOnAction(event -> {
-            stPVP.disableProperty().set(false);
-            stPVE.disableProperty().set(false);
-            stEVP.disableProperty().set(true);
-            stEVE.disableProperty().set(false);
-            stOnline.disableProperty().set(false);
-        });
-
-        stEVE.setOnAction(event -> {
-            stPVP.disableProperty().set(false);
-            stPVE.disableProperty().set(false);
-            stEVP.disableProperty().set(false);
-            stEVE.disableProperty().set(true);
-            stOnline.disableProperty().set(false);
-        });
-
-        stOnline.setOnAction(event -> {
-            stPVP.disableProperty().set(false);
-            stPVE.disableProperty().set(false);
-            stEVP.disableProperty().set(false);
-            stEVE.disableProperty().set(false);
-            stOnline.disableProperty().set(true);
-        });
-
-        stPVE.setDisable(true);
+        stOnline.setDisable(true);
     }
 
     private boolean checkDimWinLen() {
@@ -152,16 +90,6 @@ public class StartController {
     }
 
     @FXML
-    void startHandler(ActionEvent event) {
-        GameMode mode = getMode();
-        if (mode.equals(GameMode.EVE_ONLINE)) {
-            toOnline(false);
-        } else {
-            toMain(0,0,0,true,false);
-        }
-    }
-
-    @FXML
     void spectateHandler(ActionEvent event) {
         GameMode mode = getMode();
         if (mode.equals(GameMode.EVE_ONLINE)) {
@@ -176,7 +104,7 @@ public class StartController {
     private void toMain(long gameId, int teamId, int opponentId,boolean isHome,
                         boolean asSpectator) {
         GameMode mode = getMode();
-        Stage primaryStage = TicTacToe.getPrimaryStage();
+        Stage primaryStage = Spectator.getPrimaryStage();
         // load the main scene, then current scene will dismiss
         FXMLLoadResult result = null;
         try {
@@ -190,7 +118,6 @@ public class StartController {
             MainController controller = (MainController) result.getController();
             controller.setup(gameId, dim, winLen, mode, teamId, opponentId, isHome,
                     asSpectator);
-            stStart.setDisable(true);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -230,16 +157,6 @@ public class StartController {
     }
 
     private GameMode getMode() {
-        if (stPVP.isDisabled()) {
-            return GameMode.PVP;
-        } else if (stPVE.isDisabled()) {
-            return GameMode.PVE;
-        } else if (stEVP.isDisabled()) {
-            return GameMode.EVP;
-        } else if (stEVE.isDisabled()) {
-            return GameMode.EVE;
-        } else {
-            return GameMode.EVE_ONLINE;
-        }
+        return GameMode.EVE_ONLINE;
     }
 }

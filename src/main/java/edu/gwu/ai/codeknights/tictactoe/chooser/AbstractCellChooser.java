@@ -1,7 +1,5 @@
 package edu.gwu.ai.codeknights.tictactoe.chooser;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.stream.Stream;
 
 import edu.gwu.ai.codeknights.tictactoe.core.Cell;
@@ -22,20 +20,6 @@ public abstract class AbstractCellChooser {
    * @return the chosen "best" cell
    */
   public final Cell chooseCell(final Game game) {
-    Cell cell = chooseCell(game.getBoard().getEmptyCells().stream(), game);
-    if(cell == null){
-      cell = chooseRandom(game);
-    }
-    return cell;
-  }
-
-  public final Cell chooseRandom(final Game game){
-    Cell cell = null;
-    List<Cell> emptyCells = game.getBoard().getEmptyCells();
-    Collections.shuffle(emptyCells);
-    if(emptyCells.size() != 0){
-      cell = emptyCells.get(0);
-    }
-    return cell;
+    return chooseCell(game.getBoard().getEmptyCells().stream(), game);
   }
 }

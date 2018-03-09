@@ -1,25 +1,18 @@
 package edu.gwu.ai.codeknights.tictactoe.gui.controller;
 
-import java.util.Random;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import edu.gwu.ai.codeknights.tictactoe.chooser.AbstractOnlineChooser;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.concurrent.Task;
-import javafx.scene.control.TextField;
-
-import edu.gwu.ai.codeknights.tictactoe.chooser.StupidMoveChooser;
 import edu.gwu.ai.codeknights.tictactoe.core.Cell;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.core.Player;
-import edu.gwu.ai.codeknights.tictactoe.gui.TicTacToe;
+import edu.gwu.ai.codeknights.tictactoe.Spectator;
 import edu.gwu.ai.codeknights.tictactoe.gui.helpers.MainHelper;
-import edu.gwu.ai.codeknights.tictactoe.util.Const;
+import edu.gwu.ai.codeknights.tictactoe.gui.util.Const;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -35,9 +28,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
-import static java.util.concurrent.Executors.newFixedThreadPool;
-import static java.util.concurrent.Executors.newSingleThreadExecutor;
-
 /**
  * @author zhiyuan
  */
@@ -51,7 +41,6 @@ public class MainController {
     private BooleanProperty isGameOver;
     private BooleanProperty isAINext;
     private GameMode mode;
-    private boolean asSpectator;
 
     private StringProperty[][] boardProperties;
     private Label[][] matrix;
@@ -93,32 +82,13 @@ public class MainController {
     private TextArea mHistory;
 
     @FXML
-    private TextField mRow;
-
-    @FXML
-    private TextField mCol;
-
-    @FXML
-    private Button mSubmit;
-
-    @FXML
     void initialize() {
         helper = new MainHelper();
         isPlayerNext = new SimpleBooleanProperty(false);
         isAINext = new SimpleBooleanProperty(false);
         isGameOver = new SimpleBooleanProperty(false);
         mHistory.textProperty().bind(helper.history);
-        mSubmit.disableProperty().bind(isPlayerNext.not());
         mNext.disableProperty().bind(isAINext.not());
-        mSubmit.setOnAction(event -> {
-            if (!"".equals(mRow.getText().trim())) {
-                if (!"".equals(mCol.getText().trim())) {
-                    Integer row = Integer.parseInt(mRow.getText());
-                    Integer col = Integer.parseInt(mCol.getText());
-                    pve(row, col);
-                }
-            }
-        });
     }
 
     /**
@@ -135,43 +105,24 @@ public class MainController {
      */
     public void setup(long gameId, final int dim, final int winLen, final
     GameMode mode, int masterId, int opId, boolean isHome, boolean asSpectator) {
-        this.asSpectator = asSpectator;
         mPlayerStatus.setText(asSpectator ? "Spectating" : "Playing");
-        if (!asSpectator) {
-            // play game, not as spectator
-            if (GameMode.EVE_ONLINE.equals(mode)) {
-                if (gameId == 0) {
-                    gameId = helper.createOnelineGame(masterId, opId);
-                }
-            } else {
-                // generate all ids for non-EvE-online games
-                gameId = new Random().nextInt(1000);
-                masterId = 10;
-                opId = 20;
-            }
-        }
-
         helper.createLocalGame(gameId, dim, winLen, mode, masterId, opId, isHome,
                 asSpectator);
         game = helper.getGame();
         this.mode = mode;
 
-        if (mode.equals(GameMode.EVP) || mode.equals(GameMode.EVE_ONLINE) || mode.equals(GameMode.EVE)) {
-            isPlayerNext.set(false);
+        if (mode.equals(GameMode.EVE_ONLINE)) {
             isAINext.set(true);
         } else {
-            isPlayerNext.set(true);
             isAINext.set(false);
         }
 
         // add matrix to main panel
         buildBoard(dim, dim);
-        TicTacToe.getPrimaryStage().sizeToScene();
+        Spectator.getPrimaryStage().sizeToScene();
         refresh();
-        if(asSpectator){
-            // start spectating automatically
-            nextHandler(null);
-        }
+        // start spectating automatically
+        nextHandler(null);
     }
 
     /**
@@ -206,14 +157,6 @@ public class MainController {
         boardProperties = new StringProperty[rowLen][colLen];
         matrix = new Label[rowLen][colLen];
 
-        isClickable = new BooleanBinding() {
-            @Override
-            protected boolean computeValue() {
-                final Player curPlayer = helper.getNextPlayer();
-                return curPlayer.getChooser() instanceof StupidMoveChooser && !isGameOver.get();
-            }
-        };
-
         for (int i = 0; i < rowLen; i++) {
             for (int j = 0; j < colLen; j++) {
                 final String blank = String.valueOf(Const.BLANK_SPACE_CHAR);
@@ -221,15 +164,6 @@ public class MainController {
                 final Label label = new Label();
                 matrix[i][j] = label;
                 boardProperties[i][j] = property;
-                label.setOnMouseClicked(event -> {
-                    // on mouse clicked
-                    // only works in PvE
-                    if (blank.equals(label.getText()) && isClickable.get()) {
-                        final int row = (int) label.getProperties().get("row");
-                        final int col = (int) label.getProperties().get("col");
-                        pve(row, col);
-                    }
-                });
                 label.getProperties().put("row", i);
                 label.getProperties().put("col", j);
                 label.setPrefHeight(20);
@@ -242,26 +176,6 @@ public class MainController {
         return matrix;
     }
 
-    private void pve(final int row, final int col) {
-        if (!game.getBoard().getCell(row, col).isEmpty()) {
-            return;
-        }
-        // master play
-        final Player nextPlayer = game.getNextPlayer();
-        game.playInCell(row, col, nextPlayer);
-        helper.history.set("[" + String.valueOf(nextPlayer.getMarker())
-                + "][" + row + ", " + col + "]\n" + helper.history.get());
-        refresh();
-        if (!isGameOver.get()) {
-            // ai opponent make a move
-            isAINext.set(true);
-            isPlayerNext.set(false);
-            makeMove();
-            isAINext.set(false);
-            isPlayerNext.set(true);
-        }
-    }
-
     @FXML
     void nextHandler(ActionEvent event) {
         Task task = new Task() {
@@ -270,13 +184,7 @@ public class MainController {
                 while (!(game.isGameOver() || isPlayerNext.get() || !isAINext.get())) {
                     isAINext.set(false);
                     makeMove();
-                    if (mode.equals(GameMode.EVE_ONLINE) || mode.equals(GameMode.EVE)) {
-                        isPlayerNext.set(false);
-                        isAINext.set(true);
-                    } else {
-                        isPlayerNext.set(true);
-                        isAINext.set(false);
-                    }
+                    isAINext.set(true);
                 }
                 return true;
             }

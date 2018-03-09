@@ -1,4 +1,4 @@
-package edu.gwu.ai.codeknights.tictactoe.util;
+package edu.gwu.ai.codeknights.tictactoe.gui.util;
 
 /**
  * @author zhiyuan

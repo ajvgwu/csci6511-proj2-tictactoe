@@ -19,50 +19,6 @@
                <children>
                   <VBox alignment="CENTER">
                      <children>
-                        <Button fx:id="stPVP" alignment="CENTER" mnemonicParsing="false" prefWidth="100.0" styleClass="success" text="PVP" />
-                        <Label text="Player vs Player" />
-                     </children>
-                     <HBox.margin>
-                        <Insets left="10.0" right="10.0" />
-                     </HBox.margin>
-                  </VBox>
-                  <VBox alignment="CENTER">
-                     <children>
-                        <Button fx:id="stPVE" alignment="CENTER" mnemonicParsing="false" prefWidth="100.0" styleClass="success" text="PVE" />
-                        <Label text="Player vs AI" />
-                     </children>
-                     <HBox.margin>
-                        <Insets left="10.0" right="10.0" />
-                     </HBox.margin>
-                  </VBox>
-                  <VBox alignment="CENTER">
-                     <children>
-                        <Button fx:id="stEVP" alignment="CENTER" mnemonicParsing="false" prefWidth="100.0" styleClass="success" text="EVP" />
-                        <Label text="AI vs Player" />
-                     </children>
-                     <HBox.margin>
-                        <Insets left="10.0" right="10.0" />
-                     </HBox.margin>
-                  </VBox>
-                  <VBox alignment="CENTER">
-                     <children>
-                        <Button fx:id="stEVE" alignment="CENTER" mnemonicParsing="false" prefWidth="100.0" styleClass="success" text="EVE">
-                           <VBox.margin>
-                              <Insets />
-                           </VBox.margin>
-                        </Button>
-                        <Label text="AI vs AI">
-                           <VBox.margin>
-                              <Insets />
-                           </VBox.margin>
-                        </Label>
-                     </children>
-                     <HBox.margin>
-                        <Insets left="10.0" right="10.0" />
-                     </HBox.margin>
-                  </VBox>
-                  <VBox alignment="CENTER">
-                     <children>
                         <Button fx:id="stOnline" alignment="CENTER" mnemonicParsing="false" prefWidth="100.0" styleClass="success" text="EVE online">
                            <VBox.margin>
                               <Insets />
@@ -78,7 +34,6 @@
             </HBox>
          </children>
       </AnchorPane>
-      <Button fx:id="stStart" layoutX="200.0" layoutY="415.0" mnemonicParsing="false" onAction="#startHandler" styleClass="danger" text="START" />
       <Label layoutX="268.0" layoutY="128.0" text="Board Setting" />
       <HBox alignment="CENTER" layoutY="155.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
          <children>
@@ -170,6 +125,6 @@
             <Text fx:id="stErr" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" />
          </children>
       </HBox>
-      <Button fx:id="stSpectate" layoutX="352.0" layoutY="415.0" mnemonicParsing="false" onAction="#spectateHandler" styleClass="danger" text="Spectate" />
+      <Button fx:id="stSpectate" layoutX="269.0" layoutY="407.0" mnemonicParsing="false" onAction="#spectateHandler" styleClass="danger" text="Spectate" />
    </children>
 </AnchorPane>
