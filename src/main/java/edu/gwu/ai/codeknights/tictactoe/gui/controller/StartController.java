@@ -2,6 +2,7 @@ package edu.gwu.ai.codeknights.tictactoe.gui.controller;
 
 import java.io.IOException;
 
+import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.gui.TicTacToe;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.API;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.FXMLLoadResult;
@@ -43,6 +44,9 @@ public class StartController {
     private Button stStart;
 
     @FXML
+    private Button stSpectate;
+
+    @FXML
     private TextField stDim;
 
     @FXML
@@ -79,7 +83,7 @@ public class StartController {
                                                     newValue) -> stSecondHome.setSelected(!newValue));
 
         stSecondHome.selectedProperty().addListener((observable, oldValue,
-                                                    newValue) -> stFirstHome.setSelected(!newValue));
+                                                     newValue) -> stFirstHome.setSelected(!newValue));
 
         stFirstHome.setSelected(true);
         stSecondHome.setSelected(false);
@@ -132,7 +136,7 @@ public class StartController {
         stPVE.setDisable(true);
     }
 
-    private boolean checkDimWinLen(){
+    private boolean checkDimWinLen() {
         try {
             Integer winLen = Integer.parseInt(stWinLen.getText());
             Integer dim = Integer.parseInt(stDim.getText());
@@ -149,54 +153,92 @@ public class StartController {
 
     @FXML
     void startHandler(ActionEvent event) {
-        Integer dim = Integer.parseInt(stDim.getText());
-        Integer winLen = Integer.parseInt(stWinLen.getText());
-
         GameMode mode = getMode();
+        if (mode.equals(GameMode.EVE_ONLINE)) {
+            toOnline(false);
+        } else {
+            toMain(0,0,0,true,false);
+        }
+    }
 
+    @FXML
+    void spectateHandler(ActionEvent event) {
+        GameMode mode = getMode();
+        if (mode.equals(GameMode.EVE_ONLINE)) {
+            String gameIdStr = stGameId.getText().trim();
+            if("0".equals(gameIdStr)){
+                return;
+            }
+            toOnline(true);
+        }
+    }
+
+    private void toMain(long gameId, int teamId, int opponentId,boolean isHome,
+                        boolean asSpectator) {
+        GameMode mode = getMode();
         Stage primaryStage = TicTacToe.getPrimaryStage();
+        // load the main scene, then current scene will dismiss
+        FXMLLoadResult result = null;
         try {
-            Integer teamId = Integer.parseInt(stTeamId.getText());
-            Integer opponentId = Integer.parseInt(stOpId.getText());
-            Long gameId = Long.parseLong(stGameId.getText());
-            // load the main scene, then current scene will dismiss
-            FXMLLoadResult result = FXMLUtil.loadAsNode("fxml/main.fxml");
+            Integer dim = Integer.parseInt(stDim.getText());
+            Integer winLen = Integer.parseInt(stWinLen.getText());
+            result = FXMLUtil.loadAsNode("fxml/main.fxml");
             FXMLUtil.addStylesheets(result.getNode(), Const.UNIVERSAL_STYLESHEET_URL);
             primaryStage.setScene(new Scene(result.getNode()));
             primaryStage.setResizable(true);
-            String key = stKey.getText().trim();
-            String userId = stUserId.getText().trim();
-            API.HEADER_API_KEY_VALUE = key;
-            API.HEADER_USER_ID_VALUE = userId;
+            primaryStage.setOnCloseRequest(event -> System.exit(0));
             MainController controller = (MainController) result.getController();
-            controller.setup(gameId, dim, winLen, mode, teamId, opponentId,
-                    getIsHome());
+            controller.setup(gameId, dim, winLen, mode, teamId, opponentId, isHome,
+                    asSpectator);
             stStart.setDisable(true);
         } catch (IOException e) {
             e.printStackTrace();
-        }catch (NumberFormatException e){
-            stErr.setText("Invalid Number");
         }
     }
 
-    private boolean getIsHome(){
+    private void toOnline(boolean asSpectator) {
+        String key = stKey.getText().trim();
+        String userId = stUserId.getText().trim();
+        String teamIdStr = stTeamId.getText().trim();
+        String opIdStr = stOpId.getText().trim();
+        String gameIdStr = stGameId.getText().trim();
+        if(key.isEmpty() || userId.isEmpty()){
+            stErr.setText("Invalid Arguments");
+            return;
+        }
+        if(gameIdStr.isEmpty() || teamIdStr.isEmpty() || opIdStr.isEmpty()){
+            stErr.setText("Invalid Arguments");
+            return;
+        }
+        API.HEADER_API_KEY_VALUE = key;
+        API.HEADER_USER_ID_VALUE = userId;
+
+        try {
+            Integer teamId = Integer.parseInt(teamIdStr);
+            Integer opponentId = Integer.parseInt(opIdStr);
+            Long gameId = Long.parseLong(gameIdStr);
+            boolean isHome = getIsHome();
+            toMain(gameId, teamId, opponentId, isHome, asSpectator);
+        }catch (NumberFormatException ex){
+            ex.printStackTrace();
+            stErr.setText("Invalid Arguments");
+        }
+    }
+
+    private boolean getIsHome() {
         return stFirstHome.isSelected();
     }
 
-    private GameMode getMode(){
+    private GameMode getMode() {
         if (stPVP.isDisabled()) {
             return GameMode.PVP;
-        }
-        else if (stPVE.isDisabled()) {
+        } else if (stPVE.isDisabled()) {
             return GameMode.PVE;
-        }
-        else if (stEVP.isDisabled()) {
+        } else if (stEVP.isDisabled()) {
             return GameMode.EVP;
-        }
-        else if (stEVE.isDisabled()) {
+        } else if (stEVE.isDisabled()) {
             return GameMode.EVE;
-        }
-        else {
+        } else {
             return GameMode.EVE_ONLINE;
         }
     }

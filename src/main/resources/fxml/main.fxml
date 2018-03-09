@@ -155,6 +155,23 @@
                               <Insets bottom="10.0" top="10.0" />
                            </VBox.margin>
                         </HBox>
+                        <HBox layoutX="24.0" layoutY="300.0">
+                           <children>
+                              <Label alignment="CENTER" prefWidth="100.0" text="Player Status">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                              <Text fx:id="mPlayerStatus" strokeType="OUTSIDE" strokeWidth="0.0" text="N/A">
+                                 <HBox.margin>
+                                    <Insets left="30.0" />
+                                 </HBox.margin>
+                              </Text>
+                           </children>
+                           <VBox.margin>
+                              <Insets bottom="10.0" top="10.0" />
+                           </VBox.margin>
+                        </HBox>
                         <HBox alignment="CENTER" layoutX="24.0" layoutY="290.0">
                            <children>
                               <Button fx:id="mNext" alignment="CENTER" mnemonicParsing="false" onAction="#nextHandler" styleClass="danger" text="Next" />

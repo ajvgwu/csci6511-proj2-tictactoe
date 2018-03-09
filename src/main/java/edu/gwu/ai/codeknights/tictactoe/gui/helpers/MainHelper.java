@@ -36,7 +36,7 @@ public class MainHelper {
     }
 
     public void createLocalGame(long gameId, int dim, int winLen, GameMode
-            mode, int masterId, int opId, boolean isHome) {
+            mode, int masterId, int opId, boolean isHome, boolean asSpectator) {
 
         // create the choosers for the two players
         // for AI players, use time-limited alpha-beta pruning with a limit of 110 seconds (1min 50sec)
@@ -64,7 +64,11 @@ public class MainHelper {
                 break;
             }
             case EVE_ONLINE: {
-                masterChooser = new OnlineMoveMaker(110);
+                if(asSpectator){
+                    masterChooser = new OnlineMoveFetcher();
+                }else{
+                    masterChooser = new OnlineMoveMaker(110);
+                }
                 opChooser = new OnlineMoveFetcher();
                 break;
             }
