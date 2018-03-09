@@ -1,7 +1,10 @@
 package edu.gwu.ai.codeknights.tictactoe.gui.controller;
 
 import java.util.Random;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import edu.gwu.ai.codeknights.tictactoe.chooser.AbstractOnlineChooser;
 import javafx.application.Platform;
@@ -31,6 +34,9 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+
+import static java.util.concurrent.Executors.newFixedThreadPool;
+import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
 /**
  * @author zhiyuan
@@ -246,8 +252,8 @@ public class MainController {
   void nextHandler(ActionEvent event) {
     Task task = new Task() {
       @Override
-      protected Object call() throws Exception {
-        while (!game.isGameOver() && !isPlayerNext.get() && isAINext.get()){
+      protected Object call() {
+        while (!(game.isGameOver() || isPlayerNext.get() || !isAINext.get())){
           isAINext.set(false);
           makeMove();
           if(mode.equals(GameMode.EVE_ONLINE) || mode.equals(GameMode.EVE)){
@@ -262,8 +268,7 @@ public class MainController {
       }
     };
 
-    Thread thread = new Thread(task);
-    thread.start();
+    Executors.newSingleThreadExecutor().execute(task);
   }
 
   @FXML
