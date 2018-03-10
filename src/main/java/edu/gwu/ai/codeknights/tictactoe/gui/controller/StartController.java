@@ -182,6 +182,9 @@ public class StartController {
         try {
             Integer dim = Integer.parseInt(stDim.getText());
             Integer winLen = Integer.parseInt(stWinLen.getText());
+            if(dim == 0 || winLen == 0){
+                return;
+            }
             result = FXMLUtil.loadAsNode("fxml/main.fxml");
             FXMLUtil.addStylesheets(result.getNode(), Const.UNIVERSAL_STYLESHEET_URL);
             primaryStage.setScene(new Scene(result.getNode()));
@@ -193,6 +196,7 @@ public class StartController {
             stStart.setDisable(true);
         } catch (IOException e) {
             e.printStackTrace();
+            stErr.setText("Invalid Arguments");
         }
     }
 
@@ -202,6 +206,7 @@ public class StartController {
         String teamIdStr = stTeamId.getText().trim();
         String opIdStr = stOpId.getText().trim();
         String gameIdStr = stGameId.getText().trim();
+
         if(key.isEmpty() || userId.isEmpty()){
             stErr.setText("Invalid Arguments");
             return;

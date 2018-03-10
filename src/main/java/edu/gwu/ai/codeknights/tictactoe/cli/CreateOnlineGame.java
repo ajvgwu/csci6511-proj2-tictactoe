@@ -2,6 +2,7 @@ package edu.gwu.ai.codeknights.tictactoe.cli;
 
 import java.util.Map;
 
+import edu.gwu.ai.codeknights.tictactoe.util.Const;
 import org.pmw.tinylog.Logger;
 
 import edu.gwu.ai.codeknights.tictactoe.gui.util.API;
@@ -21,9 +22,15 @@ public class CreateOnlineGame extends AbstractOnlineSubcommand {
     // Make API call to create new game
     final String teamId1 = String.valueOf(getPlayer1Id());
     final String teamId2 = String.valueOf(getPlayer2Id());
-    final Call<Map> call = API.getApiService().postGame(API.API_TYPE_GAME, teamId1, teamId2);
+    final String type = API.API_TYPE_GAME;
+    final Call<Map> call = API.getApiService().postGame(type, teamId1,
+            teamId2, Const.API_GAMETYPE_DEFAULT, Const.API_BOARDSIZE_DEFAULT,
+            Const.API_TARGET_DEFAULT);
     final Response<Map> response = call.execute();
     final Map<?, ?> body = response.body();
+    if(body == null){
+      return null;
+    }
     Logger.debug("body of response: {}", body);
     final Object o = body.get(API.API_RESPONSEKEY_CODE);
     if (o instanceof String) {

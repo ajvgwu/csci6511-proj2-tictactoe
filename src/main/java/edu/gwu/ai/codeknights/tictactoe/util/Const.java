@@ -12,4 +12,10 @@ public class Const {
      * if it's zero-based, set to 0, if it's one-based, set to 1
      * */
     public static final int ONLINE_BOARD_OFFSET = 0;
+
+    public static final String API_GAMETYPE_DEFAULT = "TTT";
+    public static final String API_BOARDSIZE_DEFAULT = "12";
+    public static final String API_TARGET_DEFAULT = "6";
+
+    public static final int CHOOSER_TIME_LIMIT_DEFAULT = 110;
 }

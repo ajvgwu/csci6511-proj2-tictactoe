@@ -34,6 +34,8 @@ public class API {
     public static final String API_MOVEKEY_TEAMID = "teamId";
     public static final String API_MOVEKEY_MOVE = "move";
 
+    private static ApiService service = null;
+
     private API() {
 
     }
@@ -60,11 +62,10 @@ public class API {
                     .addInterceptor(headerInteceptor).build())
             .build();
 
-    public static Retrofit getApiAdapter() {
-        return apiAdapter;
-    }
-
     public static ApiService getApiService(){
-        return apiAdapter.create(ApiService.class);
+        if(service == null){
+            service = apiAdapter.create(ApiService.class);
+        }
+        return service;
     }
 }

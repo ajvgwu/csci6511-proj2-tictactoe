@@ -4,6 +4,7 @@ import java.util.Random;
 import java.util.concurrent.Executors;
 
 import edu.gwu.ai.codeknights.tictactoe.chooser.AbstractOnlineChooser;
+import edu.gwu.ai.codeknights.tictactoe.gui.util.API;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -45,7 +46,6 @@ public class MainController {
     private BooleanProperty isGameOver;
     private BooleanProperty isAINext;
     private GameMode mode;
-    private boolean asSpectator;
 
     private StringProperty[][] boardProperties;
     private Label[][] matrix;
@@ -129,13 +129,14 @@ public class MainController {
      */
     public void setup(long gameId, final int dim, final int winLen, final
     GameMode mode, int masterId, int opId, boolean isHome, boolean asSpectator) {
-        this.asSpectator = asSpectator;
         mPlayerStatus.setText(asSpectator ? "Spectating" : "Playing");
         if (!asSpectator) {
             // play game, not as spectator
             if (GameMode.EVE_ONLINE.equals(mode)) {
                 if (gameId == 0) {
-                    gameId = helper.createOnelineGame(masterId, opId);
+                    String gameType = Const.API_GAMETYPE_DEFAULT;
+                    gameId = helper.createOnelineGame(masterId, opId,
+                            gameType, dim, winLen);
                 }
             } else {
                 // generate all ids for non-EvE-online games

@@ -42,6 +42,7 @@ public class MainHelper {
         // for AI players, use time-limited alpha-beta pruning with a limit of 110 seconds (1min 50sec)
         AbstractCellChooser masterChooser = null;
         AbstractCellChooser opChooser = null;
+        int chooserTimeLimit = Const.CHOOSER_TIME_LIMIT_DEFAULT;
         switch (mode) {
             case PVP: {
                 masterChooser = new StupidMoveChooser();
@@ -50,24 +51,25 @@ public class MainHelper {
             }
             case PVE: {
                 masterChooser = new StupidMoveChooser();
-                opChooser = new CaseByCaseChooser(new AbpTimeLimitChooser(110, new EmptyCellFilter()));
+                opChooser = new CaseByCaseChooser(new AbpTimeLimitChooser(chooserTimeLimit,
+                        new EmptyCellFilter()));
                 break;
             }
             case EVP: {
-                masterChooser = new CaseByCaseChooser(new AbpTimeLimitChooser(110, new EmptyCellFilter()));
+                masterChooser = new CaseByCaseChooser(new AbpTimeLimitChooser(chooserTimeLimit, new EmptyCellFilter()));
                 opChooser = new StupidMoveChooser();
                 break;
             }
             case EVE: {
-                masterChooser = new CaseByCaseChooser(new AbpTimeLimitChooser(110, new EmptyCellFilter()));
-                opChooser = new CaseByCaseChooser(new AbpTimeLimitChooser(110, new EmptyCellFilter()));
+                masterChooser = new CaseByCaseChooser(new AbpTimeLimitChooser(chooserTimeLimit, new EmptyCellFilter()));
+                opChooser = new CaseByCaseChooser(new AbpTimeLimitChooser(chooserTimeLimit, new EmptyCellFilter()));
                 break;
             }
             case EVE_ONLINE: {
                 if(asSpectator){
                     masterChooser = new OnlineMoveFetcher();
                 }else{
-                    masterChooser = new OnlineMoveMaker(110);
+                    masterChooser = new OnlineMoveMaker(chooserTimeLimit);
                 }
                 opChooser = new OnlineMoveFetcher();
                 break;
@@ -86,10 +88,12 @@ public class MainHelper {
         this.game = new Game(dim, winLen, gameId, master, opponent, isHome);
     }
 
-    public long createOnelineGame(int team1Id, int team2Id) {
+    public long createOnelineGame(int team1Id, int team2Id, String gameType, int
+            dim, int winLen) {
         long gameId = 0L;
         final Call<Map> call = API.getApiService().postGame(API.API_TYPE_GAME,
-                String.valueOf(team1Id), String.valueOf(team2Id));
+                String.valueOf(team1Id), String.valueOf(team2Id), gameType,
+                String.valueOf(dim), String.valueOf(winLen));
         final Response<Map> response;
         try {
             response = call.execute();
@@ -119,13 +123,5 @@ public class MainHelper {
 
     public Game getGame() {
         return game;
-    }
-
-    public Player getMaster() {
-        return master;
-    }
-
-    public Player getOpponent() {
-        return opponent;
     }
 }
