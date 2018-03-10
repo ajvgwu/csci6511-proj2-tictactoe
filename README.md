@@ -50,30 +50,30 @@ To run the program from the command line:
 # java -jar ./target/csci6511-proj2-tictactoe-<version>-shaded.jar <cmd> <args>
 
 # For general usage info, use the '--help' flag:
-java -jar ./target/csci6511-proj2-tictactoe-1.1-shaded.jar --help
+java -jar ./target/csci6511-proj2-tictactoe-1.2-SNAPSHOT-shaded.jar --help
 
 # For usage info for a particular command, also use the '--help' flag:
-java -jar ./target/csci6511-proj2-tictactoe-1.1-shaded.jar <cmd> --help
+java -jar ./target/csci6511-proj2-tictactoe-1.2-SNAPSHOT-shaded.jar <cmd> --help
 ```
 
 ## Creating and Playing an Online Game
 
 ```bash
 # 1. Create a new game
-java -jar ./target/csci6511-proj2-tictactoe-1.1-shaded.jar \
+java -jar ./target/csci6511-proj2-tictactoe-1.2-SNAPSHOT-shaded.jar \
   create-online-game --user-id <your userId> --api-key <your apiKey> \
     --player1-id <your team id> --player2-id <opponent team id>
 # Make note of output, which contains gameId
 
 # 2. In first session, play as player1
-java -jar ./target/csci6511-proj2-tictactoe-1.1-shaded.jar \
+java -jar ./target/csci6511-proj2-tictactoe-1.2-SNAPSHOT-shaded.jar \
   play-online-game --user-id <your userId> --api-key <your apiKey> \
     --player1-id <your team id> --player2-id <opponent team id> \
     --game-id <gameId from step 1> \
     --dim 18 --win-length 8 # or whatever board size you agreed upon
 
 # 3. In another session, play as player2
-java -jar ./target/csci6511-proj2-tictactoe-1.1-shaded.jar \
+java -jar ./target/csci6511-proj2-tictactoe-1.2-SNAPSHOT-shaded.jar \
   play-online-game --user-id <your userId> --api-key <your apiKey> \
     --player1-id <your team id> --player2-id <opponent team id> \
     --game-id <gameId from step 1> \
