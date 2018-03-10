@@ -91,19 +91,14 @@ public class StartController {
 
     @FXML
     void spectateHandler(ActionEvent event) {
-        GameMode mode = getMode();
-        if (mode.equals(GameMode.EVE_ONLINE)) {
-            String gameIdStr = stGameId.getText().trim();
-            if("0".equals(gameIdStr)){
-                return;
-            }
-            toOnline(true);
+        String gameIdStr = stGameId.getText().trim();
+        if("0".equals(gameIdStr)){
+            return;
         }
+        toOnline();
     }
 
-    private void toMain(long gameId, int teamId, int opponentId,boolean isHome,
-                        boolean asSpectator) {
-        GameMode mode = getMode();
+    private void toMain(long gameId, int teamId, int opponentId,boolean isHome) {
         Stage primaryStage = Spectator.getPrimaryStage();
         // load the main scene, then current scene will dismiss
         FXMLLoadResult result = null;
@@ -119,15 +114,14 @@ public class StartController {
             primaryStage.setResizable(true);
             primaryStage.setOnCloseRequest(event -> System.exit(0));
             MainController controller = (MainController) result.getController();
-            controller.setup(gameId, dim, winLen, mode, teamId, opponentId, isHome,
-                    asSpectator);
+            controller.setup(gameId, dim, winLen, teamId, opponentId, isHome);
         } catch (IOException e) {
             e.printStackTrace();
             stErr.setText("Invalid Arguments");
         }
     }
 
-    private void toOnline(boolean asSpectator) {
+    private void toOnline() {
         String key = stKey.getText().trim();
         String userId = stUserId.getText().trim();
         String teamIdStr = stTeamId.getText().trim();
@@ -150,7 +144,7 @@ public class StartController {
             Integer opponentId = Integer.parseInt(opIdStr);
             Long gameId = Long.parseLong(gameIdStr);
             boolean isHome = getIsHome();
-            toMain(gameId, teamId, opponentId, isHome, asSpectator);
+            toMain(gameId, teamId, opponentId, isHome);
         }catch (NumberFormatException ex){
             ex.printStackTrace();
             stErr.setText("Invalid Arguments");
@@ -161,7 +155,4 @@ public class StartController {
         return stFirstHome.isSelected();
     }
 
-    private GameMode getMode() {
-        return GameMode.EVE_ONLINE;
-    }
 }

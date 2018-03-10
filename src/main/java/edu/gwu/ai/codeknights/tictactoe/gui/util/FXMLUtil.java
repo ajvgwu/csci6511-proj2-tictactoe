@@ -34,7 +34,7 @@ public class FXMLUtil {
    * load resource from the path as URL
    * the provided path is full path
    */
-  public static final URL loadAsUrl(String path) {
+  public static URL loadAsUrl(String path) {
     URL url = FXMLUtil.class.getResource(path);
     return url;
   }
@@ -43,16 +43,16 @@ public class FXMLUtil {
    * load stylesheets from the path
    * the provided path is only the file name
    */
-  public static final void addStylesheets(Parent node, String path) {
+  public static void addStylesheets(Parent node, String path) {
     URL url = loadAsUrl(UI_RESOURCE_PATH_PREFIX + path);
     node.getStylesheets().add(url.toExternalForm());
   }
 
-  public static final ArrayList getControllers() {
+  public static ArrayList getControllers() {
     return controllers;
   }
 
-  public static final void replaceTheme(Parent node, String themeUrl) {
+  public static void replaceTheme(Parent node, String themeUrl) {
     node.getStylesheets().clear();
     addStylesheets(node, themeUrl);
   }

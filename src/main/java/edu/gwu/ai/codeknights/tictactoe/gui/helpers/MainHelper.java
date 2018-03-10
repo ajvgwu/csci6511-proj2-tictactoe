@@ -3,11 +3,9 @@ package edu.gwu.ai.codeknights.tictactoe.gui.helpers;
 import edu.gwu.ai.codeknights.tictactoe.chooser.*;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.core.Player;
-import edu.gwu.ai.codeknights.tictactoe.gui.controller.GameMode;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.Const;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import org.pmw.tinylog.Logger;
 
 /**
  * @author zhiyuan
@@ -24,28 +22,17 @@ public class MainHelper {
         game = null;
         master = null;
         opponent = null;
-
         history = new SimpleStringProperty("");
     }
 
-    public void createLocalGame(long gameId, int dim, int winLen, GameMode
-            mode, int masterId, int opId, boolean isHome, boolean asSpectator) {
+    public void createLocalGame(long gameId, int dim, int winLen, int masterId, int opId, boolean isHome) {
 
         // create the choosers for the two players
         // for AI players, use time-limited alpha-beta pruning with a limit of 110 seconds (1min 50sec)
         AbstractCellChooser masterChooser = null;
         AbstractCellChooser opChooser = null;
-        switch (mode) {
-            case EVE_ONLINE: {
-                if(asSpectator){
-                    masterChooser = new OnlineMoveFetcher();
-                }
-                opChooser = new OnlineMoveFetcher();
-                break;
-            }
-            default:
-                Logger.error("Invalid Game Mode");
-        }
+        masterChooser = new OnlineMoveFetcher();
+        opChooser = new OnlineMoveFetcher();
 
         // create players
         master = new Player(masterId, Const.MASTER_PLAYER_CHAR);

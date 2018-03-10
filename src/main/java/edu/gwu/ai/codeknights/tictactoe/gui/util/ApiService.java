@@ -14,29 +14,6 @@ import java.util.Map;
  */
 public interface ApiService {
 
-    @FormUrlEncoded
-    @POST("index.php")
-    Call<Map> post(
-      @Field("type") String type,
-      @Field("teamId") String teamId,
-      @Field("gameId") String gameId,
-      @Field("move") String move
-    );
-
-    @FormUrlEncoded
-    @POST("index.php")
-    Call<Map> postGame(
-      @Field("type") String type,
-      @Field("teamId1") String teamId1,
-      @Field("teamId2") String teamId2,
-      @Field("gameType") String gameType,
-      @Field("boardSize") String boardSize,
-      @Field("target") String target
-      );
-
-    @GET("index.php?type=team")
-    Call<Map> getTeamMembers(@Query("teamId") String teamId);
-
     @GET("index.php?type=moves")
     Call<Map> getMoves(@Query("gameId") String gameId, @Query("count") Integer count);
 }

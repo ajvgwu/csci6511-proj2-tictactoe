@@ -36,11 +36,7 @@ public class MainController {
     private MainHelper helper;
 
     private Game game;
-    private BooleanBinding isClickable;
-    private BooleanProperty isPlayerNext;
     private BooleanProperty isGameOver;
-    private BooleanProperty isAINext;
-    private GameMode mode;
 
     private StringProperty[][] boardProperties;
     private Label[][] matrix;
@@ -73,9 +69,6 @@ public class MainController {
     private Text mPlayerStatus;
 
     @FXML
-    private Button mNext;
-
-    @FXML
     private VBox mBoardBox;
 
     @FXML
@@ -84,11 +77,8 @@ public class MainController {
     @FXML
     void initialize() {
         helper = new MainHelper();
-        isPlayerNext = new SimpleBooleanProperty(false);
-        isAINext = new SimpleBooleanProperty(false);
         isGameOver = new SimpleBooleanProperty(false);
         mHistory.textProperty().bind(helper.history);
-        mNext.disableProperty().bind(isAINext.not());
     }
 
     /**
@@ -99,30 +89,29 @@ public class MainController {
      *                 gameId is not 0, then the game was created by other team
      * @param dim      number of rows and columns
      * @param winLen   length of a winning line
-     * @param mode     a integer represents one of game modes
      * @param masterId id of local primary player
      * @param opId     id of opponent player
      */
-    public void setup(long gameId, final int dim, final int winLen, final
-    GameMode mode, int masterId, int opId, boolean isHome, boolean asSpectator) {
-        mPlayerStatus.setText(asSpectator ? "Spectating" : "Playing");
-        helper.createLocalGame(gameId, dim, winLen, mode, masterId, opId, isHome,
-                asSpectator);
+    public void setup(long gameId, final int dim, final int winLen, int masterId, int opId, boolean isHome) {
+        mPlayerStatus.setText("Spectating");
+        helper.createLocalGame(gameId, dim, winLen, masterId, opId, isHome);
         game = helper.getGame();
-        this.mode = mode;
-
-        if (mode.equals(GameMode.EVE_ONLINE)) {
-            isAINext.set(true);
-        } else {
-            isAINext.set(false);
-        }
-
         // add matrix to main panel
         buildBoard(dim, dim);
         Spectator.getPrimaryStage().sizeToScene();
         refresh();
         // start spectating automatically
-        nextHandler(null);
+        Task task = new Task() {
+            @Override
+            protected Object call() {
+                while (!isGameOver.get()) {
+                    makeMove();
+                }
+                return true;
+            }
+        };
+
+        Executors.newSingleThreadExecutor().execute(task);
     }
 
     /**
@@ -177,23 +166,6 @@ public class MainController {
     }
 
     @FXML
-    void nextHandler(ActionEvent event) {
-        Task task = new Task() {
-            @Override
-            protected Object call() {
-                while (!(game.isGameOver() || isPlayerNext.get() || !isAINext.get())) {
-                    isAINext.set(false);
-                    makeMove();
-                    isAINext.set(true);
-                }
-                return true;
-            }
-        };
-
-        Executors.newSingleThreadExecutor().execute(task);
-    }
-
-    @FXML
     void refreshHandler(ActionEvent event) {
         refresh();
     }
@@ -214,9 +186,7 @@ public class MainController {
     }
 
     private void refresh() {
-        if (mode.equals(GameMode.EVE_ONLINE)) {
-            AbstractOnlineChooser.tryFastForward(game);
-        }
+        AbstractOnlineChooser.tryFastForward(game);
 
         Platform.runLater(() -> {
             for (int i = 0; i < game.getDim(); i++) {
