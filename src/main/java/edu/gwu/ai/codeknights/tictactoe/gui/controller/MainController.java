@@ -121,8 +121,8 @@ public class MainController {
         // add matrix to main panel
         final GridPane boardGrid = new GridPane();
         boardGrid.setAlignment(Pos.CENTER);
-        boardGrid.setVgap(20);
-        boardGrid.setHgap(20);
+        boardGrid.setVgap(10);
+        boardGrid.setHgap(10);
         GridPane.setHalignment(boardGrid, HPos.CENTER);
         GridPane.setValignment(boardGrid, VPos.CENTER);
         final Label[][] matrix = getLabelMatrix(rowLen, colLen);
