@@ -1,9 +1,9 @@
 package edu.gwu.ai.codeknights.tictactoe.filter;
 
-import java.util.stream.Stream;
-
 import edu.gwu.ai.codeknights.tictactoe.core.Cell;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
+
+import java.util.stream.Stream;
 
 public abstract class AbstractCellFilter {
 

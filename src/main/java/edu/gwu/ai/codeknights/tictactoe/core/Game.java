@@ -1,16 +1,10 @@
 package edu.gwu.ai.codeknights.tictactoe.core;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-
-import org.pmw.tinylog.Logger;
-
 import edu.gwu.ai.codeknights.tictactoe.core.exception.GameException;
 import edu.gwu.ai.codeknights.tictactoe.core.exception.StateException;
+import org.pmw.tinylog.Logger;
+
+import java.util.*;
 
 /**
  * Maintains the state for a game of Tic Tac Toe played by two {@link Player}s on a square {@link Board}. Provides a

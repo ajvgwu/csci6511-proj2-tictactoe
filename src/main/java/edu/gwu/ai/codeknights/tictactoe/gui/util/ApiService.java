@@ -3,11 +3,7 @@ package edu.gwu.ai.codeknights.tictactoe.gui.util;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.res.GetBoardRes;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.res.GetMovesRes;
 import retrofit2.Call;
-import retrofit2.http.Field;
-import retrofit2.http.FormUrlEncoded;
-import retrofit2.http.GET;
-import retrofit2.http.POST;
-import retrofit2.http.Query;
+import retrofit2.http.*;
 
 import java.util.Map;
 

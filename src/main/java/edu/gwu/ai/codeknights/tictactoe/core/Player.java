@@ -1,8 +1,8 @@
 package edu.gwu.ai.codeknights.tictactoe.core;
 
-import java.util.Objects;
-
 import edu.gwu.ai.codeknights.tictactoe.chooser.AbstractCellChooser;
+
+import java.util.Objects;
 
 /**
  * A player that can populate the {@link Cell}s of a Tic Tac Toe {@link Game}.

@@ -1,14 +1,14 @@
 package edu.gwu.ai.codeknights.tictactoe.cli;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import edu.gwu.ai.codeknights.tictactoe.core.Cell;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.core.Player;
 import edu.gwu.ai.codeknights.tictactoe.filter.Filter;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Command(
   name = "test-filter", sortOptions = false, showDefaultValues = true,

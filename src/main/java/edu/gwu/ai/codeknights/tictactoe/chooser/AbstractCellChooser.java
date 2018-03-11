@@ -1,11 +1,11 @@
 package edu.gwu.ai.codeknights.tictactoe.chooser;
 
+import edu.gwu.ai.codeknights.tictactoe.core.Cell;
+import edu.gwu.ai.codeknights.tictactoe.core.Game;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
-
-import edu.gwu.ai.codeknights.tictactoe.core.Cell;
-import edu.gwu.ai.codeknights.tictactoe.core.Game;
 
 public abstract class AbstractCellChooser {
 

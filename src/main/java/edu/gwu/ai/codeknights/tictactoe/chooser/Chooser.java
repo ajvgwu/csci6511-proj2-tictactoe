@@ -1,11 +1,11 @@
 package edu.gwu.ai.codeknights.tictactoe.chooser;
 
+import edu.gwu.ai.codeknights.tictactoe.filter.PopulatedNeighborFilter;
+
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import edu.gwu.ai.codeknights.tictactoe.filter.PopulatedNeighborFilter;
 
 public enum Chooser {
 

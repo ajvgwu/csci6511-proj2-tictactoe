@@ -1,9 +1,9 @@
 package edu.gwu.ai.codeknights.tictactoe.chooser;
 
-import java.util.stream.Stream;
-
 import edu.gwu.ai.codeknights.tictactoe.core.Cell;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
+
+import java.util.stream.Stream;
 
 /**
  * chooser a move by person clicking on ui control

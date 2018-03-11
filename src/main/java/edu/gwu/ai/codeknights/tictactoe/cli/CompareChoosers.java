@@ -1,17 +1,16 @@
 package edu.gwu.ai.codeknights.tictactoe.cli;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import org.pmw.tinylog.Logger;
-
 import edu.gwu.ai.codeknights.tictactoe.chooser.AbstractCellChooser;
 import edu.gwu.ai.codeknights.tictactoe.chooser.Chooser;
 import edu.gwu.ai.codeknights.tictactoe.core.Cell;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.core.Player;
+import org.pmw.tinylog.Logger;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Command(
   name = "compare-choosers", sortOptions = false, showDefaultValues = true,

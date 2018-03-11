@@ -1,20 +1,16 @@
 package edu.gwu.ai.codeknights.tictactoe.chooser;
 
-import java.io.IOException;
-import java.util.*;
-
-import edu.gwu.ai.codeknights.tictactoe.gui.util.res.GetBoardRes;
-import edu.gwu.ai.codeknights.tictactoe.gui.util.res.GetMovesRes;
-import edu.gwu.ai.codeknights.tictactoe.gui.util.res.GetMovesRes.Move;
-import edu.gwu.ai.codeknights.tictactoe.util.Const;
-import org.pmw.tinylog.Logger;
-
-import edu.gwu.ai.codeknights.tictactoe.core.Cell;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.core.Player;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.API;
+import edu.gwu.ai.codeknights.tictactoe.gui.util.res.GetMovesRes;
+import edu.gwu.ai.codeknights.tictactoe.gui.util.res.GetMovesRes.Move;
+import org.pmw.tinylog.Logger;
 import retrofit2.Call;
 import retrofit2.Response;
+
+import java.io.IOException;
+import java.util.List;
 
 public abstract class AbstractOnlineChooser extends AbstractCellChooser {
 

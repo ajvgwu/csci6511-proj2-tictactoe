@@ -3,7 +3,10 @@ package edu.gwu.ai.codeknights.tictactoe.gui.util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import edu.gwu.ai.codeknights.tictactoe.util.LoggingInterceptor;
-import okhttp3.*;
+import okhttp3.Headers;
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 

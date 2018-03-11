@@ -1,20 +1,13 @@
 package edu.gwu.ai.codeknights.tictactoe.chooser;
 
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.stream.Stream;
-
-import org.pmw.tinylog.Logger;
-
 import edu.gwu.ai.codeknights.tictactoe.core.Cell;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.filter.AbstractCellFilter;
+import org.pmw.tinylog.Logger;
+
+import java.util.Set;
+import java.util.concurrent.*;
+import java.util.stream.Stream;
 
 public class AbpTimeLimitChooser extends AlphaBetaPruningChooser {
 

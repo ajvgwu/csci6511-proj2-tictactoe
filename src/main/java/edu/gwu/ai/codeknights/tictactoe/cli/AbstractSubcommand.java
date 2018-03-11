@@ -1,14 +1,13 @@
 package edu.gwu.ai.codeknights.tictactoe.cli;
 
-import java.util.concurrent.Callable;
-
-import org.pmw.tinylog.Logger;
-
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.core.Player;
 import edu.gwu.ai.codeknights.tictactoe.core.exception.GameException;
 import edu.gwu.ai.codeknights.tictactoe.util.Const;
+import org.pmw.tinylog.Logger;
 import picocli.CommandLine.Option;
+
+import java.util.concurrent.Callable;
 
 public abstract class AbstractSubcommand implements Callable<Void> {
 

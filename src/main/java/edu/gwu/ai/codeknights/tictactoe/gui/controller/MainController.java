@@ -1,16 +1,6 @@
 package edu.gwu.ai.codeknights.tictactoe.gui.controller;
 
-import java.util.Random;
-import java.util.concurrent.Executors;
-
 import edu.gwu.ai.codeknights.tictactoe.chooser.AbstractOnlineChooser;
-import edu.gwu.ai.codeknights.tictactoe.gui.util.API;
-import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.concurrent.Task;
-import javafx.scene.control.TextField;
-
 import edu.gwu.ai.codeknights.tictactoe.chooser.StupidMoveChooser;
 import edu.gwu.ai.codeknights.tictactoe.core.Cell;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
@@ -18,9 +8,13 @@ import edu.gwu.ai.codeknights.tictactoe.core.Player;
 import edu.gwu.ai.codeknights.tictactoe.gui.TicTacToe;
 import edu.gwu.ai.codeknights.tictactoe.gui.helpers.MainHelper;
 import edu.gwu.ai.codeknights.tictactoe.util.Const;
+import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
@@ -29,9 +23,13 @@ import javafx.geometry.VPos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+
+import java.util.Random;
+import java.util.concurrent.Executors;
 
 /**
  * @author zhiyuan

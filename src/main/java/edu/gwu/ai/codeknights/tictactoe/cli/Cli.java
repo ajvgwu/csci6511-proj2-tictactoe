@@ -1,13 +1,13 @@
 package edu.gwu.ai.codeknights.tictactoe.cli;
 
-import java.util.concurrent.Callable;
-
 import edu.gwu.ai.codeknights.tictactoe.chooser.Chooser;
 import edu.gwu.ai.codeknights.tictactoe.filter.Filter;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.RunLast;
+
+import java.util.concurrent.Callable;
 
 @Command(
   name = "cli", sortOptions = false, showDefaultValues = true,

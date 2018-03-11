@@ -1,8 +1,8 @@
 package edu.gwu.ai.codeknights.tictactoe.core;
 
-import java.util.Objects;
-
 import edu.gwu.ai.codeknights.tictactoe.util.Const;
+
+import java.util.Objects;
 
 /**
  * A cell on the {@link Board} of a Tic Tac Toe {@link Game}. It knows its location on the board and keeps track of

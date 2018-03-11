@@ -1,14 +1,14 @@
 package edu.gwu.ai.codeknights.tictactoe.filter;
 
+import edu.gwu.ai.codeknights.tictactoe.core.Cell;
+import edu.gwu.ai.codeknights.tictactoe.core.Game;
+import edu.gwu.ai.codeknights.tictactoe.core.Player;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import edu.gwu.ai.codeknights.tictactoe.core.Cell;
-import edu.gwu.ai.codeknights.tictactoe.core.Game;
-import edu.gwu.ai.codeknights.tictactoe.core.Player;
 
 public class BestOpenSublineFilter extends EmptyCellFilter {
 

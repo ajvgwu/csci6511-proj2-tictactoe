@@ -1,14 +1,13 @@
 package edu.gwu.ai.codeknights.tictactoe.cli;
 
-import java.util.Map;
-
+import edu.gwu.ai.codeknights.tictactoe.gui.util.API;
 import edu.gwu.ai.codeknights.tictactoe.util.Const;
 import org.pmw.tinylog.Logger;
-
-import edu.gwu.ai.codeknights.tictactoe.gui.util.API;
 import picocli.CommandLine.Command;
 import retrofit2.Call;
 import retrofit2.Response;
+
+import java.util.Map;
 
 @Command(
   name = "create-online-game", sortOptions = false, showDefaultValues = true,
