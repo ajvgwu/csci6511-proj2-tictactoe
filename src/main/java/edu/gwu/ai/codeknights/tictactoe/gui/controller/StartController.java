@@ -60,6 +60,9 @@ public class StartController {
     @FXML
     void initialize() {
 
+        stDim.setText("12");
+        stWinLen.setText("6");
+
         stFirstHome.selectedProperty().addListener((observable, oldValue,
                                                     newValue) -> stSecondHome.setSelected(!newValue));
 

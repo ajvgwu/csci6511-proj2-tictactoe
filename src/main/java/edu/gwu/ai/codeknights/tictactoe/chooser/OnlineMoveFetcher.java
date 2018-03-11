@@ -1,18 +1,14 @@
 package edu.gwu.ai.codeknights.tictactoe.chooser;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
-
-import org.pmw.tinylog.Logger;
-
 import edu.gwu.ai.codeknights.tictactoe.core.Cell;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.core.Player;
-import edu.gwu.ai.codeknights.tictactoe.gui.util.API;
-import retrofit2.Call;
-import retrofit2.Response;
+import org.pmw.tinylog.Logger;
+
+import java.util.List;
+import java.util.stream.Stream;
+
+import static edu.gwu.ai.codeknights.tictactoe.gui.util.res.GetMovesRes.Move;
 
 public class OnlineMoveFetcher extends AbstractOnlineChooser {
 
@@ -32,48 +28,18 @@ public class OnlineMoveFetcher extends AbstractOnlineChooser {
     final Player curPlayer = game.getNextPlayer();
     final int curPlayerId = curPlayer.getId();
     while (true) {
-      final Call<Map> call = API.getApiService().getMoves(String.valueOf(gameId), numMovesToFetch);
-      try {
-        Logger.debug("fetching up to {} moves from server", numMovesToFetch);
-        final Response<Map> response = call.execute();
-        Logger.debug("got response from server: {}", response);
-        final Map<?, ?> body = response.body();
-        Logger.debug("body of response: {}", body);
-        Object o = body.get(API.API_RESPONSEKEY_CODE);
-        if (o instanceof String) {
-          if (o.equals(API.API_CODE_SUCCESS)) {
-            o = body.get(API.API_RESPONSEKEY_MOVES);
-            if (o instanceof List<?>) {
-              final List<?> list = (List<?>) o;
-              if (list.size() >= numMovesExpected) {
-                o = list.get(0);
-                if (o instanceof Map<?, ?>) {
-                  final Map<?, ?> move = (Map<?, ?>) o;
-                  final Object gameIdObj = move.get(API.API_MOVEKEY_GAMEID);
-                  final Object teamIdObj = move.get(API.API_MOVEKEY_TEAMID);
-                  final Object moveObj = move.get(API.API_MOVEKEY_MOVE);
-                  if (String.valueOf(gameId).equals(gameIdObj) && String.valueOf(curPlayerId).equals(teamIdObj)
-                    && moveObj instanceof String) {
-                    Logger.debug("looking for cell corresponding to move fetched from server: {}", moveObj);
-                    final Cell cell = tryGetCellFromCoord((String) moveObj);
-                    if (cell != null) {
-                      Logger.debug("query successful, returning move in cell: {}", cell);
-                      return cell;
-                    }
-                  }
-                }
-              }
-            }
-          }
-          else {
-            final Object msgObj = body.get(API.API_RESPONSEKEY_MESSAGE);
-            Logger.error("got response {} from server with message: {}", o, msgObj);
-          }
+      Logger.debug("fetching up to {} moves from server", numMovesToFetch);
+      List<Move> moves = getMoves(game);
+      if(moves != null && moves.size() >= numMovesExpected){
+        Move move = moves.get(0);
+        if(move.getGameId().equals(gameId) && move.getTeamId().equals(curPlayerId)){
+          return game.getBoard().getCell(move.getMoveX(), move.getMoveY());
         }
-        Thread.sleep(2000);
       }
-      catch (IOException | InterruptedException e) {
-        Logger.error(e, "error while fetching move from server");
+      try {
+        Thread.sleep(2000);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
       }
     }
   }

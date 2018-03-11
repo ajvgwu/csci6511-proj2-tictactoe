@@ -1,5 +1,6 @@
 package edu.gwu.ai.codeknights.tictactoe.gui.util;
 
+import edu.gwu.ai.codeknights.tictactoe.gui.util.res.GetMovesRes;
 import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
@@ -15,5 +16,5 @@ import java.util.Map;
 public interface ApiService {
 
     @GET("index.php?type=moves")
-    Call<Map> getMoves(@Query("gameId") String gameId, @Query("count") Integer count);
+    Call<GetMovesRes> getMoves(@Query("gameId") String gameId, @Query("count") Integer count);
 }
