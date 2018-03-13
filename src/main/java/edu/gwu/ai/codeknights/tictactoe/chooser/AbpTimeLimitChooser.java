@@ -34,13 +34,7 @@ public class AbpTimeLimitChooser extends AlphaBetaPruningChooser {
   @Override
   public Cell chooseCell(final Stream<Cell> input, final Game game) {
     final ExecutorService executor = Executors.newSingleThreadExecutor();
-    final Future<Cell> task = executor.submit(new Callable<Cell>() {
-
-      @Override
-      public Cell call() {
-        return callForTask(input, game);
-      }
-    });
+    final Future<Cell> task = executor.submit(() -> callForTask(input, game));
     try {
       return task.get(limitSec, TimeUnit.SECONDS);
     }

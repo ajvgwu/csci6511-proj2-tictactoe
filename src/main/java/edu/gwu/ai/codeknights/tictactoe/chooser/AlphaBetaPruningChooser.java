@@ -46,7 +46,7 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
     bestCells = new HashSet<>();
 
     // Shuffle input cells
-    final List<Cell> cells = new ArrayList<>(input.collect(Collectors.toList()));
+    final List<Cell> cells = input.collect(Collectors.toList());
     Collections.shuffle(cells);
 
     // Create a copy of the game
@@ -84,8 +84,8 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
     return bestCells.stream().findAny().orElse(null);
   }
 
-  public SearchResult abp(final Game game, final Player player, final Player opponent, long alpha, long beta,
-    final int curDepth, final int maxDepth) {
+  private SearchResult abp(final Game game, final Player player, final Player opponent, long alpha, long beta,
+                           final int curDepth, final int maxDepth) {
 
     // Check for terminal state or stopping condition
     final boolean isGameOver = game.isGameOver();
@@ -99,8 +99,7 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
           utility = Math.min(-1L, utility);
         }
       }
-      final SearchResult result = new SearchResult(curDepth, maxDepth, isGameOver, utility);
-      return result;
+      return new SearchResult(curDepth, maxDepth, isGameOver, utility);
     }
 
     // Check if we've already solved this state
@@ -182,24 +181,12 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
       return depthReached;
     }
 
-    public void setDepthReached(final int depthReached) {
-      this.depthReached = depthReached;
-    }
-
     public int getMaxDepth() {
       return maxDepth;
     }
 
-    public void setMaxDepth(final int maxDepth) {
-      this.maxDepth = maxDepth;
-    }
-
     public boolean didTerminate() {
       return didTerminate;
-    }
-
-    public void setDidTerminate(final boolean didTerminate) {
-      this.didTerminate = didTerminate;
     }
 
     public long getScore() {
@@ -212,12 +199,10 @@ public class AlphaBetaPruningChooser extends AbstractCellChooser {
 
     @Override
     public String toString() {
-      return new StringBuilder()
-        .append("depthReached=").append(depthReached)
-        .append(", maxDepth=").append(maxDepth)
-        .append(", didTerminate=").append(didTerminate)
-        .append(", score=").append(score)
-        .toString();
+      return "depthReached=" + depthReached +
+          ", maxDepth=" + maxDepth +
+          ", didTerminate=" + didTerminate +
+          ", score=" + score;
     }
   }
 }
