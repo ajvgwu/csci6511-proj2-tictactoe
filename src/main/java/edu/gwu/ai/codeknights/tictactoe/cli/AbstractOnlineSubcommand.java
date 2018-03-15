@@ -1,6 +1,6 @@
 package edu.gwu.ai.codeknights.tictactoe.cli;
 
-import edu.gwu.ai.codeknights.tictactoe.gui.util.API;
+import edu.gwu.ai.codeknights.tictactoe.util.API;
 import picocli.CommandLine.Option;
 
 public abstract class AbstractOnlineSubcommand extends AbstractSubcommand {

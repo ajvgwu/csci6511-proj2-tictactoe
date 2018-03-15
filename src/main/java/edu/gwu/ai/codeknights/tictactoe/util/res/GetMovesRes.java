@@ -1,4 +1,4 @@
-package edu.gwu.ai.codeknights.tictactoe.gui.util.res;
+package edu.gwu.ai.codeknights.tictactoe.util.res;
 
 import java.util.List;
 

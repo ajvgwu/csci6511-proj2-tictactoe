@@ -8,7 +8,7 @@ import org.pmw.tinylog.Logger;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static edu.gwu.ai.codeknights.tictactoe.gui.util.res.GetMovesRes.Move;
+import static edu.gwu.ai.codeknights.tictactoe.util.res.GetMovesRes.Move;
 
 public class OnlineMoveFetcher extends AbstractOnlineChooser {
 

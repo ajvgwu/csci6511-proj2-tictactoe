@@ -1,7 +1,7 @@
-package edu.gwu.ai.codeknights.tictactoe.gui.util;
+package edu.gwu.ai.codeknights.tictactoe.util;
 
-import edu.gwu.ai.codeknights.tictactoe.gui.util.res.GetBoardRes;
-import edu.gwu.ai.codeknights.tictactoe.gui.util.res.GetMovesRes;
+import edu.gwu.ai.codeknights.tictactoe.util.res.GetBoardRes;
+import edu.gwu.ai.codeknights.tictactoe.util.res.GetMovesRes;
 import retrofit2.Call;
 import retrofit2.http.*;
 

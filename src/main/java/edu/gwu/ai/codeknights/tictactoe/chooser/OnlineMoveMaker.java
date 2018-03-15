@@ -3,7 +3,7 @@ package edu.gwu.ai.codeknights.tictactoe.chooser;
 import edu.gwu.ai.codeknights.tictactoe.core.Cell;
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.core.Player;
-import edu.gwu.ai.codeknights.tictactoe.gui.util.API;
+import edu.gwu.ai.codeknights.tictactoe.util.API;
 import edu.gwu.ai.codeknights.tictactoe.util.Const;
 import org.pmw.tinylog.Logger;
 import retrofit2.Call;

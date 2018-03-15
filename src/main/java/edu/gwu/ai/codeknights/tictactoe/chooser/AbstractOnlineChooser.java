@@ -2,9 +2,9 @@ package edu.gwu.ai.codeknights.tictactoe.chooser;
 
 import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.core.Player;
-import edu.gwu.ai.codeknights.tictactoe.gui.util.API;
-import edu.gwu.ai.codeknights.tictactoe.gui.util.res.GetMovesRes;
-import edu.gwu.ai.codeknights.tictactoe.gui.util.res.GetMovesRes.Move;
+import edu.gwu.ai.codeknights.tictactoe.util.API;
+import edu.gwu.ai.codeknights.tictactoe.util.res.GetMovesRes;
+import edu.gwu.ai.codeknights.tictactoe.util.res.GetMovesRes.Move;
 import org.pmw.tinylog.Logger;
 import retrofit2.Call;
 import retrofit2.Response;

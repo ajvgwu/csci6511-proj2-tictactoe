@@ -5,7 +5,7 @@ import edu.gwu.ai.codeknights.tictactoe.core.Game;
 import edu.gwu.ai.codeknights.tictactoe.core.Player;
 import edu.gwu.ai.codeknights.tictactoe.filter.EmptyCellFilter;
 import edu.gwu.ai.codeknights.tictactoe.gui.controller.GameMode;
-import edu.gwu.ai.codeknights.tictactoe.gui.util.API;
+import edu.gwu.ai.codeknights.tictactoe.util.API;
 import edu.gwu.ai.codeknights.tictactoe.util.Const;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;

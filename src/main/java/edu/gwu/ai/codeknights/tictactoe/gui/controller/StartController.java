@@ -1,7 +1,7 @@
 package edu.gwu.ai.codeknights.tictactoe.gui.controller;
 
 import edu.gwu.ai.codeknights.tictactoe.gui.TicTacToe;
-import edu.gwu.ai.codeknights.tictactoe.gui.util.API;
+import edu.gwu.ai.codeknights.tictactoe.util.API;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.FXMLLoadResult;
 import edu.gwu.ai.codeknights.tictactoe.gui.util.FXMLUtil;
 import edu.gwu.ai.codeknights.tictactoe.util.Const;

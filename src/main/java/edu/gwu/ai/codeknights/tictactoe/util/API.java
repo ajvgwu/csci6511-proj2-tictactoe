@@ -1,8 +1,7 @@
-package edu.gwu.ai.codeknights.tictactoe.gui.util;
+package edu.gwu.ai.codeknights.tictactoe.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import edu.gwu.ai.codeknights.tictactoe.util.LoggingInterceptor;
 import okhttp3.Headers;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
