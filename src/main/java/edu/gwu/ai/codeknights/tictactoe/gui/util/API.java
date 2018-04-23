@@ -58,7 +58,7 @@ public class API {
   private static Retrofit apiAdapter = new Retrofit.Builder()
       .addConverterFactory(GsonConverterFactory.create(gson)).baseUrl
           (BASE_URL).client(new OkHttpClient.Builder()
-          .addInterceptor(headerInterceptor).addNetworkInterceptor(loggingInterceptor).build())
+          .addInterceptor(headerInterceptor).addInterceptor(loggingInterceptor).build())
       .build();
 
   public static ApiService getApiService() {
