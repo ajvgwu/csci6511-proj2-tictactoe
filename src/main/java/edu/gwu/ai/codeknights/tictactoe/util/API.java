@@ -2,10 +2,8 @@ package edu.gwu.ai.codeknights.tictactoe.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import okhttp3.Headers;
-import okhttp3.Interceptor;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
+import okhttp3.*;
+import org.pmw.tinylog.Logger;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -54,12 +52,20 @@ public class API {
     return chain.proceed(request);
   };
 
-  private static Interceptor loggingInterceptor = new LoggingInterceptor();
+  private static Interceptor loggingInterceptor = chain -> {
+    Request request = chain.request();
+    Response response = chain.proceed(request);
+    MediaType contentType = response.body().contentType();
+    String content = response.body().string();
+    Logger.debug("Response -> {}", content);
+    ResponseBody wrappedBody = ResponseBody.create(contentType, content);
+    return response.newBuilder().body(wrappedBody).build();
+  };
 
   private static Retrofit apiAdapter = new Retrofit.Builder()
       .addConverterFactory(GsonConverterFactory.create(gson)).baseUrl
           (BASE_URL).client(new OkHttpClient.Builder()
-          .addInterceptor(headerInterceptor).addInterceptor(loggingInterceptor).build())
+          .addInterceptor(headerInterceptor).addNetworkInterceptor(loggingInterceptor).build())
       .build();
 
   public static ApiService getApiService() {
